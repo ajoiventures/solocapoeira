@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#0a0a0f"/>
+  <rect width="512" height="512" rx="80" fill="url(#grad)"/>
+  <defs>
+    <radialGradient id="grad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#4c1d95"/>
+      <stop offset="100%" stop-color="#0a0a0f"/>
+    </radialGradient>
+  </defs>
+  <!-- S glyph -->
+  <text x="256" y="200" font-family="system-ui,sans-serif" font-size="160" font-weight="900"
+        fill="#a78bfa" text-anchor="middle" dominant-baseline="middle">SL</text>
+  <!-- rank line -->
+  <text x="256" y="330" font-family="system-ui,sans-serif" font-size="52" font-weight="700"
+        fill="#7c3aed" text-anchor="middle" letter-spacing="8">CAPOEIRA</text>
+  <!-- bottom accent bar -->
+  <rect x="156" y="390" width="200" height="4" rx="2" fill="#7c3aed" opacity="0.7"/>
+</svg>
