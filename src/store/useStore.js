@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { track } from "../lib/analytics.js";
 import { pushState, pullState, onAuthChange } from "../lib/cloudSync.js";
 import { identifyUser, resetAnalyticsUser } from "../lib/analytics.js";
+import { setSentryUser } from "../lib/sentry.js";
 import { MOVEMENTS } from "../data/movements.js";
 import { QUEST_PILLAR_MAP, TREE_PILLAR_MAP, BOSS_PILLAR_GAINS, applyGains, DEFAULT_PILLARS } from "../data/apf.js";
 import { WEEKLY_NUTRITION_HABITS } from "../data/nutritionPlan.js";
@@ -269,6 +270,7 @@ export function useStore() {
     const unsub = onAuthChange(async (user) => {
       if (user) {
         identifyUser(user.id, { email: user.email });
+        setSentryUser(user.id);
         const cloud = await pullState();
         if (cloud) {
           // Cloud has data — merge it in (cloud wins)
@@ -279,6 +281,7 @@ export function useStore() {
         }
       } else {
         resetAnalyticsUser();
+        setSentryUser(null);
       }
     });
     return unsub;

@@ -62,7 +62,7 @@ function MovementPicker({ onSelect, exclude = [] }) {
   );
 }
 
-export default function ComboBuilder({ store, navigate, onBack }) {
+export default function ComboBuilder({ store, onBack }) {
   const combos = store.state.combos || [];
   const [view, setView] = useState("list"); // "list" | "build" | "detail"
   const [selected, setSelected] = useState(null);

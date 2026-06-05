@@ -51,7 +51,7 @@ const DEFAULT_MUSCLES = {
 };
 
 export function getMuscles(movementId) {
-  return MUSCLE_MAP[movementId] || null;
+  return MUSCLE_MAP[movementId] || DEFAULT_MUSCLES;
 }
 
 // Visual grouping for the anatomy card

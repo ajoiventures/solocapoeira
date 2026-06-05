@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect } from "react";
 
 const SEEN_KEY = "sl_seen_tooltips";
@@ -96,10 +97,7 @@ export default function FirstUseTooltip({ id, title, body, position = "bottom", 
 
 // Hook for tooltip state without the UI component
 export function useFirstUse(id) {
-  const [shown, setShown] = useState(false);
-  useEffect(() => {
-    if (!getSeenTooltips().has(id)) setShown(true);
-  }, [id]);
+  const [shown, setShown] = useState(() => !getSeenTooltips().has(id));
   const dismiss = () => { markSeen(id); setShown(false); };
   return [shown, dismiss];
 }

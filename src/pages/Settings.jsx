@@ -254,7 +254,7 @@ export default function Settings({ store, theme, setTheme, navigate }) {
                 </div>
               </div>
                 <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 12 }}>
-                  Sign-in is active. Cloud backup will start after the store sync wiring is connected.
+                  Cloud backup is active for this signed-in session.
                 </div>
               <button
                 onClick={handleSignOut}
@@ -459,8 +459,8 @@ export default function Settings({ store, theme, setTheme, navigate }) {
       <div className="card">
         <div className="card-title" style={{ marginBottom: 8 }}>Privacy & Your Data</div>
         <div style={{ fontSize: 11, color: "var(--text3)", lineHeight: 1.6, marginBottom: 14 }}>
-          All your training data is stored locally on this device. No data is shared with third parties.
-          Export a copy before deleting if you want to keep your history.
+          Your training data is stored locally first. If Cloud Sync is enabled, it is backed up to Supabase.
+          Error reporting and product analytics only run when Sentry and PostHog keys are configured.
         </div>
         <button
           className="btn btn-secondary btn-sm"
@@ -469,13 +469,13 @@ export default function Settings({ store, theme, setTheme, navigate }) {
         >
           📋 Download My Data (JSON)
         </button>
-        <GdprDeleteButton store={store} />
+        <GdprDeleteButton />
       </div>
     </div>
   );
 }
 
-function GdprDeleteButton({ store }) {
+function GdprDeleteButton() {
   const [step, setStep] = useState(0); // 0=idle, 1=confirm, 2=deleted
 
   if (step === 2) return (

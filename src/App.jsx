@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, Component } from "react";
 import { useStore } from "./store/useStore.js";
+import { track } from "./lib/analytics.js";
 
 class ErrorBoundary extends Component {
   constructor(props) { super(props); this.state = { error: null }; }
@@ -547,6 +548,10 @@ export default function App() {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("sl_theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    track.pageView(page);
+  }, [page]);
 
   useEffect(() => {
     const stored = localStorage.getItem("sl_font_size") || "default";
