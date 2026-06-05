@@ -7,7 +7,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    needs: []   # runs independently — remove if you want CI to pass first
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+      VITE_POSTHOG_KEY: ${{ secrets.VITE_POSTHOG_KEY }}
+      VITE_POSTHOG_HOST: https://app.posthog.com
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -31,31 +42,19 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
-          VITE_POSTHOG_KEY: ${{ secrets.VITE_POSTHOG_KEY }}
-          VITE_POSTHOG_HOST: https://app.posthog.com
 
-      # ── Option A: Vercel ─────────────────────────────────────────
-      # 1. npm i -g vercel
-      # 2. vercel link  (run locally once)
-      # 3. Add VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID to GitHub Secrets
+      - name: Pull Vercel project settings
+        if: ${{ env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != '' }}
+        run: npx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+
+      - name: Build Vercel output
+        if: ${{ env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != '' }}
+        run: npx vercel build --prod --token=$VERCEL_TOKEN
+
       - name: Deploy to Vercel
-        if: ${{ env.VERCEL_TOKEN != '' }}
-        run: npx vercel --prod --token=$VERCEL_TOKEN
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        if: ${{ env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != '' }}
+        run: npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
 
-      # ── Option B: Netlify ────────────────────────────────────────
-      # 1. netlify link  (run locally once)
-      # 2. Add NETLIFY_AUTH_TOKEN, NETLIFY_SITE_ID to GitHub Secrets
       - name: Deploy to Netlify
-        if: ${{ env.NETLIFY_AUTH_TOKEN != '' }}
+        if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != '' }}
         run: npx netlify-cli deploy --prod --dir=dist
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
