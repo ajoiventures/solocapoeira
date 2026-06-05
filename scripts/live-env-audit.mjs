@@ -63,7 +63,28 @@ const missing = Object.entries(checks)
   .filter(([key, value]) => key.endsWith("Present") && !value)
   .map(([key]) => key);
 
-console.log(JSON.stringify({ ...checks, missing }, null, 2));
+const requiredNetlifyEnv = [
+  "VITE_SUPABASE_URL",
+  "VITE_SUPABASE_ANON_KEY",
+  "VITE_SENTRY_DSN",
+  "VITE_POSTHOG_KEY",
+  "VITE_POSTHOG_HOST",
+];
+
+const missingAdvice = {
+  supabaseUrlPresent: "Set VITE_SUPABASE_URL in Netlify Production environment variables.",
+  supabaseAnonPresent: "Set VITE_SUPABASE_ANON_KEY in Netlify Production environment variables.",
+  sentryDsnPresent: "Set VITE_SENTRY_DSN in Netlify Production environment variables.",
+  posthogKeyPresent: "Set VITE_POSTHOG_KEY in Netlify Production environment variables.",
+  posthogHostPresent: "Set VITE_POSTHOG_HOST in Netlify Production environment variables.",
+};
+
+console.log(JSON.stringify({
+  ...checks,
+  requiredNetlifyEnv,
+  missing,
+  advice: missing.map((key) => missingAdvice[key]),
+}, null, 2));
 
 if (missing.length > 0) {
   process.exitCode = 1;

@@ -306,6 +306,15 @@ export default function Settings({ store, theme, setTheme, navigate }) {
           )}
         </div>
       )}
+      {!isSupabaseEnabled && (
+        <div className="card" style={{ borderColor: "rgba(201,82,82,.3)" }}>
+          <div className="card-title" style={{ marginBottom: 8 }}>Cloud Sync Disabled</div>
+          <div style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.5 }}>
+            Supabase is not configured in this build. Add <code>VITE_SUPABASE_URL</code> and{" "}
+            <code>VITE_SUPABASE_ANON_KEY</code> to the production environment, then redeploy.
+          </div>
+        </div>
+      )}
 
       {/* Appearance */}
       <div className="card">
