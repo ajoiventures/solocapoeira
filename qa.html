@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QA / QC — UI + UX Audit</title>
+<style>
+  :root {
+    --bg:#0B111C; --surface:#111A26; --surface2:#151F2E; --surface3:#1A2636;
+    --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.13);
+    --text:#EDE8DE; --text2:#AAB3C2; --text3:#6F7A8A;
+    --accent:#D9A441; --green:#2E8C78; --blue:#4F7CFF; --red:#C95252;
+    --orange:#D4854A; --purple:#7C3AED;
+    --r:10px; --r-sm:6px;
+  }
+  :root[data-theme="light"] {
+    --bg:#f6f5f1; --surface:#fffdf8; --surface2:#f9f8f5; --surface3:#f0ede8;
+    --border:#d7dcd7; --border2:#c5cbbf;
+    --text:#1c2430; --text2:#5a6370; --text3:#8b94a3;
+    --accent:#8f4a2a; --green:#1f5d57; --blue:#265f86; --red:#9f3a32;
+    --orange:#c4893a; --purple:#5b3f8a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.6}
+
+  /* ── Header ── */
+  header{background:var(--surface);border-bottom:1px solid var(--border);
+    padding:0 28px;height:56px;display:flex;align-items:center;gap:14px;
+    position:sticky;top:0;z-index:100}
+  .hmark{width:30px;height:30px;border-radius:7px;
+    background:linear-gradient(135deg,var(--green),var(--blue));
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff}
+  .htitle{font-size:14px;font-weight:700;color:var(--text)}
+  .hsub{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+  .hright{margin-left:auto;display:flex;gap:12px;align-items:center}
+  .theme-btn{background:none;border:1px solid var(--border2);border-radius:6px;
+    padding:3px 9px;color:var(--text3);font-size:11px;cursor:pointer}
+  .theme-btn:hover{color:var(--text)}
+
+  /* ── Score bar ── */
+  .score-bar{background:var(--surface);border-bottom:1px solid var(--border);
+    padding:12px 28px;display:flex;align-items:center;gap:20px;position:sticky;top:56px;z-index:99}
+  .score-total{font-size:22px;font-weight:900;color:var(--green);line-height:1;min-width:60px}
+  .score-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+  .score-track{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+  .score-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .3s}
+  .grade-pill{font-size:13px;font-weight:800;padding:4px 14px;border-radius:20px;min-width:44px;text-align:center}
+  .reset-btn{font-size:10px;font-weight:600;color:var(--text3);background:none;border:1px solid var(--border);
+    border-radius:6px;padding:4px 10px;cursor:pointer}
+  .reset-btn:hover{color:var(--text)}
+
+  /* ── Category tabs ── */
+  .tabs{display:flex;gap:6px;padding:14px 28px;border-bottom:1px solid var(--border);
+    overflow-x:auto;background:var(--bg)}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{font-size:10px;font-weight:700;padding:5px 14px;border-radius:20px;cursor:pointer;
+    border:1px solid var(--border);background:var(--surface2);color:var(--text3);
+    white-space:nowrap;transition:all .15s;display:flex;gap:6px;align-items:center}
+  .tab:hover{border-color:var(--border2);color:var(--text)}
+  .tab.active{background:var(--blue);border-color:var(--blue);color:#fff}
+  .tab-count{font-size:9px;font-weight:800;padding:0 5px;border-radius:10px;
+    background:rgba(255,255,255,.15)}
+
+  /* ── Main layout ── */
+  .main{max-width:1000px;margin:0 auto;padding:28px 28px 100px}
+
+  /* ── Category ── */
+  .category{display:none;flex-direction:column;gap:10px}
+  .category.visible{display:flex}
+
+  /* ── Section ── */
+  .cat-hd{margin-bottom:4px}
+  .cat-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px}
+  .cat-sub{font-size:12px;color:var(--text3);margin-bottom:20px}
+
+  /* ── Check item ── */
+  .check-group{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:6px}
+  .group-hd{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+  .group-name{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3)}
+  .group-score{font-size:9px;font-weight:700;margin-left:auto;color:var(--text3)}
+
+  .check-item{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;
+    border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;
+    position:relative}
+  .check-item:last-child{border-bottom:none}
+  .check-item:hover{background:rgba(255,255,255,.02)}
+  .check-item.checked{background:rgba(46,140,120,.04)}
+
+  .check-box{width:18px;height:18px;border-radius:5px;border:2px solid var(--border2);
+    flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;
+    transition:all .15s;background:var(--surface2)}
+  .check-item.checked .check-box{background:var(--green);border-color:var(--green)}
+  .check-tick{color:#fff;font-size:11px;display:none}
+  .check-item.checked .check-tick{display:block}
+
+  .check-body{flex:1;min-width:0}
+  .check-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;line-height:1.4}
+  .check-item.checked .check-title{color:var(--text3);text-decoration:line-through}
+  .check-desc{font-size:11px;color:var(--text3);line-height:1.5}
+
+  .sev{font-size:8px;font-weight:800;padding:1px 6px;border-radius:3px;
+    text-transform:uppercase;letter-spacing:.5px;flex-shrink:0;margin-top:2px}
+  .sev-p0{background:rgba(201,82,82,.2);color:var(--red)}
+  .sev-p1{background:rgba(212,133,74,.2);color:var(--orange)}
+  .sev-p2{background:rgba(79,124,255,.2);color:var(--blue)}
+  .sev-p3{background:rgba(255,255,255,.08);color:var(--text3)}
+
+  /* ── Notes field ── */
+  .check-note{display:none;padding:8px 16px 12px 46px;background:rgba(0,0,0,.15)}
+  .check-item.checked + .check-note,
+  .check-note.open{display:block}
+  .note-input{width:100%;background:var(--surface2);border:1px solid var(--border);
+    border-radius:6px;padding:6px 10px;color:var(--text2);font-size:11px;resize:none;
+    font-family:inherit;outline:none}
+  .note-input:focus{border-color:var(--border2)}
+
+  /* ── Overview cards ── */
+  .overview{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:24px}
+  @media(max-width:800px){.overview{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:480px){.overview{grid-template-columns:repeat(2,1fr)}}
+  .ov-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);
+    padding:10px 12px;cursor:pointer;transition:border-color .15s;text-align:center}
+  .ov-card:hover{border-color:var(--border2)}
+  .ov-card.failing{border-color:rgba(201,82,82,.4);background:rgba(201,82,82,.05)}
+  .ov-card.passing{border-color:rgba(46,140,120,.3)}
+  .ov-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--text3);margin-bottom:4px}
+  .ov-pct{font-size:18px;font-weight:800;line-height:1}
+  .ov-bar{height:3px;border-radius:2px;background:var(--surface3);overflow:hidden;margin-top:6px}
+  .ov-fill{height:100%;border-radius:2px;transition:width .3s}
+
+  a{color:var(--blue)}
+  code{font-family:'Cascadia Code','Consolas',monospace;font-size:11px;
+    background:var(--surface2);padding:1px 5px;border-radius:3px;color:var(--accent)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hmark">QA</div>
+  <div>
+    <div class="htitle">UI / UX Audit</div>
+    <div class="hsub">Quality checklist — run before every ship</div>
+  </div>
+  <div class="hright">
+    <button class="reset-btn" onclick="resetAll()">Reset all</button>
+    <button class="theme-btn" onclick="toggleTheme()">☀ Light</button>
+  </div>
+</header>
+
+<!-- Score bar -->
+<div class="score-bar">
+  <div>
+    <div class="score-total" id="pct-display">0%</div>
+    <div class="score-label">Checks passed</div>
+  </div>
+  <div class="score-track"><div class="score-fill" id="score-fill" style="width:0%"></div></div>
+  <div class="grade-pill" id="grade-pill" style="background:rgba(201,82,82,.2);color:var(--red)">F</div>
+  <div style="font-size:10px;color:var(--text3)" id="check-count">0 / 0 checks</div>
+</div>
+
+<!-- Category tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="showCat('all',this)">All <span class="tab-count" id="tc-all">0</span></div>
+  <div class="tab" onclick="showCat('visual',this)">Visual <span class="tab-count" id="tc-visual">0</span></div>
+  <div class="tab" onclick="showCat('interaction',this)">Interaction <span class="tab-count" id="tc-interaction">0</span></div>
+  <div class="tab" onclick="showCat('content',this)">Content <span class="tab-count" id="tc-content">0</span></div>
+  <div class="tab" onclick="showCat('mobile',this)">Mobile <span class="tab-count" id="tc-mobile">0</span></div>
+  <div class="tab" onclick="showCat('accessibility',this)">Accessibility <span class="tab-count" id="tc-accessibility">0</span></div>
+  <div class="tab" onclick="showCat('performance',this)">Performance <span class="tab-count" id="tc-performance">0</span></div>
+  <div class="tab" onclick="showCat('errors',this)">Error States <span class="tab-count" id="tc-errors">0</span></div>
+</div>
+
+<div class="main">
+  <!-- Overview -->
+  <div class="overview" id="overview-grid"></div>
+
+  <!-- ── VISUAL ── -->
+  <div class="category visible" id="cat-all">
+
+    <!-- VISUAL -->
+    <div class="check-group" data-cat="visual">
+      <div class="group-hd">
+        <div class="group-name">Visual Consistency</div>
+        <div class="group-score" id="gs-visual-consistency">0/0</div>
+      </div>
+      <div class="check-item" data-id="v1" data-cat="visual" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Spacing follows an 8px grid</div>
+          <div class="check-desc">All padding and margin values are multiples of 4px or 8px. No arbitrary values like 11px or 17px.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="v2" data-cat="visual" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Type hierarchy is clear (max 3 sizes per screen)</div>
+          <div class="check-desc">Heading, body, caption. More than 3 type sizes on one screen = visual noise. Check font-size values across each page.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="v3" data-cat="visual" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Color usage is intentional — every color has a meaning</div>
+          <div class="check-desc">Red = danger/error. Green = success/progress. Gold = achievement/XP. Blue = info/navigation. Orange = warning/secondary. No decorative color that contradicts these.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="v4" data-cat="visual" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Light mode and dark mode both look intentional</div>
+          <div class="check-desc">Toggle both themes on every major screen. Shadows may need inverting. Border colors need adjusting. Images need dark/light variants if they use transparency.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="v5" data-cat="visual" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Border radius is consistent across component types</div>
+          <div class="check-desc">Cards all use the same radius. Buttons all use the same radius. Chips all use the same radius. Mixing 6px / 8px / 10px randomly feels broken.</div>
+        </div>
+        <span class="sev sev-p2">P2</span>
+      </div>
+      <div class="check-item" data-id="v6" data-cat="visual" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Icon sizes are consistent within context</div>
+          <div class="check-desc">Navigation icons all the same size. In-line icons match the line-height. Action icons (buttons) all the same size. No random 14px / 18px / 22px mix.</div>
+        </div>
+        <span class="sev sev-p2">P2</span>
+      </div>
+      <div class="check-item" data-id="v7" data-cat="visual" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Loading states exist for every async operation</div>
+          <div class="check-desc">Skeleton screens, spinners, or disabled states on every button/card that triggers async work. Never leave the user staring at a frozen screen.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+    </div>
+
+    <!-- INTERACTION -->
+    <div class="check-group" data-cat="interaction">
+      <div class="group-hd">
+        <div class="group-name">Interaction Quality</div>
+        <div class="group-score" id="gs-interaction-quality">0/0</div>
+      </div>
+      <div class="check-item" data-id="i1" data-cat="interaction" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Every interactive element has a hover state</div>
+          <div class="check-desc">Buttons, links, cards with onclick, list items. If it does something, it must look different on hover. Users scan for affordance.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="i2" data-cat="interaction" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Every button shows feedback within 100ms of tap</div>
+          <div class="check-desc">Visual press state (scale, darken, or ripple). No "dead" tap — user must know the system received their input immediately. 100ms is the threshold for feeling instant.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="i3" data-cat="interaction" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Destructive actions require confirmation</div>
+          <div class="check-desc">Delete, reset, log out. Two-step: tap → confirm → execute. No single-tap irreversible actions. The confirmation must name what will be lost.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="i4" data-cat="interaction" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Animations serve purpose — not decoration</div>
+          <div class="check-desc">Page transitions orient the user (forward/back). Progress animations show real state. Celebration animations are earned. Nothing animates just because it can.</div>
+        </div>
+        <span class="sev sev-p2">P2</span>
+      </div>
+      <div class="check-item" data-id="i5" data-cat="interaction" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">All animations respect prefers-reduced-motion</div>
+          <div class="check-desc"><code>@media (prefers-reduced-motion: reduce)</code> disables or reduces all CSS animations and transitions. Check in DevTools → Rendering → Emulate prefers-reduced-motion.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="i6" data-cat="interaction" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Toast / notification dismissal works correctly</div>
+          <div class="check-desc">Auto-dismiss after set time. Manual dismiss always available (× button). New toast doesn't stack infinitely. Queue clears properly when navigating away.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="i7" data-cat="interaction" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Navigation back always works and goes to the right place</div>
+          <div class="check-desc">Back button/gesture returns to the logical previous screen. Tap-to-detail → back → same scroll position in list. No "back" that dumps user at root.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="i8" data-cat="interaction" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Swipe gestures (if any) have visible affordance</div>
+          <div class="check-desc">Users don't discover swipe gestures unless hinted. Show a peek of the next item, a drag handle, or an onboarding hint on first use.</div>
+        </div>
+        <span class="sev sev-p2">P2</span>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="check-group" data-cat="content">
+      <div class="group-hd">
+        <div class="group-name">Content & Copy</div>
+        <div class="group-score" id="gs-content-copy">0/0</div>
+      </div>
+      <div class="check-item" data-id="c1" data-cat="content" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">No placeholder text in production ("Lorem ipsum", "TODO", "TBD")</div>
+          <div class="check-desc">Search the codebase: <code>grep -r "lorem\|TODO\|TBD\|placeholder" src/</code>. Every screen must have real content or a designed empty state.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="c2" data-cat="content" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Every empty state has a clear call to action</div>
+          <div class="check-desc">"No movements trained yet" → "Start your first session →". Empty states must answer: why is this empty? What should I do next? Never just "No data found."</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="c3" data-cat="content" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Numbers are formatted correctly for their context</div>
+          <div class="check-desc">Large numbers use <code>.toLocaleString()</code> (10,000 not 10000). Percentages rounded to 0–1 decimal. Dates in user-friendly format, not ISO. Currency shows symbol.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="c4" data-cat="content" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Long text truncates gracefully — no overflow</div>
+          <div class="check-desc">Test with a 100-character movement name, a very long username, a 500-word note. Text must truncate with ellipsis or wrap within its container. Never bleeds outside bounds.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="c5" data-cat="content" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Tone of copy is consistent with brand voice</div>
+          <div class="check-desc">Solo Leveling: direct, respectful, RPG-flavored but not corny. Check all button labels, error messages, empty states, celebration text. One inconsistent button label breaks immersion.</div>
+        </div>
+        <span class="sev sev-p2">P2</span>
+      </div>
+      <div class="check-item" data-id="c6" data-cat="content" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Special characters and emoji render correctly</div>
+          <div class="check-desc">Test on Android (different emoji set). Test on older Windows (some emoji unsupported). Special chars: ✓ ✗ → ← • — ° (degrees) must all display correctly.</div>
+        </div>
+        <span class="sev sev-p2">P2</span>
+      </div>
+    </div>
+
+    <!-- MOBILE -->
+    <div class="check-group" data-cat="mobile">
+      <div class="group-hd">
+        <div class="group-name">Mobile & Responsive</div>
+        <div class="group-score" id="gs-mobile-responsive">0/0</div>
+      </div>
+      <div class="check-item" data-id="m1" data-cat="mobile" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">All tap targets are minimum 44×44px</div>
+          <div class="check-desc">Apple HIG minimum. Use DevTools → Inspect to check computed size. Tiny close buttons, small checkboxes, and icon-only links are common failures. Add padding, not size.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="m2" data-cat="mobile" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Nothing overflows horizontally on 375px width (iPhone SE)</div>
+          <div class="check-desc">The minimum viable mobile viewport. DevTools → Dimensions → 375×667. Horizontal scrollbar = fail. Check all pages. Long strings, wide tables, and inline-flex rows are common culprits.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="m3" data-cat="mobile" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Bottom navigation is above the iOS home indicator</div>
+          <div class="check-desc">iPhone X and later: add <code>padding-bottom: env(safe-area-inset-bottom)</code> to fixed bottom bars. Otherwise elements are hidden behind the home indicator swipe zone.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="m4" data-cat="mobile" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Keyboard doesn't obscure focused inputs</div>
+          <div class="check-desc">On mobile, the virtual keyboard covers ~40% of screen. Test every input field: when keyboard opens, the focused field must scroll into view. Use <code>scrollIntoView()</code> if needed.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="m5" data-cat="mobile" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Correct input types trigger the right keyboard</div>
+          <div class="check-desc"><code>type="number"</code> → numeric keyboard. <code>type="email"</code> → @ keyboard. <code>type="tel"</code> → phone keyboard. <code>inputmode="decimal"</code> for decimals. Wrong keyboard = massive UX friction.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="m6" data-cat="mobile" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">App works in landscape orientation</div>
+          <div class="check-desc">Rotate to landscape. No broken layouts, hidden navigation, or unscrollable content. Modals and fixed elements must adapt. Particularly important for timer and video screens.</div>
+        </div>
+        <span class="sev sev-p2">P2</span>
+      </div>
+      <div class="check-item" data-id="m7" data-cat="mobile" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">PWA install prompt and icon are configured</div>
+          <div class="check-desc">manifest.json: name, short_name, icons (192px + 512px), theme_color, background_color, display: standalone. Test "Add to Home Screen" on both iOS and Android.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+    </div>
+
+    <!-- ACCESSIBILITY -->
+    <div class="check-group" data-cat="accessibility">
+      <div class="group-hd">
+        <div class="group-name">Accessibility</div>
+        <div class="group-score" id="gs-accessibility">0/0</div>
+      </div>
+      <div class="check-item" data-id="a1" data-cat="accessibility" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Text contrast meets WCAG AA (4.5:1 for body text)</div>
+          <div class="check-desc">Use Chrome DevTools → Inspect element → Color swatch shows contrast ratio. All body text must pass 4.5:1. Large text (18px+) must pass 3:1. Most common failure: grey text on white/light background.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="a2" data-cat="accessibility" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">All images have descriptive alt text</div>
+          <div class="check-desc">Decorative images: <code>alt=""</code>. Informative images: describe what the image shows. Icon buttons: <code>aria-label="Close"</code>. Never <code>alt="image"</code> or missing alt.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="a3" data-cat="accessibility" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">All interactive elements are keyboard reachable</div>
+          <div class="check-desc">Tab through the entire page. Every button, link, input must be reachable and operable with keyboard only. Custom interactive elements need <code>tabindex="0"</code> and keydown handlers.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="a4" data-cat="accessibility" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Focus indicator is visible on all interactive elements</div>
+          <div class="check-desc">Never <code>outline: none</code> without a custom focus style. The focus ring must be clearly visible. Test with Tab key — can you tell where focus is at all times?</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="a5" data-cat="accessibility" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Color is never the only way information is conveyed</div>
+          <div class="check-desc">Red error state must also have an icon or text label. Green success must also have a checkmark or "Success" text. ~8% of men have color vision deficiency.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="a6" data-cat="accessibility" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Form inputs have associated labels (not just placeholders)</div>
+          <div class="check-desc">Placeholder disappears when user types. Labels must persist. Use <code>&lt;label for="id"&gt;</code> or <code>aria-label</code>. Screen readers and autofill both depend on proper labels.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="a7" data-cat="accessibility" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">axe DevTools scan returns zero critical violations</div>
+          <div class="check-desc">Install axe DevTools browser extension. Run on every major page. Fix all Critical and Serious violations before shipping. Best automated check available.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+    </div>
+
+    <!-- PERFORMANCE -->
+    <div class="check-group" data-cat="performance">
+      <div class="group-hd">
+        <div class="group-name">Performance</div>
+        <div class="group-score" id="gs-performance">0/0</div>
+      </div>
+      <div class="check-item" data-id="p1" data-cat="performance" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">LCP (Largest Contentful Paint) under 2.5s on mobile</div>
+          <div class="check-desc">Run Lighthouse in Chrome DevTools → Mobile preset. LCP &lt;2.5s = Good. 2.5–4s = Needs improvement. &gt;4s = Poor. Main causes: large images, render-blocking JS, slow server.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="p2" data-cat="performance" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">JS bundle under 200KB gzipped</div>
+          <div class="check-desc">Run <code>npm run build</code> and check dist/ file sizes. Or use <code>npx vite-bundle-visualizer</code>. Over 200KB = audit imports. Common offenders: moment.js, lodash (use tree-shakeable alternatives).</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="p3" data-cat="performance" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Heavy list views use windowing / virtual scroll</div>
+          <div class="check-desc">Any list over 50 items should render only visible items. 249 movement cards rendering fully = 249 DOM nodes, 249 event listeners. Use <code>react-window</code> or custom offsetTop calculation.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="p4" data-cat="performance" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Images are correctly sized and use modern formats</div>
+          <div class="check-desc">WebP or AVIF over PNG/JPEG. Serve at display size (no 2000px image in a 200px slot). Use <code>loading="lazy"</code> on below-fold images. Use <code>width</code> and <code>height</code> attributes to prevent layout shift.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="p5" data-cat="performance" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">No unnecessary re-renders on state changes</div>
+          <div class="check-desc">React DevTools → Profiler → record a rep log action. Only the changed component and its direct children should re-render. Add <code>React.memo</code>, <code>useMemo</code>, <code>useCallback</code> where profiler shows excess renders.</div>
+        </div>
+        <span class="sev sev-p2">P2</span>
+      </div>
+      <div class="check-item" data-id="p6" data-cat="performance" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">App works fully offline (PWA / service worker)</div>
+          <div class="check-desc">DevTools → Network → Offline. Core features must work. Training logging, viewing movements, checking progress — all must work without connection. Only sync operations should fail gracefully.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+    </div>
+
+    <!-- ERROR STATES -->
+    <div class="check-group" data-cat="errors">
+      <div class="group-hd">
+        <div class="group-name">Error States & Edge Cases</div>
+        <div class="group-score" id="gs-error-states">0/0</div>
+      </div>
+      <div class="check-item" data-id="e1" data-cat="errors" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Error messages tell the user what to do — not what went wrong</div>
+          <div class="check-desc">"Error 403" → bad. "You don't have permission to do this. Contact support at help@app.com" → good. Every error message answers: what happened? what can I do now?</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="e2" data-cat="errors" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">App doesn't crash on corrupted localStorage data</div>
+          <div class="check-desc">Open DevTools → Application → Local Storage → manually corrupt a value (set a number field to "hello"). Reload. The app must recover gracefully, not white-screen. Test with JSON.parse try/catch.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="e3" data-cat="errors" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Network failures show a useful message (not a spinner forever)</div>
+          <div class="check-desc">DevTools → Network → Offline → trigger any fetch. After 5s of no response, show "Check your connection and try again" with a Retry button. Never spin forever.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="e4" data-cat="errors" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">localStorage quota exceeded is handled gracefully</div>
+          <div class="check-desc">Browsers limit localStorage to 5–10MB. When full, <code>setItem</code> throws a <code>QuotaExceededError</code>. Wrap all writes in try/catch. Show "Storage full — export your data" message, not a silent crash.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="e5" data-cat="errors" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">404 / unknown route has a designed page</div>
+          <div class="check-desc">Navigate to a nonexistent route. Must show a helpful page: "This page doesn't exist" + a link back to home. Not a blank screen or React error boundary dump.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+      <div class="check-item" data-id="e6" data-cat="errors" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Brand new user (zero data) sees a useful first screen</div>
+          <div class="check-desc">Clear localStorage entirely. Reload. Every page must have a designed Day 0 state. No "undefined" values, no empty arrays crashing .map(), no NaN/0% stats without context.</div>
+        </div>
+        <span class="sev sev-p0">P0</span>
+      </div>
+      <div class="check-item" data-id="e7" data-cat="errors" onclick="toggle(this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-body">
+          <div class="check-title">Power user (max data) sees no performance or layout issues</div>
+          <div class="check-desc">Seed 10,000 rep entries, 200 session logs, all movements at Instinct. Reload. Check: page load time, scroll performance, layout integrity. High data = stress test for every list, chart, and stat.</div>
+        </div>
+        <span class="sev sev-p1">P1</span>
+      </div>
+    </div>
+
+  </div><!-- /cat-all -->
+</div><!-- /main -->
+
+<script>
+  // ── Data ──────────────────────────────────────────────────────────
+  const STORAGE_KEY = 'qa-checklist-v1';
+  let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+  const CATEGORIES = {
+    visual:       'Visual Consistency',
+    interaction:  'Interaction Quality',
+    content:      'Content & Copy',
+    mobile:       'Mobile & Responsive',
+    accessibility:'Accessibility',
+    performance:  'Performance',
+    errors:       'Error States',
+  };
+
+  const CAT_COLORS = {
+    visual:        '#4F7CFF',
+    interaction:   '#D4854A',
+    content:       '#D9A441',
+    mobile:        '#2E8C78',
+    accessibility: '#7C3AED',
+    performance:   '#C95252',
+    errors:        '#D9A441',
+  };
+
+  // ── Toggle check ──────────────────────────────────────────────────
+  function toggle(el) {
+    const id = el.dataset.id;
+    el.classList.toggle('checked');
+    state[id] = el.classList.contains('checked');
+    save();
+    updateScores();
+  }
+
+  // ── Save / restore ────────────────────────────────────────────────
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function restore() {
+    document.querySelectorAll('.check-item').forEach(el => {
+      if (state[el.dataset.id]) el.classList.add('checked');
+    });
+    updateScores();
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all checks? Your progress will be lost.')) return;
+    state = {};
+    save();
+    document.querySelectorAll('.check-item.checked').forEach(el => el.classList.remove('checked'));
+    updateScores();
+  }
+
+  // ── Score calculation ─────────────────────────────────────────────
+  function updateScores() {
+    const all = document.querySelectorAll('.check-item');
+    const done = document.querySelectorAll('.check-item.checked');
+    const total = all.length;
+    const passed = done.length;
+    const pct = total ? Math.round((passed / total) * 100) : 0;
+
+    document.getElementById('pct-display').textContent = pct + '%';
+    document.getElementById('score-fill').style.width = pct + '%';
+    document.getElementById('check-count').textContent = `${passed} / ${total} checks`;
+
+    // Grade
+    const pill = document.getElementById('grade-pill');
+    let grade, bg, color;
+    if (pct >= 95)      { grade='A+'; bg='rgba(46,140,120,.2)';  color='#2E8C78'; }
+    else if (pct >= 85) { grade='A';  bg='rgba(46,140,120,.2)';  color='#2E8C78'; }
+    else if (pct >= 75) { grade='B+'; bg='rgba(79,124,255,.2)';  color='#4F7CFF'; }
+    else if (pct >= 65) { grade='B';  bg='rgba(79,124,255,.2)';  color='#4F7CFF'; }
+    else if (pct >= 50) { grade='C';  bg='rgba(212,133,74,.2)';  color='#D4854A'; }
+    else if (pct >= 35) { grade='D';  bg='rgba(201,82,82,.2)';   color='#C95252'; }
+    else                { grade='F';  bg='rgba(201,82,82,.2)';   color='#C95252'; }
+    pill.textContent = grade;
+    pill.style.background = bg;
+    pill.style.color = color;
+
+    // Per-category tab counts and overview cards
+    updateCatScores();
+  }
+
+  function updateCatScores() {
+    const cats = Object.keys(CATEGORIES);
+    let overviewHtml = '';
+
+    cats.forEach(cat => {
+      const items = document.querySelectorAll(`.check-item[data-cat="${cat}"]`);
+      const passed = document.querySelectorAll(`.check-item[data-cat="${cat}"].checked`);
+      const pct = items.length ? Math.round((passed.length / items.length) * 100) : 0;
+      const color = CAT_COLORS[cat];
+
+      // tab count (remaining)
+      const rem = items.length - passed.length;
+      const tc = document.getElementById('tc-' + cat);
+      if (tc) { tc.textContent = rem; tc.style.background = rem === 0 ? 'rgba(46,140,120,.3)' : 'rgba(255,255,255,.15)'; }
+
+      // Overview cards
+      const passing = pct === 100;
+      const failing = pct < 50;
+      overviewHtml += `
+        <div class="ov-card ${failing ? 'failing' : passing ? 'passing' : ''}" onclick="showCatByName('${cat}')">
+          <div class="ov-name">${CATEGORIES[cat].split(' ')[0]}</div>
+          <div class="ov-pct" style="color:${color}">${pct}%</div>
+          <div class="ov-bar"><div class="ov-fill" style="width:${pct}%;background:${color}"></div></div>
+        </div>`;
+    });
+
+    document.getElementById('overview-grid').innerHTML = overviewHtml;
+
+    // All tab count
+    const totalRem = document.querySelectorAll('.check-item:not(.checked)').length;
+    const tcAll = document.getElementById('tc-all');
+    if (tcAll) tcAll.textContent = totalRem;
+
+    // Group scores
+    document.querySelectorAll('.check-group').forEach(g => {
+      const cat = g.dataset.cat;
+      const items = g.querySelectorAll('.check-item');
+      const passed = g.querySelectorAll('.check-item.checked');
+      const gsId = 'gs-' + g.querySelector('.group-name').textContent.toLowerCase().replace(/[^a-z]+/g, '-').replace(/-$/, '');
+      const el = document.getElementById(gsId);
+      if (el) el.textContent = `${passed.length}/${items.length}`;
+    });
+  }
+
+  // ── Category filter ───────────────────────────────────────────────
+  function showCat(cat, tabEl) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    if (tabEl) tabEl.classList.add('active');
+
+    const groups = document.querySelectorAll('.check-group');
+    if (cat === 'all') {
+      groups.forEach(g => g.style.display = '');
+    } else {
+      groups.forEach(g => g.style.display = g.dataset.cat === cat ? '' : 'none');
+    }
+  }
+
+  function showCatByName(cat) {
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(t => {
+      if (t.textContent.trim().toLowerCase().startsWith(CATEGORIES[cat].split(' ')[0].toLowerCase())) {
+        showCat(cat, t);
+      }
+    });
+  }
+
+  // ── Theme ─────────────────────────────────────────────────────────
+  function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('sl-qa-theme', next);
+    document.querySelector('.theme-btn').textContent = next === 'dark' ? '☀ Light' : '◐ Dark';
+  }
+
+  function initTheme() {
+    const stored = localStorage.getItem('sl-qa-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', stored);
+    document.querySelector('.theme-btn').textContent = stored === 'dark' ? '☀ Light' : '◐ Dark';
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────
+  initTheme();
+  restore();
+</script>
+</body>
+</html>

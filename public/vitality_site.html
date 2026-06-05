@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orlando Main Street — Economic Vitality Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  /* Ehimare cosmetic tokens */
+  --bg:      #f6f5f1;
+  --surface: #fffdf8;
+  --card:    #fffdf8;
+  --border:  #d7dcd7;
+  --text:    #1c2430;
+  --muted:   #6a7482;
+  --accent:  #8f4a2a;
+  --accent2: #1f5d57;
+  --green:   #22c55e;
+  --red:     #ef4444;
+  --yellow:  #c9960a;
+
+  --eh-nav:     #111a27;
+  --eh-nav-2:   #172231;
+  --eh-gold:    #d5ae5b;
+  --eh-blue:    #265f86;
+  --eh-teal:    #1f5d57;
+  --eh-shadow:  0 12px 32px rgba(17,26,39,0.08);
+  --eh-shadow-md: 0 18px 48px rgba(17,26,39,0.12);
+  --eh-focus:   0 0 0 3px color-mix(in srgb, #d5ae5b 58%, transparent);
+
+  --eh-font-sans:    Aptos, "Segoe UI Variable Text", "Segoe UI", Arial, sans-serif;
+  --eh-font-serif:   "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --eh-font-display: "Baskerville Old Face", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --eh-font-mono:    SFMono-Regular, Consolas, "Liberation Mono", monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--eh-font-sans);min-height:100vh}
+
+/* ── header ── */
+.site-header{background:linear-gradient(135deg,var(--eh-nav) 0%,var(--eh-nav-2) 100%);border-bottom:1px solid #1f2937;padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.site-title{font-size:1.1rem;font-weight:700;color:var(--eh-gold);font-family:var(--eh-font-display);letter-spacing:.04em}
+.site-sub{font-size:.72rem;color:#94a3b8;margin-top:.1rem}
+.badge{background:#1e2d1a;color:var(--eh-gold);font-size:.65rem;padding:.2rem .55rem;border-radius:99px;border:1px solid #3a4a28;margin-left:.75rem}
+
+/* ── nav ── */
+nav{display:flex;gap:0;background:var(--eh-nav-2);border-bottom:1px solid #1f2937;padding:0 2rem;overflow-x:auto}
+.nav-btn{padding:.75rem 1.25rem;font-size:.8rem;font-weight:600;color:#94a3b8;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s;letter-spacing:.04em;text-transform:uppercase;font-family:var(--eh-font-sans)}
+.nav-btn:hover{color:#e2e8f0}
+.nav-btn.active{color:var(--eh-gold);border-bottom-color:var(--eh-gold)}
+
+/* ── sections ── */
+.section{display:none;padding:1.75rem 2rem;max-width:1600px;margin:0 auto}
+.section.active{display:block}
+
+/* ── kpi cards ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.25rem;box-shadow:var(--eh-shadow)}
+.kpi-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.3rem;font-family:var(--eh-font-sans)}
+.kpi-value{font-size:1.6rem;font-weight:700;color:var(--accent);line-height:1;font-family:var(--eh-font-mono)}
+.kpi-sub{font-size:.7rem;color:var(--muted);margin-top:.3rem}
+
+/* ── section headers ── */
+.section-title{font-size:1rem;font-weight:700;color:var(--text);font-family:var(--eh-font-serif);margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── vitality leaderboard ── */
+.leaderboard{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:2rem;box-shadow:var(--eh-shadow)}
+.lb-row{display:grid;grid-template-columns:2.5rem 1fr 180px 120px 80px 80px 80px 80px;align-items:center;padding:.65rem 1rem;border-bottom:1px solid var(--border);gap:.75rem;font-size:.8rem}
+.lb-row:last-child{border-bottom:none}
+.lb-row:hover{background:color-mix(in srgb,var(--bg) 60%,var(--border))}
+.lb-head{background:color-mix(in srgb,var(--surface) 88%,var(--eh-gold));font-size:.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700;padding:.5rem 1rem}
+.lb-rank{color:var(--muted);font-size:.75rem;text-align:center}
+.lb-name{font-weight:600}
+.lb-bar-wrap{height:8px;background:var(--border);border-radius:4px;overflow:hidden;position:relative}
+.lb-bar{height:100%;border-radius:4px}
+.lb-score{font-weight:700;font-size:.95rem}
+.tier-chip{padding:.18rem .5rem;border-radius:99px;font-size:.67rem;font-weight:700;white-space:nowrap;display:inline-block}
+.momentum{font-weight:700;font-size:.82rem}
+.sub-val{color:var(--muted);font-size:.78rem}
+
+/* ── two-column layout ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+@media(max-width:900px){.two-col,.three-col{grid-template-columns:1fr}}
+
+/* ── chart cards ── */
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.25rem;box-shadow:var(--eh-shadow)}
+.chart-card h3{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:1rem;font-family:var(--eh-font-sans)}
+.chart-wrap{position:relative}
+
+/* ── district selector ── */
+.district-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.district-bar label{font-size:.78rem;color:var(--muted);font-weight:600}
+select{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.45rem .75rem;font-size:.82rem;cursor:pointer;outline:none;font-family:var(--eh-font-sans)}
+select:focus{border-color:var(--accent);box-shadow:var(--eh-focus)}
+
+/* ── score banner ── */
+.score-banner{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
+.score-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;box-shadow:var(--eh-shadow)}
+.score-card .label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.25rem;font-family:var(--eh-font-sans)}
+.score-card .value{font-size:1.4rem;font-weight:700;line-height:1;font-family:var(--eh-font-mono)}
+.score-card .sub{font-size:.7rem;color:var(--muted);margin-top:.25rem}
+
+/* ── project tables ── */
+.proj-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.proj-table th{background:color-mix(in srgb,var(--surface) 88%,var(--eh-gold));color:var(--text);text-transform:uppercase;font-size:.65rem;letter-spacing:.07em;padding:.5rem .75rem;text-align:left;border-bottom:1px solid var(--border);font-family:var(--eh-font-sans)}
+.proj-table td{padding:.5rem .75rem;border-bottom:1px solid var(--border);vertical-align:top}
+.proj-table tr:hover td{background:color-mix(in srgb,var(--bg) 50%,var(--border))}
+.proj-table tr:last-child td{border-bottom:none}
+.cost-val{color:var(--green);font-weight:700}
+.status-chip{font-size:.65rem;padding:.15rem .4rem;border-radius:4px;font-weight:600}
+
+/* ── investment heatmap ── */
+.heat-wrap{overflow-x:auto}
+.heat-table{border-collapse:collapse;font-size:.75rem;width:100%}
+.heat-table th{background:color-mix(in srgb,var(--surface) 88%,var(--eh-gold));color:var(--text);padding:.4rem .6rem;text-align:right;font-size:.65rem;letter-spacing:.06em;border:1px solid var(--border);font-family:var(--eh-font-sans)}
+.heat-table th:first-child{text-align:left}
+.heat-table td{padding:.45rem .6rem;text-align:right;border:1px solid var(--border);white-space:nowrap}
+.heat-table td:first-child{text-align:left;font-weight:600;color:var(--text);background:color-mix(in srgb,var(--surface) 92%,var(--eh-gold))}
+
+/* ── toggle strip ── */
+.toggle-strip{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem}
+.tog{padding:.25rem .6rem;border-radius:4px;font-size:.7rem;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all .2s;font-family:var(--eh-font-sans)}
+.tog.on{color:#fff;border-color:transparent}
+
+/* ── info callout ── */
+.callout{background:color-mix(in srgb,var(--surface) 90%,var(--eh-teal));border:1px solid color-mix(in srgb,var(--eh-teal) 42%,var(--border));border-radius:8px;padding:.85rem 1rem;font-size:.75rem;color:var(--eh-teal);margin-bottom:1.5rem;line-height:1.6}
+
+/* ── footer ── */
+footer{text-align:center;padding:1.5rem;color:var(--muted);font-size:.72rem;border-top:1px solid var(--border);margin-top:3rem;font-family:var(--eh-font-sans)}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <div class="site-title">Orlando Main Street — Economic Vitality Intelligence</div>
+    <div class="site-sub">City Permit Data · 130,832 Records · All 13 Main Street Districts</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:.5rem">
+    <span class="badge" id="gen-date"></span>
+    <span class="badge">BTR College Park Vault</span>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-btn active" data-tab="overview">Overview</button>
+  <button class="nav-btn" data-tab="districts">District Deep-Dive</button>
+  <button class="nav-btn" data-tab="trends">Permit Trends</button>
+  <button class="nav-btn" data-tab="investment">Investment</button>
+  <button class="nav-btn" data-tab="activity">Activity Matrix</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!--  OVERVIEW                                                               -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="section active" id="tab-overview">
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <div class="section-title">Corridor Vitality Leaderboard</div>
+  <div class="callout">
+    Scores measure each district against its <strong>own 2015–2019 pre-COVID baseline</strong>, not raw volume.
+    A score above 7.5 means the district is accelerating past its historical norm.
+    City District's large historical permit volume does not inflate its score here — activity has declined 49% from its 2019 peak.
+  </div>
+  <div class="leaderboard">
+    <div class="lb-row lb-head">
+      <div></div><div>District</div><div>Vitality Score</div><div>Tier</div>
+      <div>Momentum</div><div>Investment</div><div>ABL Retention</div><div>Risk Rate</div>
+    </div>
+    <div id="leaderboard-rows"></div>
+  </div>
+
+  <div class="two-col">
+    <div class="chart-card">
+      <h3>Vitality Score by District</h3>
+      <div class="chart-wrap"><canvas id="chart-leaderboard" height="320"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Activity Momentum Ratio (Recent / Baseline)</h3>
+      <div class="chart-wrap"><canvas id="chart-momentum" height="320"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!--  DISTRICT DEEP-DIVE                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="section" id="tab-districts">
+  <div class="district-bar">
+    <label>Select District:</label>
+    <select id="district-select"></select>
+  </div>
+  <div class="score-banner" id="district-score-banner"></div>
+  <div class="two-col">
+    <div class="chart-card">
+      <h3>Annual Permit Activity (2010–2025)</h3>
+      <div class="chart-wrap"><canvas id="chart-district-trend" height="260"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Permit Type Breakdown</h3>
+      <div class="chart-wrap"><canvas id="chart-district-types" height="260"></canvas></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="chart-card">
+      <h3>Application Status Distribution</h3>
+      <div class="chart-wrap" style="max-width:320px;margin:0 auto"><canvas id="chart-district-status" height="260"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Top Work Types (Recent 2023–25)</h3>
+      <div class="chart-wrap"><canvas id="chart-district-worktypes" height="260"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-card" style="margin-bottom:1.5rem">
+    <h3>Top Projects by Estimated Cost</h3>
+    <table class="proj-table" id="proj-table"></table>
+  </div>
+  <div class="chart-card">
+    <h3>Recent Activity (2024–2025)</h3>
+    <table class="proj-table" id="recent-table"></table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!--  TRENDS                                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="section" id="tab-trends">
+  <div class="section-title">Annual Permit Velocity — All Districts (2010–2025)</div>
+  <div class="toggle-strip" id="trend-toggles"></div>
+  <div class="chart-card" style="margin-bottom:2rem">
+    <div class="chart-wrap"><canvas id="chart-trends" height="380"></canvas></div>
+  </div>
+  <div class="section-title">Year-over-Year Change (2024 vs 2023)</div>
+  <div class="chart-card">
+    <div class="chart-wrap"><canvas id="chart-yoy" height="280"></canvas></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!--  INVESTMENT                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="section" id="tab-investment">
+  <div class="callout">
+    Investment totals are derived from <strong>estimated_cost</strong> fields in permit applications.
+    ~74% of records include non-zero values. Figures represent permitted construction value, not appraised value.
+    Large one-time projects (hospitals, mixed-use towers) can dominate annual totals — use alongside permit count trends.
+  </div>
+  <div class="outlier-bar" style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap">
+    <span style="font-size:.78rem;color:var(--muted);font-weight:600">Exclude permits above:</span>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap" id="threshold-btns">
+      <button class="thresh-btn active" data-key="all"    style="padding:.3rem .75rem;border-radius:6px;border:1px solid var(--accent);background:#0e2a3a;color:var(--accent);font-size:.75rem;cursor:pointer;font-weight:600">All (no cap)</button>
+      <button class="thresh-btn"        data-key="25m"   style="padding:.3rem .75rem;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:.75rem;cursor:pointer">Exclude &gt;$25M</button>
+      <button class="thresh-btn"        data-key="10m"   style="padding:.3rem .75rem;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:.75rem;cursor:pointer">Exclude &gt;$10M</button>
+      <button class="thresh-btn"        data-key="5m"    style="padding:.3rem .75rem;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:.75rem;cursor:pointer">Exclude &gt;$5M</button>
+      <button class="thresh-btn"        data-key="1m"    style="padding:.3rem .75rem;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:.75rem;cursor:pointer">Exclude &gt;$1M</button>
+    </div>
+    <span id="outlier-note" style="font-size:.72rem;color:var(--muted)"></span>
+  </div>
+  <div class="section-title">Annual Investment by District (2015–2025, $M)</div>
+  <div class="chart-card" style="margin-bottom:1.5rem">
+    <div class="chart-wrap"><canvas id="chart-investment" height="340"></canvas></div>
+  </div>
+  <div class="section-title">Investment Heatmap ($M per District per Year)</div>
+  <div class="chart-card" style="margin-bottom:1.5rem">
+    <div class="heat-wrap" id="heat-table-wrap"></div>
+  </div>
+  <div class="section-title">Top Projects by Permitted Cost (All Time)</div>
+  <div class="chart-card">
+    <table class="proj-table" id="top-projects-all"></table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!--  ACTIVITY MATRIX                                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="section" id="tab-activity">
+  <div class="section-title">Permit Type × District Matrix (All-Time Counts)</div>
+  <div class="chart-card" style="margin-bottom:1.5rem">
+    <div class="heat-wrap" id="activity-matrix-wrap"></div>
+  </div>
+  <div class="two-col">
+    <div class="chart-card">
+      <h3>Permit Type Distribution (City-Wide)</h3>
+      <div class="chart-wrap"><canvas id="chart-type-city" height="300"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Permit Type Stacked by District (Recent 2023–25)</h3>
+      <div class="chart-wrap"><canvas id="chart-type-stacked" height="300"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Orlando Main Street Economic Vitality Intelligence &nbsp;·&nbsp;
+  Source: City of Orlando Permit Applications (normalized 2026-05-22) &nbsp;·&nbsp;
+  BTR College Park ED Vault &nbsp;·&nbsp; <span id="footer-date"></span><br>
+  <span style="color:#4b5563">Scores are planning indicators requiring staff validation. Not legal findings.</span>
+</footer>
+
+<script>
+// ── embedded data ──────────────────────────────────────────────────────────
+const D = {"kpis": {"total_permits": 130832, "recent_permits": 10144, "total_invest_fmt": "$12.7B", "rec_invest_fmt": "$2.5B", "districts": 13, "fastest_district": "Mills 50", "fastest_ratio": "1.27x baseline", "data_through": "2025 (2026 partial excluded)", "generated": "2026-06-02"}, "vitality": [{"district": "Mills 50", "baseline_ann": 235.0, "recent_ann": 297.7, "momentum_ratio": 1.267, "base_bld_ann": 85.4, "recent_bld_ann": 91.8, "invest_ratio": 1.074, "cou_rate_pct": 20.27, "abl_retention": 78.11, "risk_rate_pct": 0.0, "momentum_score": 10.0, "investment_score": 10.0, "cou_rate_score": 7.563, "abl_score": 7.811, "risk_score": 5.0, "vitality_score": 8.92, "tier": "Accelerating", "rank": 1}, {"district": "Curry Ford West", "baseline_ann": 71.6, "recent_ann": 88.7, "momentum_ratio": 1.238, "base_bld_ann": 29.4, "recent_bld_ann": 27.0, "invest_ratio": 0.918, "cou_rate_pct": 22.18, "abl_retention": 77.08, "risk_rate_pct": 0.0, "momentum_score": 9.771, "investment_score": 8.547, "cou_rate_score": 8.276, "abl_score": 7.708, "risk_score": 5.0, "vitality_score": 8.5, "tier": "Accelerating", "rank": 2}, {"district": "Parramore", "baseline_ann": 255.8, "recent_ann": 268.7, "momentum_ratio": 1.05, "base_bld_ann": 81.0, "recent_bld_ann": 86.5, "invest_ratio": 1.068, "cou_rate_pct": 19.23, "abl_retention": 82.61, "risk_rate_pct": 0.0, "momentum_score": 8.287, "investment_score": 9.944, "cou_rate_score": 7.175, "abl_score": 8.261, "risk_score": 5.0, "vitality_score": 8.29, "tier": "Accelerating", "rank": 3}, {"district": "Audubon Park Garden District", "baseline_ann": 19.2, "recent_ann": 18.0, "momentum_ratio": 0.938, "base_bld_ann": 5.0, "recent_bld_ann": 5.0, "invest_ratio": 1.0, "cou_rate_pct": 24.07, "abl_retention": 100.0, "risk_rate_pct": 0.0, "momentum_score": 7.403, "investment_score": 9.311, "cou_rate_score": 8.981, "abl_score": 10.0, "risk_score": 5.0, "vitality_score": 8.23, "tier": "Accelerating", "rank": 4}, {"district": "College Park", "baseline_ann": 121.4, "recent_ann": 114.7, "momentum_ratio": 0.945, "base_bld_ann": 40.4, "recent_bld_ann": 39.8, "invest_ratio": 0.984, "cou_rate_pct": 20.35, "abl_retention": 90.48, "risk_rate_pct": 0.0, "momentum_score": 7.459, "investment_score": 9.162, "cou_rate_score": 7.593, "abl_score": 9.048, "risk_score": 5.0, "vitality_score": 7.9, "tier": "Accelerating", "rank": 5}, {"district": "Ivanhoe Village", "baseline_ann": 511.6, "recent_ann": 486.7, "momentum_ratio": 0.951, "base_bld_ann": 127.6, "recent_bld_ann": 102.0, "invest_ratio": 0.799, "cou_rate_pct": 22.6, "abl_retention": 88.49, "risk_rate_pct": 0.0, "momentum_score": 7.506, "investment_score": 7.439, "cou_rate_score": 8.433, "abl_score": 8.849, "risk_score": 5.0, "vitality_score": 7.51, "tier": "Accelerating", "rank": 6}, {"district": "Thornton Park District", "baseline_ann": 345.8, "recent_ann": 272.7, "momentum_ratio": 0.789, "base_bld_ann": 92.6, "recent_bld_ann": 77.0, "invest_ratio": 0.832, "cou_rate_pct": 25.43, "abl_retention": 96.22, "risk_rate_pct": 0.0, "momentum_score": 6.227, "investment_score": 7.747, "cou_rate_score": 9.489, "abl_score": 9.622, "risk_score": 5.0, "vitality_score": 7.39, "tier": "Stable", "rank": 7}, {"district": "The Milk District", "baseline_ann": 234.0, "recent_ann": 197.3, "momentum_ratio": 0.843, "base_bld_ann": 82.6, "recent_bld_ann": 68.5, "invest_ratio": 0.829, "cou_rate_pct": 15.2, "abl_retention": 83.89, "risk_rate_pct": 0.0, "momentum_score": 6.654, "investment_score": 7.719, "cou_rate_score": 5.672, "abl_score": 8.389, "risk_score": 5.0, "vitality_score": 6.83, "tier": "Stable", "rank": 8}, {"district": "SoDo", "baseline_ann": 737.2, "recent_ann": 601.0, "momentum_ratio": 0.815, "base_bld_ann": 212.6, "recent_bld_ann": 165.2, "invest_ratio": 0.777, "cou_rate_pct": 18.3, "abl_retention": 87.74, "risk_rate_pct": 0.0, "momentum_score": 6.433, "investment_score": 7.235, "cou_rate_score": 6.828, "abl_score": 8.774, "risk_score": 5.0, "vitality_score": 6.82, "tier": "Stable", "rank": 9}, {"district": "City District", "baseline_ann": 808.0, "recent_ann": 498.7, "momentum_ratio": 0.617, "base_bld_ann": 177.6, "recent_bld_ann": 130.8, "invest_ratio": 0.736, "cou_rate_pct": 26.8, "abl_retention": 77.23, "risk_rate_pct": 0.0, "momentum_score": 4.87, "investment_score": 6.853, "cou_rate_score": 10.0, "abl_score": 7.723, "risk_score": 5.0, "vitality_score": 6.53, "tier": "Stable", "rank": 10}, {"district": "West Lakes", "baseline_ann": 276.4, "recent_ann": 207.7, "momentum_ratio": 0.751, "base_bld_ann": 119.6, "recent_bld_ann": 87.0, "invest_ratio": 0.727, "cou_rate_pct": 16.21, "abl_retention": 76.43, "risk_rate_pct": 0.0, "momentum_score": 5.927, "investment_score": 6.769, "cou_rate_score": 6.049, "abl_score": 7.643, "risk_score": 5.0, "vitality_score": 6.28, "tier": "Stable", "rank": 11}, {"district": "Gateway Orlando", "baseline_ann": 447.6, "recent_ann": 329.7, "momentum_ratio": 0.737, "base_bld_ann": 169.0, "recent_bld_ann": 109.8, "invest_ratio": 0.649, "cou_rate_pct": 13.55, "abl_retention": 57.01, "risk_rate_pct": 0.0, "momentum_score": 5.817, "investment_score": 6.043, "cou_rate_score": 5.056, "abl_score": 5.701, "risk_score": 5.0, "vitality_score": 5.68, "tier": "Slowing", "rank": 12}, {"district": "Church Street Parramore Zone 2", "baseline_ann": 3.0, "recent_ann": 0.0, "momentum_ratio": 0.0, "base_bld_ann": 2.4, "recent_bld_ann": 0.0, "invest_ratio": 0.0, "cou_rate_pct": 0.0, "abl_retention": 0.0, "risk_rate_pct": 0.0, "momentum_score": 0.0, "investment_score": 0.0, "cou_rate_score": 0.0, "abl_score": 0.0, "risk_score": 5.0, "vitality_score": 0.5, "tier": "Contracting", "rank": 13}], "trends": {"years": [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025], "series": {"Audubon Park Garden District": [20, 12, 41, 25, 22, 7, 17, 25, 33, 14, 54, 14, 20, 32, 13, 9], "Church Street Parramore Zone 2": [0, 2, 0, 29, 3, 1, 0, 0, 10, 4, 3, 1, 1, 0, 0, 0], "City District": [483, 703, 793, 671, 704, 610, 782, 670, 832, 1146, 609, 507, 750, 592, 511, 393], "College Park": [155, 149, 122, 126, 187, 123, 84, 110, 134, 156, 64, 94, 95, 92, 123, 129], "Curry Ford West": [97, 114, 82, 85, 144, 69, 78, 93, 63, 55, 149, 103, 58, 74, 90, 102], "Gateway Orlando": [409, 381, 429, 469, 571, 510, 463, 403, 471, 391, 286, 351, 322, 345, 320, 324], "Ivanhoe Village": [436, 396, 569, 527, 576, 490, 597, 383, 632, 456, 510, 417, 408, 385, 460, 615], "Mills 50": [145, 208, 260, 464, 344, 240, 252, 212, 233, 238, 195, 335, 299, 307, 272, 314], "Parramore": [311, 214, 240, 195, 199, 177, 221, 209, 307, 365, 217, 295, 160, 199, 208, 399], "SoDo": [611, 697, 842, 576, 761, 874, 669, 621, 834, 688, 630, 810, 732, 685, 569, 549], "The Milk District": [190, 168, 201, 230, 198, 231, 304, 168, 262, 205, 174, 207, 245, 200, 219, 173], "Thornton Park District": [188, 240, 193, 264, 360, 308, 471, 329, 348, 273, 341, 341, 297, 270, 290, 258], "West Lakes": [243, 221, 221, 169, 271, 239, 275, 347, 250, 271, 348, 272, 178, 206, 206, 211]}}, "permit_types": {"types": ["Building Permit", "Electrical", "History", "Fire Permit", "Mechanical Permit", "Plumbing", "Engineering", "Sewer Benefit Fees", "Alcohol Beverage License", "GAS", "Demolition Permit", "Concurrency Case"], "matrix": {"Audubon Park Garden District": {"Building Permit": 205, "Electrical": 142, "History": 248, "Fire Permit": 21, "Mechanical Permit": 61, "Plumbing": 66, "Engineering": 24, "Sewer Benefit Fees": 35, "Alcohol Beverage License": 44, "GAS": 13, "Demolition Permit": 3, "Concurrency Case": 6}, "Church Street Parramore Zone 2": {"Building Permit": 46, "Electrical": 20, "History": 21, "Fire Permit": 0, "Mechanical Permit": 0, "Plumbing": 7, "Engineering": 0, "Sewer Benefit Fees": 0, "Alcohol Beverage License": 1, "GAS": 1, "Demolition Permit": 3, "Concurrency Case": 0}, "City District": {"Building Permit": 5181, "Electrical": 6424, "History": 1372, "Fire Permit": 3438, "Mechanical Permit": 2274, "Plumbing": 1885, "Engineering": 266, "Sewer Benefit Fees": 389, "Alcohol Beverage License": 650, "GAS": 194, "Demolition Permit": 42, "Concurrency Case": 40}, "College Park": {"Building Permit": 1519, "Electrical": 825, "History": 1049, "Fire Permit": 236, "Mechanical Permit": 513, "Plumbing": 415, "Engineering": 168, "Sewer Benefit Fees": 106, "Alcohol Beverage License": 126, "GAS": 83, "Demolition Permit": 35, "Concurrency Case": 31}, "Curry Ford West": {"Building Permit": 1137, "Electrical": 650, "History": 768, "Fire Permit": 137, "Mechanical Permit": 260, "Plumbing": 290, "Engineering": 87, "Sewer Benefit Fees": 97, "Alcohol Beverage License": 96, "GAS": 40, "Demolition Permit": 9, "Concurrency Case": 14}, "Gateway Orlando": {"Building Permit": 4676, "Electrical": 3115, "History": 723, "Fire Permit": 1043, "Mechanical Permit": 1309, "Plumbing": 1350, "Engineering": 571, "Sewer Benefit Fees": 263, "Alcohol Beverage License": 328, "GAS": 211, "Demolition Permit": 51, "Concurrency Case": 86}, "Ivanhoe Village": {"Building Permit": 3869, "Electrical": 4252, "History": 1168, "Fire Permit": 1735, "Mechanical Permit": 1511, "Plumbing": 1330, "Engineering": 415, "Sewer Benefit Fees": 243, "Alcohol Beverage License": 139, "GAS": 250, "Demolition Permit": 147, "Concurrency Case": 60}, "Mills 50": {"Building Permit": 2865, "Electrical": 1766, "History": 2740, "Fire Permit": 498, "Mechanical Permit": 858, "Plumbing": 778, "Engineering": 353, "Sewer Benefit Fees": 268, "Alcohol Beverage License": 201, "GAS": 132, "Demolition Permit": 67, "Concurrency Case": 71}, "Parramore": {"Building Permit": 2688, "Electrical": 1874, "History": 1685, "Fire Permit": 833, "Mechanical Permit": 567, "Plumbing": 554, "Engineering": 366, "Sewer Benefit Fees": 172, "Alcohol Beverage License": 161, "GAS": 101, "Demolition Permit": 137, "Concurrency Case": 54}, "SoDo": {"Building Permit": 5825, "Electrical": 5307, "History": 2241, "Fire Permit": 2140, "Mechanical Permit": 2075, "Plumbing": 1873, "Engineering": 848, "Sewer Benefit Fees": 449, "Alcohol Beverage License": 155, "GAS": 326, "Demolition Permit": 176, "Concurrency Case": 129}, "The Milk District": {"Building Permit": 2509, "Electrical": 1670, "History": 2022, "Fire Permit": 521, "Mechanical Permit": 785, "Plumbing": 701, "Engineering": 325, "Sewer Benefit Fees": 202, "Alcohol Beverage License": 180, "GAS": 102, "Demolition Permit": 46, "Concurrency Case": 53}, "Thornton Park District": {"Building Permit": 2613, "Electrical": 2292, "History": 286, "Fire Permit": 1319, "Mechanical Permit": 966, "Plumbing": 1043, "Engineering": 181, "Sewer Benefit Fees": 126, "Alcohol Beverage License": 185, "GAS": 109, "Demolition Permit": 34, "Concurrency Case": 42}, "West Lakes": {"Building Permit": 3587, "Electrical": 1679, "History": 1959, "Fire Permit": 698, "Mechanical Permit": 603, "Plumbing": 541, "Engineering": 430, "Sewer Benefit Fees": 128, "Alcohol Beverage License": 157, "GAS": 118, "Demolition Permit": 98, "Concurrency Case": 71}}}, "investment": {"years": [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025], "matrix": {"Audubon Park Garden District": [0.04, 0.39, 0.28, 0.19, 0.36, 1.18, 0.37, 0.29, 0.4, 0.6, 0.04], "Church Street Parramore Zone 2": [0.0, 0.0, 0.0, 0.11, 0.05, 0.04, 0.01, 0.0, 0.0, 0.0, 0.0], "City District": [166.02, 40.72, 97.95, 72.48, 94.01, 32.59, 46.64, 281.72, 180.52, 28.1, 33.3], "College Park": [1.03, 38.67, 5.41, 1.96, 2.94, 0.93, 1.67, 4.21, 3.98, 6.4, 11.53], "Curry Ford West": [0.6, 0.59, 3.76, 0.49, 0.66, 2.78, 22.28, 1.34, 1.6, 2.17, 2.82], "Gateway Orlando": [23.62, 15.76, 14.85, 31.04, 33.51, 16.32, 21.26, 52.45, 20.51, 16.06, 9.04], "Ivanhoe Village": [63.3, 163.48, 45.77, 167.87, 233.55, 140.85, 54.99, 138.64, 84.67, 72.48, 493.47], "Mills 50": [3.86, 5.49, 4.07, 5.82, 4.29, 7.99, 48.67, 39.96, 60.62, 12.94, 105.03], "Parramore": [98.65, 41.44, 86.32, 171.76, 100.75, 93.51, 147.44, 9.42, 17.24, 65.95, 264.02], "SoDo": [32.26, 105.35, 49.33, 73.09, 69.5, 272.92, 185.18, 130.48, 200.57, 99.65, 575.7], "The Milk District": [7.97, 6.3, 3.58, 19.67, 6.55, 10.15, 12.61, 8.9, 12.63, 6.5, 10.1], "Thornton Park District": [71.41, 74.92, 9.17, 19.24, 13.45, 27.43, 12.87, 8.57, 10.58, 6.41, 9.24], "West Lakes": [43.17, 44.17, 9.14, 28.58, 49.63, 71.21, 28.78, 94.68, 8.54, 6.4, 27.62]}, "thresholds": {"all": {"matrix": {"Audubon Park Garden District": [0.04, 0.39, 0.28, 0.19, 0.36, 1.18, 0.37, 0.29, 0.4, 0.6, 0.04], "Church Street Parramore Zone 2": [0.0, 0.0, 0.0, 0.11, 0.05, 0.04, 0.01, 0.0, 0.0, 0.0, 0.0], "City District": [166.02, 40.72, 97.95, 72.48, 94.01, 32.59, 46.64, 281.72, 180.52, 28.1, 33.3], "College Park": [1.03, 38.67, 5.41, 1.96, 2.94, 0.93, 1.67, 4.21, 3.98, 6.4, 11.53], "Curry Ford West": [0.6, 0.59, 3.76, 0.49, 0.66, 2.78, 22.28, 1.34, 1.6, 2.17, 2.82], "Gateway Orlando": [23.62, 15.76, 14.85, 31.04, 33.51, 16.32, 21.26, 52.45, 20.51, 16.06, 9.04], "Ivanhoe Village": [63.3, 163.48, 45.77, 167.87, 233.55, 140.85, 54.99, 138.64, 84.67, 72.48, 493.47], "Mills 50": [3.86, 5.49, 4.07, 5.82, 4.29, 7.99, 48.67, 39.96, 60.62, 12.94, 105.03], "Parramore": [98.65, 41.44, 86.32, 171.76, 100.75, 93.51, 147.44, 9.42, 17.24, 65.95, 264.02], "SoDo": [32.26, 105.35, 49.33, 73.09, 69.5, 272.92, 185.18, 130.48, 200.57, 99.65, 575.7], "The Milk District": [7.97, 6.3, 3.58, 19.67, 6.55, 10.15, 12.61, 8.9, 12.63, 6.5, 10.1], "Thornton Park District": [71.41, 74.92, 9.17, 19.24, 13.45, 27.43, 12.87, 8.57, 10.58, 6.41, 9.24], "West Lakes": [43.17, 44.17, 9.14, 28.58, 49.63, 71.21, 28.78, 94.68, 8.54, 6.4, 27.62]}, "cap": null, "excluded": 0}, "25m": {"matrix": {"Audubon Park Garden District": [0.04, 0.39, 0.28, 0.19, 0.36, 1.18, 0.37, 0.29, 0.4, 0.6, 0.04], "Church Street Parramore Zone 2": [0.0, 0.0, 0.0, 0.11, 0.05, 0.04, 0.01, 0.0, 0.0, 0.0, 0.0], "City District": [26.02, 40.72, 44.87, 72.48, 94.01, 32.59, 46.64, 87.17, 35.52, 28.1, 33.3], "College Park": [1.03, 38.67, 5.41, 1.96, 2.94, 0.93, 1.67, 4.21, 3.98, 6.4, 11.53], "Curry Ford West": [0.6, 0.59, 3.76, 0.49, 0.66, 2.78, 22.28, 1.34, 1.6, 2.17, 2.82], "Gateway Orlando": [23.62, 15.76, 14.85, 31.04, 33.51, 16.32, 21.26, 52.45, 20.51, 16.06, 9.04], "Ivanhoe Village": [63.3, 76.18, 45.77, 40.13, 107.03, 83.85, 54.99, 71.91, 36.98, 72.48, 120.39], "Mills 50": [3.86, 5.49, 4.07, 5.82, 4.29, 7.99, 48.67, 14.93, 27.67, 12.94, 26.15], "Parramore": [11.42, 41.44, 37.8, 66.61, 46.25, 93.51, 45.46, 9.42, 17.24, 65.95, 98.46], "SoDo": [32.26, 105.35, 49.33, 73.09, 69.5, 144.5, 122.51, 130.48, 76.57, 99.65, 75.7], "The Milk District": [7.97, 6.3, 3.58, 19.67, 6.55, 10.15, 12.61, 8.9, 12.63, 6.5, 10.1], "Thornton Park District": [15.24, 16.55, 9.17, 19.24, 13.45, 27.43, 12.87, 8.57, 10.58, 6.41, 9.24], "West Lakes": [43.17, 44.17, 9.14, 28.58, 21.63, 31.21, 28.78, 42.18, 8.54, 6.4, 27.62]}, "cap": 25000000, "excluded": 40}, "10m": {"matrix": {"Audubon Park Garden District": [0.04, 0.39, 0.28, 0.19, 0.36, 1.18, 0.37, 0.29, 0.4, 0.6, 0.04], "Church Street Parramore Zone 2": [0.0, 0.0, 0.0, 0.11, 0.05, 0.04, 0.01, 0.0, 0.0, 0.0, 0.0], "City District": [15.18, 40.72, 31.04, 60.48, 94.01, 32.59, 46.64, 65.17, 35.52, 28.1, 33.3], "College Park": [1.03, 8.83, 5.41, 1.96, 2.94, 0.93, 1.67, 4.21, 3.98, 6.4, 11.53], "Curry Ford West": [0.6, 0.59, 3.76, 0.49, 0.66, 2.78, 1.28, 1.34, 1.6, 2.17, 2.82], "Gateway Orlando": [23.62, 15.76, 14.85, 9.04, 12.01, 16.32, 21.26, 27.45, 20.51, 16.06, 9.04], "Ivanhoe Village": [52.3, 76.18, 45.77, 40.13, 71.53, 46.55, 38.14, 61.41, 36.98, 72.48, 120.39], "Mills 50": [3.86, 5.49, 4.07, 5.82, 4.29, 7.99, 38.37, 14.93, 27.67, 12.94, 26.15], "Parramore": [11.42, 31.04, 19.42, 41.27, 24.38, 43.7, 45.46, 9.42, 17.24, 15.3, 58.29], "SoDo": [32.26, 35.99, 49.33, 62.09, 47.7, 67.92, 122.51, 97.22, 76.57, 74.15, 75.7], "The Milk District": [7.97, 6.3, 3.58, 19.67, 6.55, 10.15, 12.61, 8.9, 12.63, 6.5, 10.1], "Thornton Park District": [15.24, 16.55, 9.17, 19.24, 13.45, 27.43, 12.87, 8.57, 10.58, 6.41, 9.24], "West Lakes": [24.75, 21.57, 9.14, 14.58, 21.63, 17.72, 28.78, 7.21, 8.54, 6.4, 12.75]}, "cap": 10000000, "excluded": 92}, "5m": {"matrix": {"Audubon Park Garden District": [0.04, 0.39, 0.28, 0.19, 0.36, 1.18, 0.37, 0.29, 0.4, 0.6, 0.04], "Church Street Parramore Zone 2": [0.0, 0.0, 0.0, 0.11, 0.05, 0.04, 0.01, 0.0, 0.0, 0.0, 0.0], "City District": [15.18, 32.12, 31.04, 60.48, 67.51, 24.59, 36.54, 57.17, 35.52, 28.1, 33.3], "College Park": [1.03, 8.83, 5.41, 1.96, 2.94, 0.93, 1.67, 4.21, 3.98, 6.4, 11.53], "Curry Ford West": [0.6, 0.59, 3.76, 0.49, 0.66, 2.78, 1.28, 1.34, 1.6, 2.17, 2.82], "Gateway Orlando": [23.62, 15.76, 14.85, 9.04, 12.01, 16.32, 16.23, 20.95, 12.51, 16.06, 9.04], "Ivanhoe Village": [30.55, 52.18, 36.95, 23.03, 55.95, 46.55, 38.14, 51.41, 36.98, 65.6, 85.52], "Mills 50": [3.86, 5.49, 4.07, 5.82, 4.29, 7.99, 16.25, 14.93, 15.57, 12.94, 26.15], "Parramore": [4.6, 25.5, 19.42, 29.73, 24.38, 29.62, 40.12, 9.42, 12.05, 15.3, 50.79], "SoDo": [24.36, 35.99, 41.71, 46.66, 39.95, 50.49, 62.15, 86.0, 46.77, 58.48, 66.7], "The Milk District": [7.97, 6.3, 3.58, 12.34, 6.55, 10.15, 12.61, 8.9, 12.63, 6.5, 10.1], "Thornton Park District": [6.46, 16.55, 9.17, 12.64, 13.45, 17.43, 12.87, 8.57, 10.58, 6.41, 9.24], "West Lakes": [18.5, 15.57, 9.14, 8.19, 16.16, 11.45, 22.28, 7.21, 8.54, 6.4, 12.75]}, "cap": 5000000, "excluded": 170}, "1m": {"matrix": {"Audubon Park Garden District": [0.04, 0.39, 0.28, 0.19, 0.36, 1.18, 0.37, 0.29, 0.4, 0.6, 0.04], "Church Street Parramore Zone 2": [0.0, 0.0, 0.0, 0.11, 0.05, 0.04, 0.01, 0.0, 0.0, 0.0, 0.0], "City District": [15.18, 20.73, 20.11, 36.29, 55.01, 21.97, 24.52, 34.93, 29.85, 19.84, 16.08], "College Park": [1.03, 1.58, 5.41, 1.96, 2.94, 0.93, 1.67, 2.21, 3.98, 4.6, 5.25], "Curry Ford West": [0.6, 0.59, 1.96, 0.49, 0.66, 2.78, 1.28, 1.34, 1.6, 2.17, 2.82], "Gateway Orlando": [10.75, 13.36, 9.29, 7.94, 8.49, 9.26, 12.29, 12.75, 11.01, 12.76, 9.04], "Ivanhoe Village": [15.86, 34.66, 21.79, 19.55, 26.46, 24.42, 19.32, 21.6, 18.38, 24.31, 41.05], "Mills 50": [3.86, 3.49, 2.92, 4.52, 4.29, 3.39, 13.89, 12.18, 11.57, 8.64, 12.97], "Parramore": [4.6, 11.5, 5.49, 14.86, 13.73, 11.71, 19.93, 7.33, 9.05, 8.69, 26.11], "SoDo": [18.45, 19.26, 25.5, 39.92, 26.42, 24.39, 39.29, 37.76, 25.13, 28.54, 34.42], "The Milk District": [5.27, 6.3, 3.58, 7.64, 6.55, 6.55, 9.21, 4.71, 7.7, 6.5, 6.87], "Thornton Park District": [5.32, 7.77, 9.17, 8.43, 12.27, 13.77, 11.37, 8.57, 10.58, 6.41, 7.24], "West Lakes": [10.37, 10.83, 9.14, 5.37, 10.37, 6.6, 10.39, 6.14, 5.51, 4.9, 6.95]}, "cap": 1000000, "excluded": 614}}}, "status": {"Audubon Park Garden District": {"Finaled": 396, "Open": 57, "Closed": 418, "Hold": 1, "HardHold": 0, "Stop Work": 0, "Void": 0, "Completed": 0}, "Church Street Parramore Zone 2": {"Finaled": 15, "Open": 0, "Closed": 82, "Hold": 2, "HardHold": 0, "Stop Work": 0, "Void": 0, "Completed": 0}, "City District": {"Finaled": 12487, "Open": 1090, "Closed": 8368, "Hold": 252, "HardHold": 2, "Stop Work": 0, "Void": 0, "Completed": 1}, "College Park": {"Finaled": 2514, "Open": 267, "Closed": 2304, "Hold": 33, "HardHold": 1, "Stop Work": 0, "Void": 0, "Completed": 1}, "Curry Ford West": {"Finaled": 1341, "Open": 252, "Closed": 1956, "Hold": 54, "HardHold": 0, "Stop Work": 0, "Void": 0, "Completed": 0}, "Gateway Orlando": {"Finaled": 5669, "Open": 641, "Closed": 7054, "Hold": 399, "HardHold": 7, "Stop Work": 0, "Void": 0, "Completed": 2}, "Ivanhoe Village": {"Finaled": 7341, "Open": 991, "Closed": 6763, "Hold": 61, "HardHold": 1, "Stop Work": 0, "Void": 0, "Completed": 1}, "Mills 50": {"Finaled": 4271, "Open": 659, "Closed": 5590, "Hold": 120, "HardHold": 1, "Stop Work": 0, "Void": 0, "Completed": 2}, "Parramore": {"Finaled": 3718, "Open": 701, "Closed": 4720, "Hold": 113, "HardHold": 1, "Stop Work": 1, "Void": 1, "Completed": 1}, "SoDo": {"Finaled": 13241, "Open": 1236, "Closed": 7028, "Hold": 93, "HardHold": 5, "Stop Work": 0, "Void": 0, "Completed": 10}, "The Milk District": {"Finaled": 3827, "Open": 497, "Closed": 4717, "Hold": 89, "HardHold": 2, "Stop Work": 0, "Void": 0, "Completed": 9}, "Thornton Park District": {"Finaled": 5632, "Open": 480, "Closed": 3054, "Hold": 74, "HardHold": 0, "Stop Work": 0, "Void": 0, "Completed": 0}, "West Lakes": {"Finaled": 3686, "Open": 576, "Closed": 5672, "Hold": 153, "HardHold": 6, "Stop Work": 0, "Void": 0, "Completed": 4}}, "top_projects": {"Audubon Park Garden District": [{"name": "CORRINE DRIVE ROOF REPLACEMENT PROJECT", "type": "Building Permit", "year": 2024.0, "cost": "$470K", "status": "Finaled"}, {"name": "PEXP THE SALTY DONUT ORLANDO", "type": "Building Permit", "year": 2020.0, "cost": "$440K", "status": "Finaled"}, {"name": "PARTNERS IN WOMEN'S HEALTHCARE", "type": "Building Permit", "year": 2007.0, "cost": "$340K", "status": "Finaled"}, {"name": "OFFICE RETAIL BUILDING", "type": "Building Permit", "year": 2005.0, "cost": "$300K", "status": "Finaled"}, {"name": "PEXP - CORO RESTAURANT KITCHEN REMODEL", "type": "Building Permit", "year": 2023.0, "cost": "$250K", "status": "Finaled"}, {"name": "PEXP - THE FOREIGNER", "type": "Building Permit", "year": 2021.0, "cost": "$220K", "status": "Finaled"}, {"name": "TEXACO", "type": "Building Permit", "year": 1996.0, "cost": "$208K", "status": "Closed"}, {"name": "PEXP LOBOS COFFEE ROASTERS", "type": "Building Permit", "year": 2019.0, "cost": "$203K", "status": "Finaled"}, {"name": "CORRINE REMODEL", "type": "Building Permit", "year": 2020.0, "cost": "$200K", "status": "Finaled"}, {"name": "MATTHEW MICHAELS SALON", "type": "Building Permit", "year": 2006.0, "cost": "$185K", "status": "Finaled"}, {"name": "BEM BOM ON CORRINE", "type": "Building Permit", "year": 2016.0, "cost": "$170K", "status": "Finaled"}, {"name": "JEFF PALMER RESIDENCE", "type": "Building Permit", "year": 2005.0, "cost": "$166K", "status": "Closed"}, {"name": "PROJECT X", "type": "Building Permit", "year": 2016.0, "cost": "$122K", "status": "Finaled"}, {"name": "DR OFFICE", "type": "Building Permit", "year": 2006.0, "cost": "$119K", "status": "Finaled"}, {"name": "RAINBOW SNOCONE BUILDING", "type": "Building Permit", "year": 2012.0, "cost": "$105K", "status": "Finaled"}], "Church Street Parramore Zone 2": [{"name": "DEDAH ENTERPRISES", "type": "Building Permit", "year": 2013.0, "cost": "$98K", "status": "Closed"}, {"name": "OBT Commons", "type": "Building Permit", "year": 2018.0, "cost": "$45K", "status": "Finaled"}, {"name": "518 Apartments / Building D", "type": "Building Permit", "year": 2020.0, "cost": "$25K", "status": "Closed"}, {"name": "RELMS APTS", "type": "Building Permit", "year": 2007.0, "cost": "$22K", "status": "Closed"}, {"name": "BUILDING D RENOVATION", "type": "Building Permit", "year": 2019.0, "cost": "$20K", "status": "Finaled"}, {"name": "BUILDNG C", "type": "Building Permit", "year": 2019.0, "cost": "$20K", "status": "Finaled"}, {"name": "TOUR O TEL APARTMENTS", "type": "Building Permit", "year": 2013.0, "cost": "$20K", "status": "Closed"}, {"name": "ALLISON RESIDENCE FIRE REHAB", "type": "Building Permit", "year": 2013.0, "cost": "$12K", "status": "Closed"}, {"name": "518 N ORANGE BLOSSOM TRL FENCE CODE VIOLATION", "type": "Building Permit", "year": 2026.0, "cost": "$12K", "status": "Hold"}, {"name": "Rock Lake Cottages", "type": "Building Permit", "year": 2020.0, "cost": "$11K", "status": "Finaled"}], "City District": [{"name": "CHURCH STREET PH II - THE EDGE", "type": "Building Permit", "year": 2023.0, "cost": "$145.0M", "status": "Hold"}, {"name": "DR PHILLIPS STAGE II", "type": "Building Permit", "year": 2015.0, "cost": "$140.0M", "status": "Finaled"}, {"name": "CHURCH STREET THE EDGE", "type": "Building Permit", "year": 2022.0, "cost": "$123.9M", "status": "Closed"}, {"name": "55 WEST CHURCH STREET", "type": "Building Permit", "year": 2005.0, "cost": "$102.8M", "status": "Finaled"}, {"name": "DPAC STAGE 1 BUILDING", "type": "Building Permit", "year": 2011.0, "cost": "$92.1M", "status": "Finaled"}, {"name": "TEST CASE FOR AWAITING FEES & RESUBMIT REC LOG", "type": "Building Permit", "year": 2022.0, "cost": "$70.7M", "status": "Open"}, {"name": "THE PLAZA PHASE 1", "type": "Building Permit", "year": 2004.0, "cost": "$65.4M", "status": "Closed"}, {"name": "CHURCH STREET PLAZA", "type": "Building Permit", "year": 2017.0, "cost": "$53.1M", "status": "Finaled"}, {"name": "THE PLAZA RESIDENTIAL TOWER", "type": "Building Permit", "year": 2004.0, "cost": "$38.3M", "status": "Finaled"}, {"name": "OUC ADMINISTRATION BUILDING", "type": "Building Permit", "year": 2007.0, "cost": "$24.9M", "status": "Finaled"}, {"name": "TEST CASE FOR 2022 FEE INCRESE", "type": "Building Permit", "year": 2022.0, "cost": "$22.0M", "status": "Open"}, {"name": "TEST MEC CASE2", "type": "Mechanical Permit", "year": 2006.0, "cost": "$21.9M", "status": "Closed"}, {"name": "ORANGE CO REGIONAL HISTORY MUS", "type": "Building Permit", "year": 1998.0, "cost": "$20.8M", "status": "Closed"}, {"name": "SUNTRUST CENTER (FOUNDATION UN", "type": "Building Permit", "year": 1999.0, "cost": "$19.6M", "status": "Finaled"}, {"name": "CNL TOWER II", "type": "Building Permit", "year": 2004.0, "cost": "$19.3M", "status": "Finaled"}], "College Park": [{"name": "SUNTRUST & WELLESLEY CONDOS", "type": "Building Permit", "year": 2004.0, "cost": "$31.7M", "status": "Finaled"}, {"name": "THE PRINCETON AT COLLEGE PARK", "type": "Building Permit", "year": 2016.0, "cost": "$17.4M", "status": "Finaled"}, {"name": "THE PRINCETON AT COLLEGE PARK", "type": "Building Permit", "year": 2016.0, "cost": "$12.5M", "status": "Finaled"}, {"name": "INCARNATION CATHOLIC CHURCH", "type": "Building Permit", "year": 2025.0, "cost": "$5.0M", "status": "Open"}, {"name": "THE PRINCETON AT COLLEGE PARK", "type": "Building Permit", "year": 2016.0, "cost": "$3.9M", "status": "Finaled"}, {"name": "THE PRINCETON AT COLLEGE PARK", "type": "Building Permit", "year": 2016.0, "cost": "$3.4M", "status": "Finaled"}, {"name": "ANDERSEN TERRACE OFFICE BLDG", "type": "Building Permit", "year": 2001.0, "cost": "$2.9M", "status": "Finaled"}, {"name": "INCARNATION CATHOLIC CHURCH-MULTI-PURPOSE BLDG", "type": "Building Permit", "year": 2022.0, "cost": "$2.0M", "status": "Open"}, {"name": "EDGEWATER MARKET", "type": "Building Permit", "year": 2024.0, "cost": "$1.8M", "status": "Open"}, {"name": "WALGREENS #13920", "type": "Building Permit", "year": 2010.0, "cost": "$1.7M", "status": "Finaled"}, {"name": "SUNTRUST & WELLESLEY CONDOS", "type": "Electrical", "year": 2005.0, "cost": "$1.5M", "status": "Finaled"}, {"name": "DUBSDREAD GOLF COURSE UPGRADES OF THE DRIVING RANG", "type": "Building Permit", "year": 2025.0, "cost": "$1.3M", "status": "Finaled"}, {"name": "COLLEGE PARK MARKET", "type": "Engineering", "year": 2024.0, "cost": "$1.0M", "status": "Open"}, {"name": "CVS PHARMACY #2829", "type": "Building Permit", "year": 2002.0, "cost": "$900K", "status": "Finaled"}, {"name": "CRAMER JOHNSON", "type": "Building Permit", "year": 1996.0, "cost": "$900K", "status": "Finaled"}], "Curry Ford West": [{"name": "HOURGLASS MULTI-FAMILY MIXED USE", "type": "Building Permit", "year": 2021.0, "cost": "$21.0M", "status": "Open"}, {"name": "WALGREENS NEW BUILD", "type": "Building Permit", "year": 2017.0, "cost": "$1.8M", "status": "Finaled"}, {"name": "STOR-A-WAY", "type": "Building Permit", "year": 2004.0, "cost": "$1.3M", "status": "Closed"}, {"name": "CVS PHARMACY", "type": "Building Permit", "year": 2001.0, "cost": "$1.3M", "status": "Finaled"}, {"name": "PEXP - Dover Shores Community Center Clerestory", "type": "Building Permit", "year": 2024.0, "cost": "$1.0M", "status": "Finaled"}, {"name": "WAWA-CURRY FORD & EL PASO", "type": "Building Permit", "year": 2012.0, "cost": "$979K", "status": "Finaled"}, {"name": "CONWAY THEATERS/CONWAY EXEC", "type": "Building Permit", "year": 2001.0, "cost": "$963K", "status": "Closed"}, {"name": "STOR-A-WAY", "type": "Building Permit", "year": 2004.0, "cost": "$950K", "status": "Closed"}, {"name": "STOR-A-WAY", "type": "Building Permit", "year": 2004.0, "cost": "$950K", "status": "Closed"}, {"name": "STOR-A-WAY", "type": "Building Permit", "year": 2004.0, "cost": "$950K", "status": "Closed"}, {"name": "ECKERD STORE #30R", "type": "Building Permit", "year": 2002.0, "cost": "$800K", "status": "Finaled"}, {"name": "O'REILLY AUTOMOTIVE STORES, INC. (TENANT)", "type": "Building Permit", "year": 2023.0, "cost": "$666K", "status": "Finaled"}, {"name": "WINN DIXIE", "type": "Building Permit", "year": 2002.0, "cost": "$650K", "status": "Closed"}, {"name": "PEXP - Village Medical at Walgreens #16514", "type": "Building Permit", "year": 2022.0, "cost": "$625K", "status": "Open"}, {"name": "DOORSIDE BY OUTBACK&CARRABBAS", "type": "Building Permit", "year": 2017.0, "cost": "$560K", "status": "Finaled"}], "Gateway Orlando": [{"name": "AC HOTEL BY MARRIOTT", "type": "Building Permit", "year": 2022.0, "cost": "$25.0M", "status": "Open"}, {"name": "PP-Townplace Suites Sarai Orlando Airport", "type": "Building Permit", "year": 2018.0, "cost": "$22.0M", "status": "Finaled"}, {"name": "Hyatt House Orlando Gateway Village", "type": "Building Permit", "year": 2019.0, "cost": "$21.5M", "status": "Finaled"}, {"name": "HAMPTON INN & SUITES", "type": "Building Permit", "year": 2008.0, "cost": "$14.0M", "status": "Finaled"}, {"name": "HOMEWOOD SUITES BY HILTON", "type": "Building Permit", "year": 2011.0, "cost": "$8.8M", "status": "Closed"}, {"name": "HAWTHORNE HOTEL", "type": "Building Permit", "year": 1998.0, "cost": "$8.1M", "status": "Finaled"}, {"name": "EXCELLENCE ASSISTED LIVING", "type": "Building Permit", "year": 2012.0, "cost": "$8.1M", "status": "Finaled"}, {"name": "ORLANDO CHRISTIAN PREP SCHOOL AND OFFICES", "type": "Building Permit", "year": 2023.0, "cost": "$8.0M", "status": "Hold"}, {"name": "NORTH AIRPORT FREESTANDING EMERGENCY ROOM", "type": "Building Permit", "year": 2022.0, "cost": "$6.5M", "status": "Finaled"}, {"name": "ORLANDO CHRYSLER JEEP DODGE", "type": "Building Permit", "year": 2004.0, "cost": "$5.9M", "status": "Closed"}, {"name": "HERTZ = 11 BUILDINGS", "type": "Building Permit", "year": 1995.0, "cost": "$5.6M", "status": "Finaled"}, {"name": "SEMORAN GRANT STORAGE", "type": "Building Permit", "year": 2021.0, "cost": "$5.0M", "status": "Finaled"}, {"name": "HILTON GARDEN INN ORLANDO AIRPORT RENOVATION", "type": "Building Permit", "year": 2022.0, "cost": "$5.0M", "status": "Open"}, {"name": "AMERISUITES", "type": "Building Permit", "year": 1997.0, "cost": "$4.7M", "status": "Closed"}, {"name": "PUBLIX/LAKE FREDRICA", "type": "Building Permit", "year": 2015.0, "cost": "$4.7M", "status": "Closed"}], "Ivanhoe Village": [{"name": "SPC: ADVENTHEALTH ORLANDO WEST TOWER", "type": "Building Permit", "year": 2025.0, "cost": "$340.9M", "status": "Open"}, {"name": "FLORIDA HOSPITAL SOUTH TOWER", "type": "Building Permit", "year": 2005.0, "cost": "$131.3M", "status": "Closed"}, {"name": "THE YARD @ IVANHOE PLACE", "type": "Building Permit", "year": 2016.0, "cost": "$87.3M", "status": "Finaled"}, {"name": "THE YARD AT BROOKHAVEN", "type": "Building Permit", "year": 2022.0, "cost": "$66.7M", "status": "Open"}, {"name": "FL HOSPITAL ORLANDO WOMENS", "type": "Building Permit", "year": 2013.0, "cost": "$63.0M", "status": "Closed"}, {"name": "LAKEHOUSE", "type": "Building Permit", "year": 2018.0, "cost": "$60.5M", "status": "Finaled"}, {"name": "LEGO BUILDING IN HEALTH VILLAGE- CORE AND SHELL", "type": "Building Permit", "year": 2020.0, "cost": "$57.0M", "status": "Finaled"}, {"name": "SPC: ADVENT HEALTH VILLAGE MEDICAL OFFICE BLD", "type": "Building Permit", "year": 2026.0, "cost": "$52.8M", "status": "Open"}, {"name": "HOLOCAUST MUSEUM FOR HOPE AND HUMANITY", "type": "Building Permit", "year": 2023.0, "cost": "$47.7M", "status": "Open"}, {"name": "ALTA AT HEALTH VILLAGE APARTMENTS", "type": "Building Permit", "year": 2019.0, "cost": "$43.8M", "status": "Closed"}, {"name": "Alta at Health Village Apartments", "type": "Building Permit", "year": 2019.0, "cost": "$43.8M", "status": "Finaled"}, {"name": "ADVENTHEALTH ORLANDO GINSBURG EAST EXPANSION", "type": "Building Permit", "year": 2019.0, "cost": "$39.0M", "status": "Finaled"}, {"name": "BROADSTONE LAKE HOUSE", "type": "Building Permit", "year": 2018.0, "cost": "$38.7M", "status": "Closed"}, {"name": "SPC: ADVENT HEALTH ORLANDO MOB PARKING GARAGE", "type": "Building Permit", "year": 2025.0, "cost": "$32.2M", "status": "Open"}, {"name": "FLORIDA HOSPITAL MCRAE GARAGE EXPANSION", "type": "Building Permit", "year": 2018.0, "cost": "$28.5M", "status": "Finaled"}], "Mills 50": [{"name": "THE EMI ON 50", "type": "Building Permit", "year": 2025.0, "cost": "$78.9M", "status": "Open"}, {"name": "SPC: KINDRED HOSPITAL ORLANDO AT MILLS PARK", "type": "Building Permit", "year": 2023.0, "cost": "$32.9M", "status": "Open"}, {"name": "SPC - UPSHOT MEDICAL CENTER @MILLS PARK BLD5 CORE", "type": "Building Permit", "year": 2022.0, "cost": "$25.0M", "status": "Open"}, {"name": "GALLERY AT MILLS PARK ZONE S", "type": "Building Permit", "year": 2012.0, "cost": "$21.4M", "status": "Finaled"}, {"name": "UPSHOT MEDICAL CENTER AT MILLS PARK-BLDG 6", "type": "Building Permit", "year": 2021.0, "cost": "$10.3M", "status": "Finaled"}, {"name": "UPSHOT MEDICAL CENTER AT MILLS PARK-PARKING GARAGE", "type": "Building Permit", "year": 2021.0, "cost": "$9.0M", "status": "Finaled"}, {"name": "THE EMI ON 50", "type": "Electrical", "year": 2026.0, "cost": "$7.6M", "status": "Open"}, {"name": "QUEST ACADEMY", "type": "Building Permit", "year": 2023.0, "cost": "$7.0M", "status": "Finaled"}, {"name": "ALEXAN AT MILLS 50", "type": "Building Permit", "year": 2021.0, "cost": "$7.0M", "status": "Finaled"}, {"name": "ALEXAN AT MILLS 50", "type": "Building Permit", "year": 2021.0, "cost": "$6.2M", "status": "Finaled"}, {"name": "MAGRUDER MILLS RENOVATION", "type": "Building Permit", "year": 2023.0, "cost": "$5.1M", "status": "Finaled"}, {"name": "SALUD INTEGRAL DE LA MONTANA", "type": "Building Permit", "year": 2024.0, "cost": "$4.3M", "status": "Hold"}, {"name": "CHARTER RESEARCH 3RD FL INTERIOR RENO UPSHOT MEDIC", "type": "Building Permit", "year": 2023.0, "cost": "$4.0M", "status": "Finaled"}, {"name": "LAKE HIGHLAND PREP MIDDLE SCHO", "type": "Building Permit", "year": 2005.0, "cost": "$4.0M", "status": "Finaled"}, {"name": "WINTER PARK UROLOGY ADD PH 2", "type": "Building Permit", "year": 2007.0, "cost": "$3.7M", "status": "Finaled"}], "Parramore": [{"name": "WESTCOURT HOTEL/RESIDENTIAL TOWER", "type": "Building Permit", "year": 2025.0, "cost": "$131.6M", "status": "Open"}, {"name": "ORLANDO MLS STADIUM", "type": "Building Permit", "year": 2015.0, "cost": "$87.2M", "status": "Finaled"}, {"name": "ORLANDO EVENTS CENTER", "type": "Building Permit", "year": 2008.0, "cost": "$63.8M", "status": "Closed"}, {"name": "PARCEL Y - APARTMENT BUILDING", "type": "Building Permit", "year": 2021.0, "cost": "$61.7M", "status": "Open"}, {"name": "CREATIVE VILLAGE PARCEL M", "type": "Building Permit", "year": 2018.0, "cost": "$57.1M", "status": "Finaled"}, {"name": "ORLANDO EVENTS CENTER", "type": "Building Permit", "year": 2008.0, "cost": "$57.0M", "status": "Closed"}, {"name": "Modera Creative Village", "type": "Building Permit", "year": 2019.0, "cost": "$54.5M", "status": "Finaled"}, {"name": "STUDENT HOUSING AT CREATIVE VI", "type": "Building Permit", "year": 2017.0, "cost": "$48.5M", "status": "Finaled"}, {"name": "UCF DOWNTOWN CAMPUS DR. PHILLIPS ACADEMIC BLDG", "type": "Engineering", "year": 2018.0, "cost": "$48.0M", "status": "Open"}, {"name": "OMD: COALITION FOR THE HOMELESS OF CENTRAL FL NEW", "type": "Building Permit", "year": 2026.0, "cost": "$46.4M", "status": "Hold"}, {"name": "PARCEL X - OFFICE BUILDING", "type": "Building Permit", "year": 2021.0, "cost": "$40.2M", "status": "Open"}, {"name": "SPC: CREATIVE VILLAGE - PARCEL H", "type": "Building Permit", "year": 2025.0, "cost": "$34.0M", "status": "Open"}, {"name": "WEST CHURCH STREET DEVELOPMENT", "type": "Building Permit", "year": 2001.0, "cost": "$31.8M", "status": "Closed"}, {"name": "ORLANDO EVENTS CENTER GARAGE", "type": "Building Permit", "year": 2009.0, "cost": "$23.4M", "status": "Finaled"}, {"name": "WESTCOURT VENUE BUILDING", "type": "Building Permit", "year": 2025.0, "cost": "$22.8M", "status": "Open"}], "SoDo": [{"name": "SPC: ORLANDO HEALTH ARNOLD PALMER HOSP 7TH FL", "type": "Building Permit", "year": 2025.0, "cost": "$500.0M", "status": "Open"}, {"name": "PP- ORLANDO HEALTH CHILDREN'S PAVILLION", "type": "Building Permit", "year": 2023.0, "cost": "$124.0M", "status": "Open"}, {"name": "ORMC EXPANSION PROJECT", "type": "Building Permit", "year": 2012.0, "cost": "$98.8M", "status": "Finaled"}, {"name": "ORLANDO HEALTH- HOSPITAL", "type": "Building Permit", "year": 2020.0, "cost": "$72.0M", "status": "Finaled"}, {"name": "ARNOLD PALMER WOMEN & INFANTS", "type": "Building Permit", "year": 2003.0, "cost": "$71.5M", "status": "Finaled"}, {"name": "ORLANDO HEALTH-HOSPITAL", "type": "Building Permit", "year": 2020.0, "cost": "$56.5M", "status": "Finaled"}, {"name": "ORMC EXPANSION PROJECT", "type": "Building Permit", "year": 2012.0, "cost": "$33.1M", "status": "Finaled"}, {"name": "SPC ORMC SURGICAL EXPANSION - 4TH FLOOR", "type": "Building Permit", "year": 2021.0, "cost": "$33.0M", "status": "Finaled"}, {"name": "SPC: ORMC DIGESTIVE HEALTH INSTITUTE", "type": "Building Permit", "year": 2021.0, "cost": "$29.7M", "status": "Finaled"}, {"name": "M D ANDERSON CANCER CENTER-ORL", "type": "Building Permit", "year": 1999.0, "cost": "$27.6M", "status": "Finaled"}, {"name": "ORMC EXPANSION PROJECT", "type": "Building Permit", "year": 2012.0, "cost": "$27.4M", "status": "Finaled"}, {"name": "ORLANDO HEALTH- ASC/MOB", "type": "Building Permit", "year": 2020.0, "cost": "$22.9M", "status": "Finaled"}, {"name": "ORLANDO HEALTH NEUROSCIENCE INSTITUTE", "type": "Building Permit", "year": 2022.0, "cost": "$22.8M", "status": "Finaled"}, {"name": "ORLANDO HEALTH MOB & F DECK", "type": "Building Permit", "year": 2019.0, "cost": "$21.8M", "status": "Finaled"}, {"name": "CRESCENT LUCERNE", "type": "Building Permit", "year": 2016.0, "cost": "$21.8M", "status": "Finaled"}], "The Milk District": [{"name": "400 N PRIMROSE DRIVE ORLANDO, FL", "type": "Building Permit", "year": 2018.0, "cost": "$7.3M", "status": "Finaled"}, {"name": "ORLANDO PHILHARMONIC RENO", "type": "Building Permit", "year": 2014.0, "cost": "$5.4M", "status": "Closed"}, {"name": "THE PLAZA LIVE", "type": "Building Permit", "year": 2023.0, "cost": "$4.9M", "status": "Finaled"}, {"name": "PP-MILKSTACKS APARTMENTS", "type": "Building Permit", "year": 2022.0, "cost": "$4.2M", "status": "Finaled"}, {"name": "BELL SOUTH COLONIAL ADDITION", "type": "Building Permit", "year": 2001.0, "cost": "$3.6M", "status": "Closed"}, {"name": "LUCKY'S MARKET", "type": "Building Permit", "year": 2018.0, "cost": "$3.5M", "status": "Finaled"}, {"name": "EOS FITNESS ORLANDO", "type": "Building Permit", "year": 2025.0, "cost": "$3.2M", "status": "Open"}, {"name": "HERNDON PLAZA PHASE 1", "type": "Building Permit", "year": 2006.0, "cost": "$2.8M", "status": "Closed"}, {"name": "HAMPTON PARK-ELDERLY APTS.", "type": "Building Permit", "year": 2003.0, "cost": "$2.7M", "status": "Finaled"}, {"name": "SHURGARD STORAGE - A", "type": "Building Permit", "year": 2004.0, "cost": "$2.5M", "status": "Closed"}, {"name": "PRIMROSE BUILDING RENOVATIONS", "type": "Building Permit", "year": 2005.0, "cost": "$2.2M", "status": "Finaled"}, {"name": "SHURGARD STORAGE", "type": "Building Permit", "year": 2003.0, "cost": "$1.8M", "status": "Closed"}, {"name": "CONN'S APPLIANCE INC", "type": "Building Permit", "year": 2020.0, "cost": "$1.8M", "status": "Closed"}, {"name": "Conn Appliances, Inc.", "type": "Building Permit", "year": 2020.0, "cost": "$1.8M", "status": "Finaled"}, {"name": "Sprouts, Orlando FL", "type": "Building Permit", "year": 2021.0, "cost": "$1.8M", "status": "Finaled"}], "Thornton Park District": [{"name": "520 E CHURCH ST", "type": "Building Permit", "year": 2016.0, "cost": "$58.4M", "status": "Finaled"}, {"name": "CITI TOWER AT EOLA PARK", "type": "Building Permit", "year": 2015.0, "cost": "$56.2M", "status": "Finaled"}, {"name": "420 CHURCH ST", "type": "Building Permit", "year": 2013.0, "cost": "$45.3M", "status": "Finaled"}, {"name": "THE SANCTUARY DOWNTOWN", "type": "Building Permit", "year": 2003.0, "cost": "$42.6M", "status": "Closed"}, {"name": "PARAMOUNT ON LAKE EOLA", "type": "Building Permit", "year": 2005.0, "cost": "$40.5M", "status": "Finaled"}, {"name": "101 EOLA", "type": "Building Permit", "year": 2006.0, "cost": "$30.0M", "status": "Finaled"}, {"name": "STAR TOWER, THE", "type": "Building Permit", "year": 2005.0, "cost": "$28.1M", "status": "Finaled"}, {"name": "THE WAVERLY AT LAKE EOLA", "type": "Building Permit", "year": 1999.0, "cost": "$27.7M", "status": "Closed"}, {"name": "THE STAR TOWER CONDOMINIUM", "type": "Building Permit", "year": 2005.0, "cost": "$25.0M", "status": "Closed"}, {"name": "MONTAGE APARTMENTS", "type": "Building Permit", "year": 2007.0, "cost": "$18.9M", "status": "Closed"}, {"name": "217 EOLA CONDOMINIUM", "type": "Building Permit", "year": 2006.0, "cost": "$18.5M", "status": "Closed"}, {"name": "BAPTIST TERRACE", "type": "Building Permit", "year": 2020.0, "cost": "$10.0M", "status": "Finaled"}, {"name": "THORNTON PARK CENTRAL", "type": "Building Permit", "year": 2000.0, "cost": "$10.0M", "status": "Closed"}, {"name": "520 CHURCH ST", "type": "Building Permit", "year": 2015.0, "cost": "$8.8M", "status": "Closed"}, {"name": "520 E CHURCH ST", "type": "Electrical", "year": 2018.0, "cost": "$6.6M", "status": "Finaled"}], "West Lakes": [{"name": "CWS PACKAGE 3 RENOVATIONS", "type": "Building Permit", "year": 2026.0, "cost": "$128.4M", "status": "Hold"}, {"name": "FLA CITRUS BOWL RECONSTRUCTION", "type": "Building Permit", "year": 2013.0, "cost": "$108.0M", "status": "Closed"}, {"name": "FLA CITRUS BOWL RECONSTRUCTION", "type": "Building Permit", "year": 2014.0, "cost": "$52.6M", "status": "Closed"}, {"name": "LION GARDENS APARTMENTS", "type": "Building Permit", "year": 2022.0, "cost": "$52.5M", "status": "Open"}, {"name": "Camping World Stadium Improvements", "type": "Building Permit", "year": 2020.0, "cost": "$40.0M", "status": "Finaled"}, {"name": "CWS PACKAGE 4 STADIUM SKIN - LS - CIV", "type": "Building Permit", "year": 2026.0, "cost": "$29.4M", "status": "Hold"}, {"name": "PP-LAST MILE LOGISTICS HUB", "type": "Building Permit", "year": 2019.0, "cost": "$28.0M", "status": "Finaled"}, {"name": "VILLAGES AT WEST LAKES", "type": "Building Permit", "year": 2016.0, "cost": "$22.6M", "status": "Finaled"}, {"name": "ORL POLICE DEPT HEADQUARTERS", "type": "Building Permit", "year": 2015.0, "cost": "$18.4M", "status": "Finaled"}, {"name": "LION GARDENS APARTMENTS", "type": "Building Permit", "year": 2022.0, "cost": "$17.9M", "status": "Open"}, {"name": "LION GARDENS APARTMENTS", "type": "Building Permit", "year": 2022.0, "cost": "$17.1M", "status": "Open"}, {"name": "FLA CITRUS BOWL RECONSTRUCTION", "type": "Electrical", "year": 2014.0, "cost": "$16.4M", "status": "Closed"}, {"name": "CWS PACKAGE 1 EARLY RELEASE FOUNDATION", "type": "Building Permit", "year": 2025.0, "cost": "$14.9M", "status": "Hold"}, {"name": "MEARS FLEET TRANS CENTER", "type": "Building Permit", "year": 2014.0, "cost": "$14.4M", "status": "Closed"}, {"name": "PENDANA SENIOR HOUSING", "type": "Building Permit", "year": 2018.0, "cost": "$14.0M", "status": "Finaled"}]}, "recent_activity": {"Audubon Park Garden District": [{"project_name": "WILLARD APPLIANCE INC", "application_type": "Engineering", "work_type": "Other", "application_status": "Closed", "processed_date": "10/17/2025", "cost_fmt": "$2K"}, {"project_name": "WILLARD APPLIANCE INC", "application_type": "Engineering", "work_type": "Other", "application_status": "Open", "processed_date": "10/17/2025", "cost_fmt": "$2K"}, {"project_name": "1803 EAST WINTER PARK RD ORLANDO FL 32803", "application_type": "Electrical", "work_type": "Cos", "application_status": "Open", "processed_date": "09/29/2025", "cost_fmt": "$11K"}, {"project_name": "Rosa Lp Ltd Lllp UNIT 1805", "application_type": "Electrical", "work_type": "Cos", "application_status": "Finaled", "processed_date": "09/18/2024", "cost_fmt": "$4K"}, {"project_name": "2800 CORRINE DRIVE", "application_type": "Electrical", "work_type": "Addition", "application_status": "Open", "processed_date": "09/11/2025", "cost_fmt": "$10K"}, {"project_name": "PEXP - Lady Luck", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "07/15/2025", "cost_fmt": "\u2014"}, {"project_name": "PEXP - Lady Luck", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "07/11/2025", "cost_fmt": "$1K"}, {"project_name": "HELLCATS", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "06/20/2024", "cost_fmt": "$6K"}, {"project_name": "CORRINE DRIVE ROOF REPLACEMENT PROJECT", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "06/14/2024", "cost_fmt": "$470K"}, {"project_name": "WARRIOR ONE VEHICLE REPAIR", "application_type": "Building Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "05/28/2024", "cost_fmt": "$37K"}, {"project_name": "WARRIOR ONE VEHICLE REPAIR", "application_type": "Building Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "05/22/2024", "cost_fmt": "$12K"}, {"project_name": "ACF3817 Fowler, Rick", "application_type": "Building Permit", "work_type": "Fence", "application_status": "Finaled", "processed_date": "05/06/2025", "cost_fmt": "$6K"}, {"project_name": "PEXP - Grazie", "application_type": "Building Permit", "work_type": "ChangeUse", "application_status": "Finaled", "processed_date": "04/09/2024", "cost_fmt": "$1K"}, {"project_name": "PEXP 3214 CORRINE DR", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "03/19/2024", "cost_fmt": "$14K"}, {"project_name": "PEXP 3214 CORRINE DR", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "03/18/2024", "cost_fmt": "$20K"}, {"project_name": "METER SEPARATION 2800-2802 CORRINE DR", "application_type": "Electrical", "work_type": "Alt", "application_status": "Open", "processed_date": "02/27/2025", "cost_fmt": "$10K"}, {"project_name": "PEXP 3214 CORRINE DR", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "02/27/2024", "cost_fmt": "$3K"}, {"project_name": "SFM 0599", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Finaled", "processed_date": "02/07/2025", "cost_fmt": "$1K"}, {"project_name": "PEXP 3214 CORRINE DR", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "01/26/2024", "cost_fmt": "\u2014"}, {"project_name": "KELLYS ICE CREAM-SIGN", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "01/24/2024", "cost_fmt": "$2K"}], "Church Street Parramore Zone 2": [], "City District": [{"project_name": "PEXP 55 W", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Finaled", "processed_date": "12/31/2024", "cost_fmt": "$12K"}, {"project_name": "PEXPPM - 222SOA - Tenant Lobby/Lounge", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/31/2024", "cost_fmt": "$18K"}, {"project_name": "ATTORNEY GENERAL, STE 1140", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/31/2024", "cost_fmt": "$5K"}, {"project_name": "PEXPPM - 200SOA - 1st Floor Tenant Hub", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/31/2024", "cost_fmt": "$18K"}, {"project_name": "PARKING GARAGE STAIRWAY RENOVATION", "application_type": "Building Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/30/2024", "cost_fmt": "$155K"}, {"project_name": "25 E PINE STREET", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Finaled", "processed_date": "12/29/2025", "cost_fmt": "$4K"}, {"project_name": "PEXPHW TRIAL PRO", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/29/2025", "cost_fmt": "$14K"}, {"project_name": "PEXPPM - NNN REIT SUITE 900 IMPROVEMENTS", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Finaled", "processed_date": "12/29/2025", "cost_fmt": "$2K"}, {"project_name": "PEXPHW TRIAL PRO", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/29/2025", "cost_fmt": "$6K"}, {"project_name": "25 E PINE STREET", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/29/2025", "cost_fmt": "$4K"}, {"project_name": "PEXP-COBB AND GONZALEZ", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/27/2024", "cost_fmt": "$15K"}, {"project_name": "ORLANDO MAGNOLIA GENERATOR RESILIENCY", "application_type": "Building Permit", "work_type": "New", "application_status": "Closed", "processed_date": "12/27/2024", "cost_fmt": "$1K"}, {"project_name": "TRIAL PROS", "application_type": "Fire Permit", "work_type": "FireSupp", "application_status": "Finaled", "processed_date": "12/26/2025", "cost_fmt": "$3K"}, {"project_name": "PEXP 55 W", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/26/2024", "cost_fmt": "$250"}, {"project_name": "PEXP 55 W", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Hold", "processed_date": "12/23/2024", "cost_fmt": "$250"}, {"project_name": "PEXP - 2024 Tenant Improvements", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/23/2024", "cost_fmt": "$16K"}, {"project_name": "201 S ORANGE AVE 14TH FL", "application_type": "Electrical", "work_type": "New", "application_status": "Finaled", "processed_date": "12/23/2024", "cost_fmt": "$2K"}, {"project_name": "PEXPHW HULA MULA", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/22/2025", "cost_fmt": "$30K"}, {"project_name": "255 S ORANGE AVE", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Finaled", "processed_date": "12/20/2024", "cost_fmt": "$3K"}, {"project_name": "255 S ORANGE AVE", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/20/2024", "cost_fmt": "$3K"}], "College Park": [{"project_name": "COLLEGE PARK RETAIL SHELL BUILDING", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "12/30/2024", "cost_fmt": "\u2014"}, {"project_name": "SEWER CONNECTION: PINETREE", "application_type": "Sewer Benefit Fees", "work_type": "SF", "application_status": "Open", "processed_date": "12/20/2024", "cost_fmt": "\u2014"}, {"project_name": "SEWER CONNECTION: PINETREE", "application_type": "Plumbing", "work_type": "Sewer", "application_status": "Finaled", "processed_date": "12/19/2024", "cost_fmt": "$13K"}, {"project_name": "PP-TINC APOTHECARY", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/18/2025", "cost_fmt": "$375K"}, {"project_name": "LATTA", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/17/2024", "cost_fmt": "$10K"}, {"project_name": "2305 EDGEWATER DR UNIT 1721", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Open", "processed_date": "12/09/2025", "cost_fmt": "$9K"}, {"project_name": "PEXP OLEA RESTAURANT INTERIOR ALTERATION", "application_type": "Electrical", "work_type": "Alt", "application_status": "Open", "processed_date": "12/09/2025", "cost_fmt": "$30K"}, {"project_name": "PEXP THE INK LAB", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/08/2025", "cost_fmt": "$1K"}, {"project_name": "PLUSH PAWS", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/05/2025", "cost_fmt": "$8K"}, {"project_name": "OUR STORE", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Open", "processed_date": "12/03/2025", "cost_fmt": "$50"}, {"project_name": "1209 EDGEWATER DR", "application_type": "Electrical", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/02/2025", "cost_fmt": "$16K"}, {"project_name": "PEXP HI LI BEAUTY BAR", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/02/2025", "cost_fmt": "$15K"}, {"project_name": "THE GOOD POUR WALK-IN COOLER", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/02/2024", "cost_fmt": "$16K"}, {"project_name": "549 W PAR ST", "application_type": "Electrical", "work_type": "Repair", "application_status": "Finaled", "processed_date": "11/27/2024", "cost_fmt": "$5K"}, {"project_name": "PEXP HI LI BEAUTY BAR", "application_type": "Electrical", "work_type": "Alt", "application_status": "Open", "processed_date": "11/24/2025", "cost_fmt": "$20K"}, {"project_name": "PEXP - Beem Light Sauna, Suites C & D", "application_type": "Fire Permit", "work_type": "FireSupp", "application_status": "Finaled", "processed_date": "11/21/2024", "cost_fmt": "$11K"}, {"project_name": "COLLEGE PARK RETAIL SHELL BUILDING", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "11/21/2024", "cost_fmt": "$300K"}, {"project_name": "PEXP OLEA RESTAURANT INTERIOR ALTERATION", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Open", "processed_date": "11/19/2025", "cost_fmt": "$9K"}, {"project_name": "PEXP Store renovation for Big K Of Orlando LLC", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "11/19/2025", "cost_fmt": "$45K"}, {"project_name": "PEXP - Beem Light Sauna, Suites C & D", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "11/15/2024", "cost_fmt": "$83K"}], "Curry Ford West": [{"project_name": "THE UPS STORE SIGN", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Open", "processed_date": "12/30/2025", "cost_fmt": "$3K"}, {"project_name": "PEXP - EL COQUI NINJA RESTAURANT - UNIT D", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "12/18/2024", "cost_fmt": "\u2014"}, {"project_name": "PEXP - EL COQUI NINJA RESTAURANT - UNIT D", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "12/18/2024", "cost_fmt": "\u2014"}, {"project_name": "JOHNSON MANOR AC CORRIDORS", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/17/2025", "cost_fmt": "$135K"}, {"project_name": "ORLANDO METRO GYMNASTIC", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Finaled", "processed_date": "12/17/2025", "cost_fmt": "$25K"}, {"project_name": "ORLANDO METRO GYMNASTIC", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/17/2025", "cost_fmt": "$107"}, {"project_name": "JOHNSON MANOR ELEVATOR ADDITION", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/17/2025", "cost_fmt": "$275K"}, {"project_name": "MULLER - 1525 ROSCOMARE AVE", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/15/2025", "cost_fmt": "$17K"}, {"project_name": "FOUR SEASONS FIREWORK TENT", "application_type": "Building Permit", "work_type": "Tent", "application_status": "Open", "processed_date": "12/08/2025", "cost_fmt": "$2K"}, {"project_name": "PEXP JOHNNY'S DINER", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/04/2025", "cost_fmt": "$2K"}, {"project_name": "FINISH LINE", "application_type": "Building Permit", "work_type": "Repair", "application_status": "Open", "processed_date": "12/02/2025", "cost_fmt": "$800"}, {"project_name": "FM 163 DOVER SHORES POOL/ PUMP", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "11/26/2025", "cost_fmt": "$32K"}, {"project_name": "PEXP JOHNNY'S DINER", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "11/25/2025", "cost_fmt": "$2K"}, {"project_name": "PEXP JOHNNY'S DINER", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "11/21/2025", "cost_fmt": "$4K"}, {"project_name": "Kids & Company", "application_type": "Building Permit", "work_type": "ChangeUse", "application_status": "Finaled", "processed_date": "11/21/2025", "cost_fmt": "$1K"}, {"project_name": "WINN DIXIE 2960 CURRY FORD RD", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "11/18/2025", "cost_fmt": "$50K"}, {"project_name": "ALONA FOOD AFFAI WALL SIGN", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "11/17/2025", "cost_fmt": "$500"}, {"project_name": "ALONA FOOD AFFAIR WALL SIGN", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Finaled", "processed_date": "11/17/2025", "cost_fmt": "$2K"}, {"project_name": "PEXP - Joe Kabotolo Agency, Suite B", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "11/14/2025", "cost_fmt": "$1K"}, {"project_name": "SWEAT REROOF", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "11/12/2025", "cost_fmt": "$18K"}], "Gateway Orlando": [{"project_name": "WAWA STORE 5136", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/31/2025", "cost_fmt": "$201K"}, {"project_name": "STORAGE CONTAINER PERMIT", "application_type": "Building Permit", "work_type": "Accessory", "application_status": "Hold", "processed_date": "12/31/2025", "cost_fmt": "$2K"}, {"project_name": "PP - Interior Alteration Of Existing Convenient", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Completed", "processed_date": "12/31/2025", "cost_fmt": "$1K"}, {"project_name": "RENAISSANCE HOTEL, ORLANDO", "application_type": "Plumbing", "work_type": "Repair", "application_status": "Open", "processed_date": "12/30/2025", "cost_fmt": "$288K"}, {"project_name": "LUNA STATION", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/30/2025", "cost_fmt": "$42K"}, {"project_name": "KOON THAI", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Finaled", "processed_date": "12/30/2024", "cost_fmt": "$2K"}, {"project_name": "KOON THAI", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/30/2024", "cost_fmt": "$350"}, {"project_name": "MASSAGE", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/29/2025", "cost_fmt": "$500"}, {"project_name": "COURTYARD BY MARRIOTT EXTERIOR RENOVATIONS", "application_type": "GAS", "work_type": "Natural", "application_status": "Finaled", "processed_date": "12/29/2025", "cost_fmt": "$1K"}, {"project_name": "5449 S SEMORAN BLVD SUITE 200", "application_type": "Fire Permit", "work_type": "FireSupp", "application_status": "Finaled", "processed_date": "12/27/2024", "cost_fmt": "$19K"}, {"project_name": "HOFFNER COMMONS MID BLOCK CROSSWALK", "application_type": "Engineering", "work_type": "Comm", "application_status": "Open", "processed_date": "12/26/2025", "cost_fmt": "$34K"}, {"project_name": "AVALON CONDO REROOF B #7", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/23/2025", "cost_fmt": "$35K"}, {"project_name": "AVALON CONDO REROOF B #7", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/23/2025", "cost_fmt": "$36K"}, {"project_name": "AVALON CONDO REROOF B #5", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/23/2025", "cost_fmt": "$27K"}, {"project_name": "637 S SEMORAN BLVD ORLANDO FL 32807 SUITE E", "application_type": "Electrical", "work_type": "New", "application_status": "Hold", "processed_date": "12/23/2025", "cost_fmt": "$2K"}, {"project_name": "MASSAGE", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Finaled", "processed_date": "12/19/2025", "cost_fmt": "$4K"}, {"project_name": "BRIDGEPREP ACADEMY OF ORANGE", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Open", "processed_date": "12/18/2025", "cost_fmt": "$187"}, {"project_name": "BRIDGEPREP ACADEMY OF ORANGE", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Open", "processed_date": "12/18/2025", "cost_fmt": "$187"}, {"project_name": "ACE RENT A CAR", "application_type": "Building Permit", "work_type": "Accessory", "application_status": "Hold", "processed_date": "12/16/2024", "cost_fmt": "$6K"}, {"project_name": "BUFFALO WILD WINGS 667", "application_type": "Building Permit", "work_type": "Repair", "application_status": "Open", "processed_date": "12/15/2025", "cost_fmt": "$39K"}], "Ivanhoe Village": [{"project_name": "SPC: ADVENTHEALTH ORLANDO SURGERY ONC - SUITE 340", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Open", "processed_date": "12/31/2025", "cost_fmt": "$18K"}, {"project_name": "ORLANDO SCIENCE CENTER PHASE III CLASSROOM RENOVAT", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/31/2025", "cost_fmt": "$85K"}, {"project_name": "SPC: ADVENTHEALTH ORLANDO SURGERY ONC - SUITE 340", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Open", "processed_date": "12/31/2025", "cost_fmt": "$18K"}, {"project_name": "SPC: ADVENTHEALTH ORLANDO ADULT ENT- CIF 501 & 502", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Open", "processed_date": "12/31/2025", "cost_fmt": "$9K"}, {"project_name": "SPC: ADVENTHEALTH ORLANDO ADULT ENT- CIF 501 & 502", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Open", "processed_date": "12/31/2025", "cost_fmt": "$9K"}, {"project_name": "SPC: AHO WOMENS TOWER LEN BOARD/LEN BOARD MAIN TOW", "application_type": "Electrical", "work_type": "Alt", "application_status": "Open", "processed_date": "12/29/2025", "cost_fmt": "$36K"}, {"project_name": "SPC: AHO ADULT ENT - CIF 501 & 505", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/29/2025", "cost_fmt": "$8K"}, {"project_name": "SPC: ADVENTHEALTH UNIVERSITY SIM BUILDING", "application_type": "Engineering", "work_type": "Comm", "application_status": "Open", "processed_date": "12/27/2024", "cost_fmt": "\u2014"}, {"project_name": "LHPS OUTDOOR BATTING CAGE", "application_type": "Building Permit", "work_type": "Accessory", "application_status": "Finaled", "processed_date": "12/27/2024", "cost_fmt": "$267K"}, {"project_name": "SPC: AHO HISTOLOGY LAB ALTERATIONS", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/26/2025", "cost_fmt": "$2K"}, {"project_name": "SPC: AHO HISTOLOGY LAB ALTERATIONS", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/26/2025", "cost_fmt": "$1K"}, {"project_name": "SPC: AHO TRANSFORMATION / DEMOLITION", "application_type": "Engineering", "work_type": "SiteWO", "application_status": "Open", "processed_date": "12/26/2025", "cost_fmt": "\u2014"}, {"project_name": "SPC: AHO WOMEN/MAIN/GT LEN BOAD", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Open", "processed_date": "12/23/2025", "cost_fmt": "$9K"}, {"project_name": "TR 2ND FLOOR CALORIMENTRY CHILLER", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/20/2024", "cost_fmt": "$100K"}, {"project_name": "SPC: ADVENTHEALTH ORLANDO REHAB & MUSIC RENO", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Finaled", "processed_date": "12/20/2024", "cost_fmt": "$10K"}, {"project_name": "SPC: AH ORLANDO MED PLAZA 3RD FL REHAB THERAPY", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/20/2024", "cost_fmt": "$27K"}, {"project_name": "SPC: ADVENTHEALTH ORLANDO REHAB & MUSIC RENO", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/20/2024", "cost_fmt": "$10K"}, {"project_name": "SPC: 9TH FLOOR STAFF RESPITE ROOM", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/19/2025", "cost_fmt": "$50K"}, {"project_name": "PEXP - 16th Floor Corridor Renovation", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/19/2024", "cost_fmt": "$300K"}, {"project_name": "SPC: ADVENT HEALTH ORLANDO DISHWASH ROOM", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/18/2025", "cost_fmt": "$54K"}], "Mills 50": [{"project_name": "PEXP - Brightway Restaurant Buildout, Suite 7", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/29/2025", "cost_fmt": "$5K"}, {"project_name": "PEXP- POP THAI RESTAURANT 1227 N MILLS AVE", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/23/2025", "cost_fmt": "$1K"}, {"project_name": "Lake Highland Prep School Woodshop Building", "application_type": "Engineering", "work_type": "SiteWO", "application_status": "Closed", "processed_date": "12/23/2024", "cost_fmt": "\u2014"}, {"project_name": "Lake Highland Prep School Woodshop Building", "application_type": "Demolition Permit", "work_type": "", "application_status": "Finaled", "processed_date": "12/23/2024", "cost_fmt": "\u2014"}, {"project_name": "Lake Highland Prep School Woodshop Building", "application_type": "Building Permit", "work_type": "Fence", "application_status": "Closed", "processed_date": "12/23/2024", "cost_fmt": "$1K"}, {"project_name": "EXTERIOR PERMITER WALL REPAIR", "application_type": "Engineering", "work_type": "Other", "application_status": "Finaled", "processed_date": "12/18/2024", "cost_fmt": "\u2014"}, {"project_name": "UPSHOT MEDICAL CENTER 1ST FLOOR AIR HANDLER", "application_type": "Fire Permit", "work_type": "FireSupp", "application_status": "Finaled", "processed_date": "12/17/2024", "cost_fmt": "$2K"}, {"project_name": "LOVING HUT", "application_type": "Fire Permit", "work_type": "FireSupp", "application_status": "Finaled", "processed_date": "12/15/2025", "cost_fmt": "$2K"}, {"project_name": "U & ME HOTPOT RESTAURANT", "application_type": "Electrical", "work_type": "Alt", "application_status": "Completed", "processed_date": "12/12/2024", "cost_fmt": "$5K"}, {"project_name": "PEXP AHF ORLANDO", "application_type": "Transportation Impact Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "12/11/2025", "cost_fmt": "\u2014"}, {"project_name": "HAWKERS MILLS", "application_type": "Plumbing", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/11/2025", "cost_fmt": "$12K"}, {"project_name": "PEXP AHF ORLANDO", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "12/11/2025", "cost_fmt": "\u2014"}, {"project_name": "U & ME HOTPOT RESTAURANT", "application_type": "Fire Permit", "work_type": "FireSupp", "application_status": "Finaled", "processed_date": "12/10/2024", "cost_fmt": "$19K"}, {"project_name": "PEXP: TREMBLE", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/09/2025", "cost_fmt": "$150K"}, {"project_name": "AC SYSTEM", "application_type": "Mechanical Permit", "work_type": "New", "application_status": "Finaled", "processed_date": "12/09/2025", "cost_fmt": "$6K"}, {"project_name": "PEXP - Brightway Restaurant Buildout, Suite 7", "application_type": "GAS", "work_type": "Natural", "application_status": "Finaled", "processed_date": "12/08/2025", "cost_fmt": "$5K"}, {"project_name": "PEXP - Brightway Restaurant Buildout, Suite 7", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/08/2025", "cost_fmt": "$5K"}, {"project_name": "PUBLIC STORAGE 08762 3RD FLOOR UNIT 12", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/05/2025", "cost_fmt": "$5K"}, {"project_name": "SPC: WP UROLOGY SURGERY CENTER", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/05/2025", "cost_fmt": "$17K"}, {"project_name": "500 E COLONIAL DRIVE", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/05/2024", "cost_fmt": "$42K"}], "Parramore": [{"project_name": "DOLLAR TREE #8117", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "12/27/2024", "cost_fmt": "\u2014"}, {"project_name": "AAA - 16 N PARRAMORE AVENUE", "application_type": "Engineering", "work_type": "Other", "application_status": "Open", "processed_date": "12/26/2025", "cost_fmt": "$68K"}, {"project_name": "CHRISTIAN SERVICE CENTER INTAKE CENTER", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/26/2025", "cost_fmt": "$250K"}, {"project_name": "PEXP - Christian Service Center - 816 Building Ren", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/26/2024", "cost_fmt": "$970K"}, {"project_name": "655 W CHURCH ST", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Open", "processed_date": "12/26/2024", "cost_fmt": "$3K"}, {"project_name": "655 W CHURCH ST", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Open", "processed_date": "12/26/2024", "cost_fmt": "$3K"}, {"project_name": "SPC: CREATIVE VILLAGE - PARCEL H", "application_type": "Building Permit", "work_type": "Fence", "application_status": "Open", "processed_date": "12/23/2025", "cost_fmt": "$12K"}, {"project_name": "716 W ROBINSON ST", "application_type": "Electrical", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/22/2025", "cost_fmt": "$14K"}, {"project_name": "CHRISTIAN SERVICE CENTER PHASE 2", "application_type": "Engineering", "work_type": "Other", "application_status": "Open", "processed_date": "12/19/2025", "cost_fmt": "$200K"}, {"project_name": "Jack and Jackie's Wingz Things and BBQ", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "12/19/2025", "cost_fmt": "\u2014"}, {"project_name": "DMS FDLE CRIME LAB ELEC - MECH REPAIRS AND UPGRADE", "application_type": "Building Permit", "work_type": "Repair", "application_status": "Open", "processed_date": "12/18/2025", "cost_fmt": "$2.5M"}, {"project_name": "SPC: CITY OF ORLANDO TENNIS CLUB DEMO", "application_type": "Building Permit", "work_type": "Fence", "application_status": "Finaled", "processed_date": "12/18/2024", "cost_fmt": "$100"}, {"project_name": "SPC: CITY OF ORLANDO TENNIS CLUB DEMO", "application_type": "Demolition Permit", "work_type": "", "application_status": "Finaled", "processed_date": "12/18/2024", "cost_fmt": "\u2014"}, {"project_name": "SPC: CITY OF ORLANDO TENNIS CLUB DEMO", "application_type": "Engineering", "work_type": "SiteWO", "application_status": "Finaled", "processed_date": "12/18/2024", "cost_fmt": "\u2014"}, {"project_name": "PEXP WIG FACTORY", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/17/2025", "cost_fmt": "$3K"}, {"project_name": "OCFM CENTRAL DISTRICT - HEALTH DEPT #1 A/V RELOCAT", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/17/2025", "cost_fmt": "$600"}, {"project_name": "OCFM CENTRAL DISTRICT - HEALTH DEPT #1 A/V RELOCAT", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Finaled", "processed_date": "12/17/2025", "cost_fmt": "$2K"}, {"project_name": "PADEL CLUB", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/17/2024", "cost_fmt": "$750K"}, {"project_name": "NCI-FL CITY VIEW APTS", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Open", "processed_date": "12/16/2024", "cost_fmt": "$9K"}, {"project_name": "WESTCOURT PROJECT", "application_type": "Parks Impact Fees", "work_type": "MF", "application_status": "Open", "processed_date": "12/13/2024", "cost_fmt": "\u2014"}], "SoDo": [{"project_name": "SELL YOUR GADGETS", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Finaled", "processed_date": "12/31/2025", "cost_fmt": "$1K"}, {"project_name": "SELL YOUR GADGETS", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/31/2025", "cost_fmt": "$150"}, {"project_name": "INTERIOR/EXTERIOR IMPROVEMENT TO FIRE STATION BLDG", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/31/2025", "cost_fmt": "$8K"}, {"project_name": "SPC: OH APH 7TH FLOOR RENOVATION", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/31/2025", "cost_fmt": "$987K"}, {"project_name": "SPC: OH APH 7TH FLOOR RENOVATION", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/31/2025", "cost_fmt": "$473K"}, {"project_name": "PEXP CITY BEAUTIFUL PEDIATRIC DENTISTRY", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "12/31/2024", "cost_fmt": "\u2014"}, {"project_name": "INTERIOR/EXTERIOR IMPROVEMENT TO FIRE STATION BLDG", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/30/2025", "cost_fmt": "$94K"}, {"project_name": "SPC: ORLANDO HEALTH ORMC IT WAREHOUSE ELE UPGRADE", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/30/2025", "cost_fmt": "$65K"}, {"project_name": "ANGELS PHARMACY SIGN", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Open", "processed_date": "12/30/2025", "cost_fmt": "$7K"}, {"project_name": "JOE'S CARWASH", "application_type": "Building Permit", "work_type": "New", "application_status": "Finaled", "processed_date": "12/30/2024", "cost_fmt": "$15K"}, {"project_name": "SAME DAY SURGERY CENTER REPAIRS", "application_type": "Building Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/26/2024", "cost_fmt": "$45K"}, {"project_name": "1630 KUHL AVE", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/26/2024", "cost_fmt": "$73K"}, {"project_name": "BANK OF AMERICA-FL0-520-FC", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Open", "processed_date": "12/26/2024", "cost_fmt": "$100"}, {"project_name": "94 Underwood St", "application_type": "Electrical", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/23/2025", "cost_fmt": "$3K"}, {"project_name": "SPC: WPH NICU 3RD FLOOR SLIDING ICU DOORS", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/23/2025", "cost_fmt": "$75K"}, {"project_name": "PEXP TROPICAL SMOOTHIE CAFE", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/23/2025", "cost_fmt": "$28K"}, {"project_name": "SPC: ORMC PEDS COMPLEX CARE", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/23/2024", "cost_fmt": "$11K"}, {"project_name": "SPC: ORLANDO REGIONAL MEDICAL CENTER ACC ROOF", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/22/2025", "cost_fmt": "$1.4M"}, {"project_name": "SPC: OHHVI EXECUTIVE WELLNESS", "application_type": "Fire Permit", "work_type": "FireSupp", "application_status": "Finaled", "processed_date": "12/20/2025", "cost_fmt": "$7K"}, {"project_name": "SPC: EXECUTIVE WELLNESS CENTER", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/20/2025", "cost_fmt": "$40K"}], "The Milk District": [{"project_name": "RE-ROOF 616 N BUMBY AVE", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/26/2025", "cost_fmt": "$20K"}, {"project_name": "SPC: JUST SALAD ALTERATION", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/26/2025", "cost_fmt": "$2K"}, {"project_name": "WHISKEY LOUS", "application_type": "Electrical", "work_type": "Addition", "application_status": "Finaled", "processed_date": "12/26/2024", "cost_fmt": "$2K"}, {"project_name": "20ORL-241711: JOSE O'FARRILL REROOF SHED A", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/20/2024", "cost_fmt": "$2K"}, {"project_name": "20ORL-241711: JOSE O'FARRILL REROOF SHED B", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/20/2024", "cost_fmt": "$2K"}, {"project_name": "3800 E COLONIAL STUCCO REPAIRS", "application_type": "Building Permit", "work_type": "Repair", "application_status": "Closed", "processed_date": "12/17/2024", "cost_fmt": "$4K"}, {"project_name": "EINSTEIN BROS BAGELS 2433", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Closed", "processed_date": "12/16/2025", "cost_fmt": "$29K"}, {"project_name": "BASH & BREW - WALL SIGN", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/15/2025", "cost_fmt": "$500"}, {"project_name": "BASH & BREW - WALL SIGN", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Finaled", "processed_date": "12/15/2025", "cost_fmt": "$2K"}, {"project_name": "RED LIGHT CAMERAS", "application_type": "Electrical", "work_type": "Repair", "application_status": "Closed", "processed_date": "12/11/2025", "cost_fmt": "$2K"}, {"project_name": "20ORL-241711: JOSE O'FARRILL REROOF", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/11/2024", "cost_fmt": "$16K"}, {"project_name": "ORLANDO CHILLER", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/09/2024", "cost_fmt": "$183K"}, {"project_name": "PEXP BURGER KING RESTAURANT REMODEL", "application_type": "Engineering", "work_type": "Other", "application_status": "Finaled", "processed_date": "12/09/2024", "cost_fmt": "\u2014"}, {"project_name": "DAIRY FARMS OF AMERICA", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/05/2025", "cost_fmt": "$197K"}, {"project_name": "2707 EAST JEFFERSON", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Finaled", "processed_date": "12/02/2024", "cost_fmt": "$7K"}, {"project_name": "2707 EAST JEFFERSON", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/02/2024", "cost_fmt": "$7K"}, {"project_name": "EINSTEIN BRO BAGELS 2433", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/01/2025", "cost_fmt": "$29K"}, {"project_name": "PEXP - Primrose Patio Seating & Speakers", "application_type": "Transportation Impact Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "11/27/2024", "cost_fmt": "\u2014"}, {"project_name": "PEXP - Primrose Patio Seating & Speakers", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "11/27/2024", "cost_fmt": "\u2014"}, {"project_name": "PEXP - Primrose Patio Seating & Speakers", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "11/26/2024", "cost_fmt": "$800"}], "Thornton Park District": [{"project_name": "GLOO TI", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/31/2025", "cost_fmt": "$5K"}, {"project_name": "CAMDEN LAKE EOLA", "application_type": "Engineering", "work_type": "Other", "application_status": "Finaled", "processed_date": "12/30/2024", "cost_fmt": "$125K"}, {"project_name": "PEXP - FHCG", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/27/2024", "cost_fmt": "$5K"}, {"project_name": "PEXP - Evergreen", "application_type": "Mechanical Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/26/2024", "cost_fmt": "$600"}, {"project_name": "A-FRAME SIDEWALK SIGN PERMIT", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Open", "processed_date": "12/23/2025", "cost_fmt": "$200"}, {"project_name": "Renovate And Merge Units 809 & 810", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Finaled", "processed_date": "12/23/2024", "cost_fmt": "$1K"}, {"project_name": "PEXPHW GREENSPOON MARDER", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/23/2024", "cost_fmt": "$225K"}, {"project_name": "The Classic PARKLET", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "12/23/2024", "cost_fmt": "\u2014"}, {"project_name": "PEXP 404 E CENTRAL DEMISING PROJECT", "application_type": "Fire Permit", "work_type": "FireSupp", "application_status": "Finaled", "processed_date": "12/23/2024", "cost_fmt": "$4K"}, {"project_name": "ROGERS RESIDENCE", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/18/2024", "cost_fmt": "$10K"}, {"project_name": "Evergreen Juice Bar", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Closed", "processed_date": "12/18/2024", "cost_fmt": "\u2014"}, {"project_name": "SYVAIN RESIDENCE", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/18/2024", "cost_fmt": "$8K"}, {"project_name": "ALIEN TREAT", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Closed", "processed_date": "12/17/2024", "cost_fmt": "$700"}, {"project_name": "ALIEN TREAT", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Closed", "processed_date": "12/17/2024", "cost_fmt": "$700"}, {"project_name": "ALIEN TREAT", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Finaled", "processed_date": "12/17/2024", "cost_fmt": "$700"}, {"project_name": "ALIEN TREAT", "application_type": "Building Permit", "work_type": "Sign", "application_status": "Closed", "processed_date": "12/17/2024", "cost_fmt": "$700"}, {"project_name": "PEXP - Evergreen", "application_type": "Fire Permit", "work_type": "FireSupp", "application_status": "Finaled", "processed_date": "12/16/2024", "cost_fmt": "$4K"}, {"project_name": "101 LAKE AVE", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/16/2024", "cost_fmt": "$300"}, {"project_name": "100 S EOLA DR UNIT 803 ORLANDO FL 32801", "application_type": "Plumbing", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/12/2025", "cost_fmt": "$2K"}, {"project_name": "PEXPHW ROBERT HALF", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/12/2024", "cost_fmt": "$15K"}], "West Lakes": [{"project_name": "1224 S ORANGE BLOSSOM TRL EV CHARGER", "application_type": "Electrical", "work_type": "EVCS", "application_status": "Finaled", "processed_date": "12/30/2024", "cost_fmt": "$1.5M"}, {"project_name": "AMSCOT #83 TELLER UNIT C/O", "application_type": "Mechanical Permit", "work_type": "Repair", "application_status": "Finaled", "processed_date": "12/30/2024", "cost_fmt": "$18K"}, {"project_name": "MONSTER JAM 2026", "application_type": "Building Permit", "work_type": "Tent", "application_status": "Finaled", "processed_date": "12/29/2025", "cost_fmt": "$1K"}, {"project_name": "PORT A PIT BOWL GAMES", "application_type": "Building Permit", "work_type": "Tent", "application_status": "Open", "processed_date": "12/23/2024", "cost_fmt": "$2K"}, {"project_name": "BOWL GAMES- MERCH TENTS", "application_type": "Building Permit", "work_type": "Tent", "application_status": "Open", "processed_date": "12/23/2024", "cost_fmt": "$500"}, {"project_name": "2025 BOWL GAMES", "application_type": "Building Permit", "work_type": "Tent", "application_status": "Open", "processed_date": "12/19/2025", "cost_fmt": "$4K"}, {"project_name": "103 S NASHVILLE AVENUE REROOF", "application_type": "Building Permit", "work_type": "Roof", "application_status": "Finaled", "processed_date": "12/19/2024", "cost_fmt": "$35K"}, {"project_name": "18 N DOLLINS AVENUE", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/18/2024", "cost_fmt": "$17K"}, {"project_name": "LORNA DOONE PARK ART GARDEN CIP0229_P", "application_type": "Engineering", "work_type": "SiteWO", "application_status": "Open", "processed_date": "12/17/2025", "cost_fmt": "\u2014"}, {"project_name": "PP-1220 ALABAMA PL", "application_type": "Sewer Benefit Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "12/17/2025", "cost_fmt": "\u2014"}, {"project_name": "PP-1220 ALABAMA PL", "application_type": "Transportation Impact Fees", "work_type": "Comm", "application_status": "Open", "processed_date": "12/17/2025", "cost_fmt": "\u2014"}, {"project_name": "PEXP - DEL TACO, K18", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Finaled", "processed_date": "12/13/2024", "cost_fmt": "$3K"}, {"project_name": "PEXP - DEL TACO, K18", "application_type": "GAS", "work_type": "Natural", "application_status": "Finaled", "processed_date": "12/13/2024", "cost_fmt": "$3K"}, {"project_name": "2140 W WASHINGTON WH DEMOLITION", "application_type": "Electrical", "work_type": "Alt", "application_status": "Finaled", "processed_date": "12/12/2025", "cost_fmt": "$500"}, {"project_name": "2500 W COLONIAL DR", "application_type": "Fire Permit", "work_type": "FA", "application_status": "Finaled", "processed_date": "12/12/2024", "cost_fmt": "$6K"}, {"project_name": "2500 W COLONIAL DR", "application_type": "Electrical", "work_type": "LowVoltage", "application_status": "Finaled", "processed_date": "12/12/2024", "cost_fmt": "$500"}, {"project_name": "CITY BOWL GAMES", "application_type": "Building Permit", "work_type": "Tent", "application_status": "Finaled", "processed_date": "12/11/2024", "cost_fmt": "$500"}, {"project_name": "PP-5 N ORANGE BLOSSOM TRL", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/10/2025", "cost_fmt": "$450K"}, {"project_name": "PP-1220 ALABAMA PL", "application_type": "Building Permit", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/09/2025", "cost_fmt": "$190K"}, {"project_name": "PP- 1038 Arlington Warehouse Renovations", "application_type": "Plumbing", "work_type": "Alteration", "application_status": "Open", "processed_date": "12/09/2025", "cost_fmt": "$29K"}]}, "work_types": {"Audubon Park Garden District": {"Comm": 233, "Alteration": 155, "Alt": 73, "Unspecified": 72, "Sign": 62, "Repair": 52, "LowVoltage": 30, "Roof": 28}, "Church Street Parramore Zone 2": {"Repair": 29, "Roof": 22, "Comm": 18, "Alteration": 10, "Alt": 6, "Unspecified": 4, "Fence": 3, "ELE": 2}, "City District": {"Alteration": 6817, "Alt": 3157, "LowVoltage": 2626, "FA": 1757, "FireSupp": 1592, "Comm": 1286, "Unspecified": 967, "Repair": 722}, "College Park": {"Alteration": 937, "Comm": 909, "Repair": 462, "Alt": 433, "Sign": 370, "Unspecified": 329, "New": 234, "Roof": 222}, "Curry Ford West": {"Comm": 732, "Alteration": 588, "Repair": 521, "Alt": 370, "Sign": 332, "Unspecified": 200, "New": 119, "Roof": 104}, "Gateway Orlando": {"Alteration": 2613, "Alt": 1628, "Repair": 1372, "Sign": 1325, "New": 953, "Unspecified": 918, "Comm": 914, "LowVoltage": 711}, "Ivanhoe Village": {"Alteration": 3763, "LowVoltage": 1895, "Alt": 1809, "Comm": 1005, "FA": 804, "Repair": 786, "FireSupp": 780, "Unspecified": 668}, "Mills 50": {"Comm": 2394, "Alteration": 1756, "Repair": 932, "Alt": 887, "Sign": 729, "Unspecified": 590, "New": 435, "LowVoltage": 428}, "Parramore": {"Alteration": 1328, "Comm": 1097, "Alt": 853, "Repair": 780, "Unspecified": 602, "New": 528, "LowVoltage": 484, "Sign": 331}, "SoDo": {"Alteration": 4382, "Alt": 2195, "LowVoltage": 2045, "Comm": 1881, "New": 1547, "Repair": 1237, "FireSupp": 1085, "Unspecified": 1041}, "The Milk District": {"Comm": 1722, "Alteration": 1487, "Alt": 867, "Sign": 671, "Repair": 592, "New": 533, "Unspecified": 527, "LowVoltage": 413}, "Thornton Park District": {"Alteration": 2459, "Alt": 1066, "LowVoltage": 911, "Repair": 690, "FireSupp": 607, "FA": 583, "Tent": 544, "New": 463}, "West Lakes": {"Comm": 1522, "Alteration": 1367, "Alt": 818, "Tent": 768, "Repair": 728, "Unspecified": 615, "New": 588, "Sign": 574}}, "districts": ["Audubon Park Garden District", "Church Street Parramore Zone 2", "City District", "College Park", "Curry Ford West", "Gateway Orlando", "Ivanhoe Village", "Mills 50", "Parramore", "SoDo", "The Milk District", "Thornton Park District", "West Lakes"], "tier_colors": {"Accelerating": "#22c55e", "Stable": "#84cc16", "Slowing": "#eab308", "Declining": "#f97316", "Contracting": "#ef4444"}, "ptype_colors": ["#38bdf8", "#818cf8", "#f472b6", "#fb923c", "#a3e635", "#34d399", "#e879f9", "#facc15", "#94a3b8", "#f87171", "#60a5fa", "#4ade80"]};
+
+// ── chart defaults ─────────────────────────────────────────────────────────
+Chart.defaults.color = '#6a7482';
+Chart.defaults.borderColor = '#d7dcd7';
+Chart.defaults.font.family = "Aptos, 'Segoe UI Variable Text', 'Segoe UI', Arial, sans-serif";
+Chart.defaults.font.size = 11;
+
+function cg(id, type, data, opts={}) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return null;
+  return new Chart(ctx, { type, data, options: { responsive: true, ...opts } });
+}
+
+// ── nav ────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ── kpi cards ──────────────────────────────────────────────────────────────
+const k = D.kpis;
+document.getElementById('gen-date').textContent = 'Generated ' + k.generated;
+document.getElementById('footer-date').textContent = k.generated;
+const kpiDefs = [
+  { label:'Total Permits (All Time)', value: k.total_permits.toLocaleString(), sub: 'All districts combined' },
+  { label:'Permits (2023–25)',         value: k.recent_permits.toLocaleString(), sub: '3 most recent full years' },
+  { label:'Total Permitted Investment',value: k.total_invest_fmt, sub: 'Estimated cost, all years' },
+  { label:'Recent Investment (2022–25)',value: k.rec_invest_fmt, sub: 'Building permit cost 4yr' },
+  { label:'Districts Tracked',         value: k.districts, sub: 'Orlando Main Street system' },
+  { label:'Fastest Growing',           value: k.fastest_district, sub: k.fastest_ratio + ' vs baseline' },
+];
+document.getElementById('kpi-grid').innerHTML = kpiDefs.map(c =>
+  `<div class="kpi-card"><div class="kpi-label">${c.label}</div><div class="kpi-value">${c.value}</div><div class="kpi-sub">${c.sub}</div></div>`
+).join('');
+
+// ── leaderboard ────────────────────────────────────────────────────────────
+const tierC = D.tier_colors;
+function tierChip(t) {
+  const c = tierC[t] || '#94a3b8';
+  return `<span class="tier-chip" style="background:${c}22;color:${c};border:1px solid ${c}55">${t}</span>`;
+}
+function mArrow(r) {
+  return r >= 1
+    ? `<span style="color:#22c55e;font-weight:700">▲ ${r.toFixed(2)}x</span>`
+    : `<span style="color:#ef4444;font-weight:700">▼ ${r.toFixed(2)}x</span>`;
+}
+
+document.getElementById('leaderboard-rows').innerHTML = D.vitality.map(r => `
+  <div class="lb-row">
+    <div class="lb-rank">#${r.rank}</div>
+    <div class="lb-name">${r.district}</div>
+    <div>
+      <div class="lb-bar-wrap"><div class="lb-bar" style="width:${r.vitality_score/10*100}%;background:${tierC[r.tier]}"></div></div>
+      <span class="lb-score" style="color:${tierC[r.tier]}">${r.vitality_score.toFixed(2)}</span>
+    </div>
+    <div>${tierChip(r.tier)}</div>
+    <div>${mArrow(r.momentum_ratio)}</div>
+    <div class="sub-val">${r.invest_ratio.toFixed(2)}x</div>
+    <div class="sub-val">${r.abl_retention.toFixed(0)}%</div>
+    <div class="sub-val">${r.risk_rate_pct.toFixed(2)}%</div>
+  </div>`
+).join('');
+
+// ── overview charts ────────────────────────────────────────────────────────
+const vit = D.vitality;
+cg('chart-leaderboard', 'bar', {
+  labels: vit.map(r => r.district),
+  datasets: [{ label: 'Vitality Score', data: vit.map(r => r.vitality_score),
+    backgroundColor: vit.map(r => tierC[r.tier] + 'cc'), borderColor: vit.map(r => tierC[r.tier]),
+    borderWidth: 1, borderRadius: 4 }]
+}, { indexAxis:'y', plugins:{ legend:{ display:false } }, scales:{ x:{ max:10 } } });
+
+cg('chart-momentum', 'bar', {
+  labels: vit.map(r => r.district),
+  datasets: [
+    { label:'Baseline Ann. Permits', data: vit.map(r => r.baseline_ann), backgroundColor:'#1e40af88', borderColor:'#3b82f6', borderWidth:1, borderRadius:4 },
+    { label:'Recent Ann. Permits',   data: vit.map(r => r.recent_ann),   backgroundColor:'#166534aa', borderColor:'#22c55e', borderWidth:1, borderRadius:4 },
+  ]
+}, { indexAxis:'y', plugins:{ legend:{ position:'top' } }, scales:{ x:{ stacked:false } } });
+
+
+// ── district deep-dive ─────────────────────────────────────────────────────
+const sel = document.getElementById('district-select');
+D.districts.forEach(d => { const o = document.createElement('option'); o.value = o.textContent = d; sel.appendChild(o); });
+
+let dtChart = null, dtTypeChart = null, dtStatusChart = null, dtWTChart = null;
+
+function renderDistrict(d) {
+  const vRow = D.vitality.find(r => r.district === d) || {};
+  const c = tierC[vRow.tier] || '#94a3b8';
+  const defs = [
+    { label:'Vitality Score', value: vRow.vitality_score?.toFixed(2) ?? '—', sub: vRow.tier, color: c },
+    { label:'Activity Momentum', value: (vRow.momentum_ratio >= 1 ? '▲ ' : '▼ ') + vRow.momentum_ratio?.toFixed(2) + 'x',
+      sub: `${vRow.baseline_ann?.toFixed(0)}/yr → ${vRow.recent_ann?.toFixed(0)}/yr`,
+      color: vRow.momentum_ratio >= 1 ? '#22c55e' : '#ef4444' },
+    { label:'Investment Momentum', value: vRow.invest_ratio?.toFixed(2) + 'x',
+      sub: `Bldg pmts: ${vRow.base_bld_ann?.toFixed(0)}/yr → ${vRow.recent_bld_ann?.toFixed(0)}/yr`, color:'#38bdf8' },
+    { label:'Change-of-Use Rate', value: vRow.cou_rate_pct?.toFixed(1) + '%', sub:'Of recent permits', color:'#f472b6' },
+    { label:'ABL Retention', value: vRow.abl_retention?.toFixed(0) + '%', sub:'Open/Finaled ABL', color:'#a3e635' },
+    { label:'Risk Rate', value: vRow.risk_rate_pct?.toFixed(2) + '%', sub:'Stop Work + HardHold', color:'#fb923c' },
+  ];
+  document.getElementById('district-score-banner').innerHTML = defs.map(x =>
+    `<div class="score-card"><div class="label">${x.label}</div><div class="value" style="color:${x.color}">${x.value}</div><div class="sub">${x.sub}</div></div>`
+  ).join('');
+
+  // trend chart
+  const years = D.trends.years;
+  const series = D.trends.series[d] || [];
+  if (dtChart) dtChart.destroy();
+  dtChart = cg('chart-district-trend', 'line', {
+    labels: years,
+    datasets: [{ label: d, data: series, borderColor: c, backgroundColor: c + '22', fill:true, tension:.35, pointRadius:3 }]
+  }, { plugins:{ legend:{ display:false } } });
+
+  // permit types
+  const types = D.permit_types.types;
+  const counts = types.map(t => D.permit_types.matrix[d]?.[t] || 0);
+  if (dtTypeChart) dtTypeChart.destroy();
+  dtTypeChart = cg('chart-district-types', 'bar', {
+    labels: types,
+    datasets:[{ label:'Count', data:counts, backgroundColor: D.ptype_colors, borderRadius:4 }]
+  }, { indexAxis:'y', plugins:{ legend:{ display:false } } });
+
+  // status donut
+  const statuses = ['Finaled','Open','Closed','Hold','HardHold','Stop Work','Void','Completed'];
+  const sCounts  = statuses.map(s => D.status[d]?.[s] || 0);
+  const sColors  = ['#22c55e','#38bdf8','#94a3b8','#eab308','#ef4444','#f97316','#6b7280','#a3e635'];
+  if (dtStatusChart) dtStatusChart.destroy();
+  dtStatusChart = cg('chart-district-status', 'doughnut', {
+    labels: statuses,
+    datasets:[{ data:sCounts, backgroundColor:sColors, borderWidth:1 }]
+  }, { plugins:{ legend:{ position:'right', labels:{ boxWidth:10, font:{ size:10 } } } } });
+
+  // work types (recent)
+  const wt = D.work_types[d] || {};
+  const wtLabels = Object.keys(wt).filter(k=>k!='').slice(0,8);
+  const wtVals   = wtLabels.map(k => wt[k]);
+  if (dtWTChart) dtWTChart.destroy();
+  dtWTChart = cg('chart-district-worktypes', 'bar', {
+    labels: wtLabels,
+    datasets:[{ label:'Count', data:wtVals, backgroundColor:'#818cf8cc', borderRadius:4 }]
+  }, { indexAxis:'y', plugins:{ legend:{ display:false } } });
+
+  // top projects table
+  const projs = D.top_projects[d] || [];
+  document.getElementById('proj-table').innerHTML =
+    `<thead><tr><th>Project</th><th>Type</th><th>Year</th><th>Cost</th><th>Status</th></tr></thead><tbody>` +
+    projs.map(p => {
+      const sc = { Finaled:'#22c55e', Open:'#38bdf8', Hold:'#eab308', 'Stop Work':'#ef4444', HardHold:'#ef4444' }[p.status] || '#94a3b8';
+      return `<tr><td>${p.name||'—'}</td><td style="color:var(--muted)">${p.type}</td><td style="color:var(--muted)">${p.year||'—'}</td>
+        <td class="cost-val">${p.cost}</td>
+        <td><span class="status-chip" style="background:${sc}22;color:${sc}">${p.status}</span></td></tr>`;
+    }).join('') + '</tbody>';
+
+  // recent activity
+  const rec = D.recent_activity[d] || [];
+  document.getElementById('recent-table').innerHTML =
+    `<thead><tr><th>Project</th><th>Type</th><th>Work Type</th><th>Status</th><th>Date</th><th>Cost</th></tr></thead><tbody>` +
+    rec.map(p => {
+      const sc = { Finaled:'#22c55e', Open:'#38bdf8', Hold:'#eab308', 'Stop Work':'#ef4444', HardHold:'#ef4444' }[p.application_status] || '#94a3b8';
+      return `<tr><td>${p.project_name||'—'}</td><td style="color:var(--muted)">${p.application_type}</td>
+        <td style="color:var(--muted)">${p.work_type||'—'}</td>
+        <td><span class="status-chip" style="background:${sc}22;color:${sc}">${p.application_status}</span></td>
+        <td style="color:var(--muted);white-space:nowrap">${p.processed_date}</td>
+        <td class="cost-val">${p.cost_fmt}</td></tr>`;
+    }).join('') + '</tbody>';
+}
+
+renderDistrict(D.districts[0]);
+sel.addEventListener('change', e => renderDistrict(e.target.value));
+
+
+// ── trends ─────────────────────────────────────────────────────────────────
+const trendColors = ['#38bdf8','#22c55e','#f472b6','#fb923c','#a3e635','#e879f9',
+                     '#facc15','#34d399','#818cf8','#60a5fa','#fbbf24','#f87171','#94a3b8'];
+let trendChart = null;
+const activeDistricts = new Set(D.districts);
+
+function buildTrendDatasets() {
+  return D.districts.map((d, i) => ({
+    label: d, data: D.trends.series[d], borderColor: trendColors[i % trendColors.length],
+    backgroundColor: 'transparent', tension: .35, borderWidth: activeDistricts.has(d) ? 2 : 0,
+    pointRadius: 2, hidden: !activeDistricts.has(d),
+  }));
+}
+
+const togglesEl = document.getElementById('trend-toggles');
+D.districts.forEach((d, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'tog on';
+  btn.textContent = d;
+  btn.style.background = trendColors[i % trendColors.length];
+  btn.style.borderColor = trendColors[i % trendColors.length];
+  btn.addEventListener('click', () => {
+    if (activeDistricts.has(d)) { activeDistricts.delete(d); btn.classList.remove('on'); btn.style.background=''; btn.style.borderColor=trendColors[i%trendColors.length]; btn.style.color=trendColors[i%trendColors.length]; }
+    else { activeDistricts.add(d); btn.classList.add('on'); btn.style.background=trendColors[i%trendColors.length]; btn.style.borderColor=trendColors[i%trendColors.length]; btn.style.color='#fff'; }
+    trendChart.data.datasets.forEach(ds => { ds.hidden = !activeDistricts.has(ds.label); ds.borderWidth = activeDistricts.has(ds.label) ? 2 : 0; });
+    trendChart.update();
+  });
+  togglesEl.appendChild(btn);
+});
+
+trendChart = cg('chart-trends', 'line', {
+  labels: D.trends.years,
+  datasets: buildTrendDatasets()
+}, { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'Annual Permits' } } } });
+
+// YoY chart
+const yoy = D.districts.map(d => {
+  const s = D.trends.series[d];
+  const y2023 = s[D.trends.years.indexOf(2023)];
+  const y2024 = s[D.trends.years.indexOf(2024)];
+  return { d, chg: y2023 > 0 ? ((y2024 - y2023) / y2023 * 100) : 0 };
+}).sort((a,b) => b.chg - a.chg);
+
+cg('chart-yoy', 'bar', {
+  labels: yoy.map(x => x.d),
+  datasets:[{ label:'% Change 2023→2024', data: yoy.map(x => +x.chg.toFixed(1)),
+    backgroundColor: yoy.map(x => x.chg >= 0 ? '#22c55e88' : '#ef444488'),
+    borderColor: yoy.map(x => x.chg >= 0 ? '#22c55e' : '#ef4444'),
+    borderWidth:1, borderRadius:4 }]
+}, { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'% Change' } } } });
+
+
+// ── investment ─────────────────────────────────────────────────────────────
+const invYears = D.investment.years;
+let invChart = null;
+let activeThreshold = 'all';
+
+function getMatrix(key) { return D.investment.thresholds[key].matrix; }
+
+function buildHeatTable(matrix) {
+  const maxInv = Math.max(...D.districts.flatMap(d => matrix[d]));
+  function heatColor(v) {
+    if (!v) return 'var(--surface)';
+    const t = Math.min(v / (maxInv * 0.4), 1);
+    return `rgba(143,74,42,${0.07 + t * 0.52})`; /* terracotta */
+  }
+  let html = '<table class="heat-table"><thead><tr><th>District</th>' +
+    invYears.map(y => `<th>${y}</th>`).join('') + '<th>Total</th></tr></thead><tbody>';
+  D.districts.forEach(d => {
+    const row = matrix[d];
+    const total = row.reduce((a,b)=>a+b,0);
+    html += `<tr><td>${d}</td>` +
+      row.map(v => `<td style="background:${heatColor(v)};color:${v>10?'#fffdf8':'var(--muted)'}">${v>0?'$'+v.toFixed(1)+'M':'—'}</td>`).join('') +
+      `<td style="color:var(--accent);font-weight:700">$${total.toFixed(1)}M</td></tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('heat-table-wrap').innerHTML = html;
+}
+
+function renderInvestment(key) {
+  const matrix = getMatrix(key);
+  const info   = D.investment.thresholds[key];
+  const note   = info.excluded > 0
+    ? `${info.excluded} permit${info.excluded>1?'s':''} excluded from charts (still shown in project table below)`
+    : 'Showing all permits — mega-projects included';
+  document.getElementById('outlier-note').textContent = note;
+
+  // update chart
+  if (invChart) {
+    D.districts.forEach((d, i) => { invChart.data.datasets[i].data = matrix[d]; });
+    invChart.update();
+  } else {
+    invChart = cg('chart-investment', 'bar', {
+      labels: invYears,
+      datasets: D.districts.map((d, i) => ({
+        label: d, data: matrix[d],
+        backgroundColor: trendColors[i % trendColors.length] + '99',
+        borderColor: trendColors[i % trendColors.length], borderWidth:1, borderRadius:2,
+      }))
+    }, { plugins:{ legend:{ position:'right', labels:{ boxWidth:12, font:{ size:10 } } } },
+         scales:{ x:{ stacked:true }, y:{ stacked:true, title:{ display:true, text:'$M' } } } });
+  }
+  buildHeatTable(matrix);
+}
+
+// threshold button wiring
+document.querySelectorAll('.thresh-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.thresh-btn').forEach(b => {
+      b.style.borderColor = 'var(--border)';
+      b.style.background  = 'var(--card)';
+      b.style.color       = 'var(--muted)';
+      b.classList.remove('active');
+    });
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.background  = '#0e2a3a';
+    btn.style.color       = 'var(--accent)';
+    btn.classList.add('active');
+    activeThreshold = btn.dataset.key;
+    renderInvestment(activeThreshold);
+  });
+});
+
+renderInvestment('all');
+
+// top projects all-time (aggregate across all districts)
+const allProjs = D.districts.flatMap(d => (D.top_projects[d]||[]).map(p=>({...p, district:d})));
+const topAll = allProjs.filter(p => p.cost !== '—').sort((a,b)=>{
+  const parse = s => parseFloat(s.replace(/[$MKB]/g,'')) * (s.includes('B')?1000:s.includes('M')?1:s.includes('K')?0.001:0.000001);
+  return parse(b.cost) - parse(a.cost);
+}).slice(0,20);
+document.getElementById('top-projects-all').innerHTML =
+  `<thead><tr><th>Project</th><th>District</th><th>Type</th><th>Year</th><th>Cost</th><th>Status</th></tr></thead><tbody>` +
+  topAll.map(p => {
+    const sc = { Finaled:'#22c55e', Open:'#38bdf8', Hold:'#eab308', 'Stop Work':'#ef4444', HardHold:'#ef4444' }[p.status] || '#94a3b8';
+    return `<tr><td>${p.name||'—'}</td><td style="color:var(--accent);font-size:.72rem">${p.district}</td>
+      <td style="color:var(--muted)">${p.type}</td><td style="color:var(--muted)">${p.year||'—'}</td>
+      <td class="cost-val">${p.cost}</td>
+      <td><span class="status-chip" style="background:${sc}22;color:${sc}">${p.status}</span></td></tr>`;
+  }).join('') + '</tbody>';
+
+
+// ── activity matrix ─────────────────────────────────────────────────────────
+const ptypes = D.permit_types.types;
+const maxPT = Math.max(...D.districts.flatMap(d => ptypes.map(t => D.permit_types.matrix[d]?.[t]||0)));
+function ptColor(v) {
+  const t = Math.min(v / (maxPT * 0.3), 1);
+  return `rgba(31,93,87,${0.08 + t * 0.60})`; /* teal */
+}
+let matHtml = '<table class="heat-table"><thead><tr><th>District</th>' +
+  ptypes.map(t => `<th style="max-width:80px;overflow:hidden;text-overflow:ellipsis" title="${t}">${t.length>12?t.slice(0,11)+'…':t}</th>`).join('') +
+  '</tr></thead><tbody>';
+D.districts.forEach(d => {
+  matHtml += `<tr><td>${d}</td>` +
+    ptypes.map(t => { const v = D.permit_types.matrix[d]?.[t]||0;
+      return `<td style="background:${ptColor(v)};color:${v>300?'#fffdf8':'var(--muted)'}">${v||'—'}</td>`;
+    }).join('') + '</tr>';
+});
+matHtml += '</tbody></table>';
+document.getElementById('activity-matrix-wrap').innerHTML = matHtml;
+
+// city-wide type totals
+const cityTotals = ptypes.map(t => D.districts.reduce((s,d)=>s+(D.permit_types.matrix[d]?.[t]||0),0));
+cg('chart-type-city','doughnut',{
+  labels:ptypes, datasets:[{data:cityTotals,backgroundColor:D.ptype_colors,borderWidth:1}]
+},{ plugins:{ legend:{ position:'right', labels:{ boxWidth:10, font:{size:10} } } } });
+
+// stacked bar recent only
+cg('chart-type-stacked','bar',{
+  labels:D.districts,
+  datasets: ptypes.map((t,i)=>({
+    label:t, data:D.districts.map(d=>D.permit_types.matrix[d]?.[t]||0),
+    backgroundColor:D.ptype_colors[i]+'bb', borderWidth:0, borderRadius:2,
+  }))
+},{ plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{size:10} } } },
+    scales:{ x:{stacked:true}, y:{stacked:true} } });
+
+</script>
+</body>
+</html>

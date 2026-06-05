@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A050 – Corridor Vitality Score | BTR College Park Vault</title>
+<style>
+  :root {
+    --bg:       #0b1120;
+    --surface:  #111827;
+    --border:   #1f2937;
+    --text:     #e2e8f0;
+    --muted:    #94a3b8;
+    --accent:   #38bdf8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; padding: 2rem 1.5rem; }
+  h1 { font-size: 1.5rem; font-weight: 700; color: var(--accent); letter-spacing: .02em; }
+  .subtitle { color: var(--muted); font-size: .85rem; margin-top: .25rem; }
+  .meta { color: var(--muted); font-size: .75rem; margin-top: .15rem; }
+
+  .weights {
+    display: flex; flex-wrap: wrap; gap: .5rem;
+    margin: 1.25rem 0;
+  }
+  .w-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: .35rem .65rem;
+    font-size: .75rem;
+  }
+  .w-label { color: var(--muted); margin-right: .3rem; }
+  .w-pct { color: var(--accent); font-weight: 700; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .82rem; }
+  thead th {
+    background: var(--surface); color: var(--muted);
+    text-transform: uppercase; font-size: .68rem; letter-spacing: .06em;
+    padding: .6rem .75rem; text-align: left; border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:hover { background: #ffffff08; }
+  td { padding: .55rem .75rem; vertical-align: middle; }
+
+  .rank { color: var(--muted); font-size: .75rem; width: 2.5rem; }
+  .district { font-weight: 600; white-space: nowrap; }
+  .score-num { font-weight: 700; font-size: 1rem; margin-left: .5rem; }
+  .bar-wrap {
+    display: inline-block; vertical-align: middle;
+    width: 120px; height: 8px; background: var(--border);
+    border-radius: 4px; overflow: hidden;
+  }
+  .bar { height: 100%; border-radius: 4px; transition: width .3s; }
+  .tier-chip {
+    padding: .2rem .55rem; border-radius: 99px;
+    font-size: .7rem; font-weight: 700; white-space: nowrap;
+  }
+  .sub { color: var(--muted); }
+  .sub small { font-size: .7rem; }
+
+  .note {
+    margin-top: 2rem; padding: .85rem 1rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; font-size: .74rem; color: var(--muted); line-height: 1.5;
+  }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem;
+  }
+  .leg-item { font-size: .72rem; display: flex; align-items: center; gap: .3rem; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<h1>A050 — Commercial Corridor Vitality Score</h1>
+<div class="subtitle">College Park ED Vault · Orlando City Permit Data · 130,832 records</div>
+<div class="meta">Generated 2026-06-02 · Source: city_permit_applications.csv (normalized 2026-05-22)</div>
+
+<div class="weights">
+  <strong style="font-size:.75rem;color:var(--muted);margin-right:.25rem;align-self:center">Weights:</strong>
+  <div class="w-item"><span class="w-label">Momentum</span><span class="w-pct">35%</span></div><div class="w-item"><span class="w-label">Investment</span><span class="w-pct">30%</span></div><div class="w-item"><span class="w-label">Cou Rate</span><span class="w-pct">15%</span></div><div class="w-item"><span class="w-label">Abl</span><span class="w-pct">10%</span></div><div class="w-item"><span class="w-label">Risk</span><span class="w-pct">10%</span></div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>District</th>
+      <th>Vitality Score</th>
+      <th>Tier</th>
+      <th>Activity Momentum (baseline → recent)</th>
+      <th>Bldg Permit Momentum</th>
+      <th>Change-of-Use Rate</th>
+      <th>ABL Retention</th>
+      <th>Risk Rate</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+        <tr>
+          <td class="rank">#1</td>
+          <td class="district">Mills 50</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:89.2%;background:#22c55e"></div>
+            </div>
+            <span class="score-num" style="color:#22c55e">8.92</span>
+          </td>
+          <td><span class="tier-chip" style="background:#22c55e22;color:#22c55e;border:1px solid #22c55e55">Accelerating</span></td>
+          <td class="sub">
+            235/yr → 298/yr
+            <span style="color:#22c55e;font-weight:700"> ▲ 1.27x</span>
+          </td>
+          <td class="sub">
+            85/yr → 92/yr
+            <small>(10.0)</small>
+          </td>
+          <td class="sub">20.3% <small>(7.6)</small></td>
+          <td class="sub">78% <small>(7.8)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#2</td>
+          <td class="district">Curry Ford West</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:85.0%;background:#22c55e"></div>
+            </div>
+            <span class="score-num" style="color:#22c55e">8.50</span>
+          </td>
+          <td><span class="tier-chip" style="background:#22c55e22;color:#22c55e;border:1px solid #22c55e55">Accelerating</span></td>
+          <td class="sub">
+            72/yr → 89/yr
+            <span style="color:#22c55e;font-weight:700"> ▲ 1.24x</span>
+          </td>
+          <td class="sub">
+            29/yr → 27/yr
+            <small>(8.6)</small>
+          </td>
+          <td class="sub">22.2% <small>(8.3)</small></td>
+          <td class="sub">77% <small>(7.7)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#3</td>
+          <td class="district">Parramore</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:82.9%;background:#22c55e"></div>
+            </div>
+            <span class="score-num" style="color:#22c55e">8.29</span>
+          </td>
+          <td><span class="tier-chip" style="background:#22c55e22;color:#22c55e;border:1px solid #22c55e55">Accelerating</span></td>
+          <td class="sub">
+            256/yr → 269/yr
+            <span style="color:#22c55e;font-weight:700"> ▲ 1.05x</span>
+          </td>
+          <td class="sub">
+            81/yr → 86/yr
+            <small>(9.9)</small>
+          </td>
+          <td class="sub">19.2% <small>(7.2)</small></td>
+          <td class="sub">83% <small>(8.3)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#4</td>
+          <td class="district">Audubon Park Garden District</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:82.3%;background:#22c55e"></div>
+            </div>
+            <span class="score-num" style="color:#22c55e">8.23</span>
+          </td>
+          <td><span class="tier-chip" style="background:#22c55e22;color:#22c55e;border:1px solid #22c55e55">Accelerating</span></td>
+          <td class="sub">
+            19/yr → 18/yr
+            <span style="color:#ef4444;font-weight:700"> ▼ 0.94x</span>
+          </td>
+          <td class="sub">
+            5/yr → 5/yr
+            <small>(9.3)</small>
+          </td>
+          <td class="sub">24.1% <small>(9.0)</small></td>
+          <td class="sub">100% <small>(10.0)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#5</td>
+          <td class="district">College Park</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:79.0%;background:#22c55e"></div>
+            </div>
+            <span class="score-num" style="color:#22c55e">7.90</span>
+          </td>
+          <td><span class="tier-chip" style="background:#22c55e22;color:#22c55e;border:1px solid #22c55e55">Accelerating</span></td>
+          <td class="sub">
+            121/yr → 115/yr
+            <span style="color:#ef4444;font-weight:700"> ▼ 0.94x</span>
+          </td>
+          <td class="sub">
+            40/yr → 40/yr
+            <small>(9.2)</small>
+          </td>
+          <td class="sub">20.4% <small>(7.6)</small></td>
+          <td class="sub">90% <small>(9.1)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#6</td>
+          <td class="district">Ivanhoe Village</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:75.1%;background:#22c55e"></div>
+            </div>
+            <span class="score-num" style="color:#22c55e">7.51</span>
+          </td>
+          <td><span class="tier-chip" style="background:#22c55e22;color:#22c55e;border:1px solid #22c55e55">Accelerating</span></td>
+          <td class="sub">
+            512/yr → 487/yr
+            <span style="color:#ef4444;font-weight:700"> ▼ 0.95x</span>
+          </td>
+          <td class="sub">
+            128/yr → 102/yr
+            <small>(7.4)</small>
+          </td>
+          <td class="sub">22.6% <small>(8.4)</small></td>
+          <td class="sub">88% <small>(8.8)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#7</td>
+          <td class="district">Thornton Park District</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:73.9%;background:#84cc16"></div>
+            </div>
+            <span class="score-num" style="color:#84cc16">7.39</span>
+          </td>
+          <td><span class="tier-chip" style="background:#84cc1622;color:#84cc16;border:1px solid #84cc1655">Stable</span></td>
+          <td class="sub">
+            346/yr → 273/yr
+            <span style="color:#ef4444;font-weight:700"> ▼ 0.79x</span>
+          </td>
+          <td class="sub">
+            93/yr → 77/yr
+            <small>(7.8)</small>
+          </td>
+          <td class="sub">25.4% <small>(9.5)</small></td>
+          <td class="sub">96% <small>(9.6)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#8</td>
+          <td class="district">The Milk District</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:68.3%;background:#84cc16"></div>
+            </div>
+            <span class="score-num" style="color:#84cc16">6.83</span>
+          </td>
+          <td><span class="tier-chip" style="background:#84cc1622;color:#84cc16;border:1px solid #84cc1655">Stable</span></td>
+          <td class="sub">
+            234/yr → 197/yr
+            <span style="color:#ef4444;font-weight:700"> ▼ 0.84x</span>
+          </td>
+          <td class="sub">
+            83/yr → 68/yr
+            <small>(7.7)</small>
+          </td>
+          <td class="sub">15.2% <small>(5.7)</small></td>
+          <td class="sub">84% <small>(8.4)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#9</td>
+          <td class="district">SoDo</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:68.2%;background:#84cc16"></div>
+            </div>
+            <span class="score-num" style="color:#84cc16">6.82</span>
+          </td>
+          <td><span class="tier-chip" style="background:#84cc1622;color:#84cc16;border:1px solid #84cc1655">Stable</span></td>
+          <td class="sub">
+            737/yr → 601/yr
+            <span style="color:#ef4444;font-weight:700"> ▼ 0.81x</span>
+          </td>
+          <td class="sub">
+            213/yr → 165/yr
+            <small>(7.2)</small>
+          </td>
+          <td class="sub">18.3% <small>(6.8)</small></td>
+          <td class="sub">88% <small>(8.8)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#10</td>
+          <td class="district">City District</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:65.3%;background:#84cc16"></div>
+            </div>
+            <span class="score-num" style="color:#84cc16">6.53</span>
+          </td>
+          <td><span class="tier-chip" style="background:#84cc1622;color:#84cc16;border:1px solid #84cc1655">Stable</span></td>
+          <td class="sub">
+            808/yr → 499/yr
+            <span style="color:#ef4444;font-weight:700"> ▼ 0.62x</span>
+          </td>
+          <td class="sub">
+            178/yr → 131/yr
+            <small>(6.8)</small>
+          </td>
+          <td class="sub">26.8% <small>(10.0)</small></td>
+          <td class="sub">77% <small>(7.7)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#11</td>
+          <td class="district">West Lakes</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:62.8%;background:#84cc16"></div>
+            </div>
+            <span class="score-num" style="color:#84cc16">6.28</span>
+          </td>
+          <td><span class="tier-chip" style="background:#84cc1622;color:#84cc16;border:1px solid #84cc1655">Stable</span></td>
+          <td class="sub">
+            276/yr → 208/yr
+            <span style="color:#ef4444;font-weight:700"> ▼ 0.75x</span>
+          </td>
+          <td class="sub">
+            120/yr → 87/yr
+            <small>(6.8)</small>
+          </td>
+          <td class="sub">16.2% <small>(6.0)</small></td>
+          <td class="sub">76% <small>(7.6)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#12</td>
+          <td class="district">Gateway Orlando</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:56.8%;background:#eab308"></div>
+            </div>
+            <span class="score-num" style="color:#eab308">5.68</span>
+          </td>
+          <td><span class="tier-chip" style="background:#eab30822;color:#eab308;border:1px solid #eab30855">Slowing</span></td>
+          <td class="sub">
+            448/yr → 330/yr
+            <span style="color:#ef4444;font-weight:700"> ▼ 0.74x</span>
+          </td>
+          <td class="sub">
+            169/yr → 110/yr
+            <small>(6.0)</small>
+          </td>
+          <td class="sub">13.6% <small>(5.1)</small></td>
+          <td class="sub">57% <small>(5.7)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+        <tr>
+          <td class="rank">#13</td>
+          <td class="district">Church Street Parramore Zone 2</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar" style="width:5.0%;background:#ef4444"></div>
+            </div>
+            <span class="score-num" style="color:#ef4444">0.50</span>
+          </td>
+          <td><span class="tier-chip" style="background:#ef444422;color:#ef4444;border:1px solid #ef444455">Contracting</span></td>
+          <td class="sub">
+            3/yr → 0/yr
+            <span style="color:#ef4444;font-weight:700"> ▼ 0.00x</span>
+          </td>
+          <td class="sub">
+            2/yr → 0/yr
+            <small>(0.0)</small>
+          </td>
+          <td class="sub">0.0% <small>(0.0)</small></td>
+          <td class="sub">0% <small>(0.0)</small></td>
+          <td class="sub">0.00% <small>(5.0)</small></td>
+        </tr>
+  </tbody>
+</table>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>Accelerating</div><div class="leg-item"><div class="leg-dot" style="background:#84cc16"></div>Stable</div><div class="leg-item"><div class="leg-dot" style="background:#eab308"></div>Slowing</div><div class="leg-item"><div class="leg-dot" style="background:#f97316"></div>Declining</div><div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Contracting</div>
+</div>
+
+<div class="note">
+  <strong>Methodology:</strong> Each district is scored against its own 2015–2019 pre-COVID baseline — not against other districts' raw volumes.
+  <b>Activity Momentum (35%)</b>: avg annual permits 2023–25 ÷ avg 2015–19. Values &gt;1.0 = growing vs baseline.
+  <b>Investment Momentum (30%)</b>: same ratio for Building Permits only (2022–25 vs 2015–19).
+  <b>Change-of-Use Rate (15%)</b>: ChangeUse/ChangeOccu/Conversion as % of all recent permits — space being repurposed.
+  <b>ABL Retention (10%)</b>: open/finaled ABL as % of all ABL ever filed — measures liquor-license operating persistence.
+  <b>Risk Rate (10%)</b>: stop-work + hard-hold as % of recent permits (inverted; lower = better).
+  2026 excluded (partial year, data through 2026-05-22).
+  <br><br>
+  <strong>Validation required:</strong> City permit data may contain errors. Scores are
+  investment and planning indicators only — not legal findings. Validate with field survey
+  before reliance on any individual corridor.
+</div>
+
+</body>
+</html>

@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Product Development Handbook</title>
+<style>
+  :root {
+    --bg:#0B111C; --surface:#111A26; --surface2:#151F2E; --surface3:#1A2636;
+    --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.14);
+    --text:#EDE8DE; --text2:#AAB3C2; --text3:#6F7A8A;
+    --accent:#D9A441; --green:#2E8C78; --blue:#4F7CFF; --red:#C95252;
+    --orange:#D4854A; --purple:#7C3AED;
+    --r:10px; --r-sm:6px;
+  }
+  :root[data-theme="light"] {
+    --bg:#f6f5f1; --surface:#fffdf8; --surface2:#f9f8f5; --surface3:#f0ede8;
+    --border:#d7dcd7; --border2:#c5cbbf;
+    --text:#1c2430; --text2:#5a6370; --text3:#8b94a3;
+    --accent:#8f4a2a; --green:#1f5d57; --blue:#265f86; --red:#9f3a32;
+    --orange:#c4893a; --purple:#5b3f8a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:80px}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.7;overflow-x:hidden}
+
+  /* ── Header ── */
+  header{background:var(--surface);border-bottom:1px solid var(--border);
+    padding:0 32px;height:56px;display:flex;align-items:center;gap:16px;
+    position:sticky;top:0;z-index:100}
+  .brand{min-width:270px}
+  .hmark{width:32px;height:32px;border-radius:8px;
+    background:linear-gradient(135deg,var(--accent),var(--orange));
+    display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#0A1018}
+  .htitle{font-size:14px;font-weight:700;color:var(--text)}
+  .hsub{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+  .hnav{display:flex;gap:2px;margin-left:8px;min-width:0;overflow-x:auto;scrollbar-width:none}
+  .hnav::-webkit-scrollbar{display:none}
+  .hnav a{font-size:11px;font-weight:600;color:var(--text3);padding:5px 10px;
+    border-radius:6px;text-decoration:none;transition:all .15s;white-space:nowrap}
+  .hnav a:hover{background:rgba(255,255,255,.05);color:var(--text)}
+  .hright{margin-left:auto;display:flex;gap:12px;align-items:center;flex-shrink:0}
+  .hpill{font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;
+    background:rgba(212,133,74,.15);border:1px solid rgba(212,133,74,.3);color:var(--orange)}
+  .theme-btn{background:none;border:1px solid var(--border2);border-radius:6px;
+    padding:4px 10px;color:var(--text3);font-size:11px;cursor:pointer;transition:all .15s}
+  .theme-btn:hover{color:var(--text);border-color:var(--border2)}
+
+  .mobile-nav{display:none}
+
+  /* ── Layout ── */
+  .layout{display:block;min-width:0}
+
+  /* Sidebar — fixed position, always left, independent scroll */
+  .sidebar{position:fixed;top:56px;left:0;width:240px;height:calc(100vh - 56px);
+    background:var(--surface);border-right:1px solid var(--border);
+    padding:24px 16px;overflow-y:auto;z-index:50}
+  .sidebar::-webkit-scrollbar{width:3px}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+  @media(max-width:860px){.sidebar{display:none}}
+
+  /* Content — offset by sidebar width, normal block flow */
+  .content-col{margin-left:240px;min-width:0}
+  .content{width:100%;max-width:1010px;margin:0;padding:48px 72px 120px}
+  @media(max-width:1180px){header{padding:0 20px}.brand{min-width:240px}.content{padding:40px 48px 110px}}
+  @media(max-width:980px){.brand{min-width:210px}.hnav a{padding:5px 8px}.content{padding-right:32px}}
+  @media(max-width:860px){
+    html{scroll-padding-top:112px}
+    header{padding:0 20px}
+    .brand{min-width:0;flex:1}
+    .content-col{margin-left:0}
+    .content{max-width:760px;margin:0 auto;padding:30px 28px 90px}
+    .sidebar,.hnav,.hpill{display:none}
+    .mobile-nav{position:sticky;top:56px;z-index:90;display:flex;gap:6px;overflow-x:auto;
+      padding:8px 20px;background:var(--surface);border-bottom:1px solid var(--border);
+      scrollbar-width:none}
+    .mobile-nav::-webkit-scrollbar{display:none}
+    .mobile-nav a{flex:0 0 auto;font-size:11px;font-weight:700;color:var(--text3);
+      padding:6px 10px;border:1px solid var(--border);border-radius:999px;text-decoration:none;
+      background:var(--surface2);white-space:nowrap}
+    .mobile-nav a:hover,.mobile-nav a.active{color:var(--text);border-color:var(--border2)}
+    .content h1{font-size:30px!important;line-height:1.12!important}
+    .chapter,[id]{scroll-margin-top:112px}
+  }
+  @media(max-width:640px){
+    body{font-size:13px}
+    .content{padding:26px 18px 80px}
+    .chapter{margin-bottom:56px;padding-bottom:44px}
+    .ch-title{font-size:24px}
+    .ch-sub{font-size:13px;margin-bottom:24px}
+    .callout{padding:14px 15px}
+    .rule{padding:11px 12px;gap:10px}
+    .stub-chapter{padding:24px 18px}
+  }
+  @media(max-width:460px){header{padding:0 14px;gap:10px}.mobile-nav{padding:8px 14px}.hmark{width:30px;height:30px}.hsub{display:none}.htitle{font-size:12px}.theme-btn{padding:4px 8px}}
+
+  /* ── Sidebar nav ── */
+  .sb-section{margin-bottom:20px}
+  .sb-label{font-size:8px;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+    color:var(--text3);padding:0 8px;margin-bottom:6px}
+  .sb-link{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;
+    font-size:11px;font-weight:600;color:var(--text3);text-decoration:none;
+    transition:all .15s;line-height:1.3}
+  .sb-link:hover,.sb-link.active{background:rgba(255,255,255,.05);color:var(--text)}
+  .sb-link .ch-num{font-size:9px;font-weight:800;color:var(--text3);flex-shrink:0;
+    width:18px;text-align:right}
+  .sb-link.stub{opacity:.45}
+  .sb-link.stub::after{content:"—";font-size:9px;margin-left:auto;color:var(--text3)}
+
+  /* ── Chapter ── */
+  .chapter{margin-bottom:80px;padding-bottom:60px;border-bottom:1px solid var(--border)}
+  .chapter,[id]{scroll-margin-top:80px}
+  .chapter:last-child{border-bottom:none}
+  .ch-eyebrow{font-size:9px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+    color:var(--accent);margin-bottom:8px}
+  .ch-title{font-size:28px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:6px}
+  .ch-sub{font-size:14px;color:var(--text2);margin-bottom:32px;line-height:1.6}
+  h3{font-size:16px;font-weight:700;color:var(--text);margin:32px 0 10px}
+  h4{font-size:13px;font-weight:700;color:var(--text2);margin:20px 0 8px;text-transform:uppercase;letter-spacing:.8px}
+  p{color:var(--text2);margin-bottom:14px}
+  strong{color:var(--text);font-weight:700}
+
+  /* ── Callout boxes ── */
+  .callout{border-radius:var(--r);padding:16px 18px;margin:20px 0;border-left:3px solid}
+  .callout-gold{background:rgba(217,164,65,.08);border-color:var(--accent)}
+  .callout-blue{background:rgba(79,124,255,.08);border-color:var(--blue)}
+  .callout-green{background:rgba(46,140,120,.08);border-color:var(--green)}
+  .callout-red{background:rgba(201,82,82,.08);border-color:var(--red)}
+  .callout-label{font-size:8px;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+    margin-bottom:6px}
+  .callout-gold .callout-label{color:var(--accent)}
+  .callout-blue .callout-label{color:var(--blue)}
+  .callout-green .callout-label{color:var(--green)}
+  .callout-red .callout-label{color:var(--red)}
+  .callout p{margin-bottom:0}
+
+  /* ── Lists ── */
+  ul,ol{padding-left:20px;margin-bottom:14px;color:var(--text2)}
+  li{margin-bottom:5px;line-height:1.6}
+  li strong{color:var(--text)}
+
+  /* ── Tables ── */
+  table{display:block;width:100%;border-collapse:collapse;margin:16px 0 24px;font-size:12px;overflow-x:auto}
+  th{text-align:left;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--text3);padding:8px 12px;border-bottom:2px solid var(--border)}
+  td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:rgba(255,255,255,.02)}
+
+  /* ── Code ── */
+  code{font-family:'Cascadia Code','Consolas',monospace;font-size:12px;
+    background:var(--surface2);border:1px solid var(--border);
+    padding:1px 6px;border-radius:4px;color:var(--accent);overflow-wrap:anywhere}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
+    padding:16px 18px;overflow-x:auto;margin:16px 0}
+  pre code{background:none;border:none;padding:0;font-size:12px;color:var(--text2)}
+
+  /* ── Rule cards ── */
+  .rules{display:flex;flex-direction:column;gap:8px;margin:16px 0}
+  .rule{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);
+    padding:12px 14px;display:flex;gap:12px;min-width:0}
+  .rule-num{font-size:11px;font-weight:800;color:var(--accent);flex-shrink:0;
+    width:22px;padding-top:1px}
+  .rule-body{flex:1;min-width:0}
+  .rule-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px}
+  .rule-desc{font-size:11px;color:var(--text3);line-height:1.5}
+
+  /* ── Phase flow ── */
+  .phase-flow{display:flex;gap:0;margin:20px 0;overflow-x:auto;max-width:100%}
+  .pf-step{display:flex;flex-direction:column;padding:12px 16px;
+    background:var(--surface2);border:1px solid var(--border);
+    min-width:120px;flex-shrink:0;position:relative}
+  .pf-step+.pf-step{border-left:none}
+  .pf-step:first-child{border-radius:var(--r) 0 0 var(--r)}
+  .pf-step:last-child{border-radius:0 var(--r) var(--r) 0}
+  .pf-num{font-size:9px;font-weight:800;color:var(--text3);letter-spacing:1px;margin-bottom:4px}
+  .pf-name{font-size:11px;font-weight:700;color:var(--text)}
+  .pf-time{font-size:9px;color:var(--text3);margin-top:2px}
+
+  /* ── Token meter ── */
+  .token-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+  @media(max-width:560px){.token-grid{grid-template-columns:1fr}}
+  .tbox{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);
+    padding:12px 14px}
+  .tbox-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;
+    color:var(--text3);margin-bottom:4px}
+  .tbox-v{font-size:18px;font-weight:800;color:var(--accent);line-height:1}
+  .tbox-desc{font-size:10px;color:var(--text3);margin-top:3px}
+
+  /* ── Stub chapter ── */
+  .stub-chapter{background:var(--surface2);border:1px dashed var(--border2);
+    border-radius:var(--r);padding:32px;text-align:center;margin-bottom:60px}
+  .stub-icon{font-size:32px;margin-bottom:12px}
+  .stub-title{font-size:16px;font-weight:700;color:var(--text3);margin-bottom:6px}
+  .stub-desc{font-size:12px;color:var(--text3);max-width:340px;margin:0 auto}
+
+  /* ── Updated badge ── */
+  .updated{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;
+    background:rgba(46,140,120,.15);border:1px solid rgba(46,140,120,.3);
+    color:var(--green);margin-left:10px;vertical-align:middle}
+
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  hr{border:none;border-top:1px solid var(--border);margin:28px 0}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hmark">P</div>
+  <div class="brand">
+    <div class="htitle">Product Development Handbook</div>
+    <div class="hsub">Living document — grows every session</div>
+  </div>
+  <nav class="hnav">
+    <a href="#core-loop">Core Loop</a>
+    <a href="#ai-workflow">AI Workflow</a>
+    <a href="#project-anatomy">Structure</a>
+    <a href="#week-one">Week One</a>
+    <a href="#retention">Retention</a>
+    <a href="#shipping">Shipping</a>
+  </nav>
+  <div class="hright">
+    <div class="hpill">Updated 2026-06-04</div>
+    <button class="theme-btn" onclick="toggleTheme()">☀ Light</button>
+  </div>
+</header>
+
+<nav class="mobile-nav" aria-label="Chapter navigation">
+  <a href="#core-loop">01 Core Loop</a>
+  <a href="#ai-workflow">02 AI Workflow</a>
+  <a href="#project-anatomy">03 Structure</a>
+  <a href="#week-one">04 Week One</a>
+  <a href="#retention">05 Retention</a>
+  <a href="#shipping">06 Shipping</a>
+  <a href="#prioritization">07 Prioritization</a>
+  <a href="#metrics">08 Metrics</a>
+  <a href="#ux-patterns">09 UX</a>
+  <a href="#templates">Templates</a>
+</nav>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Foundations</div>
+      <a href="#core-loop" class="sb-link"><span class="ch-num">01</span>The Core Loop</a>
+      <a href="#ai-workflow" class="sb-link"><span class="ch-num">02</span>AI Workflow</a>
+      <a href="#project-anatomy" class="sb-link"><span class="ch-num">03</span>Project Anatomy</a>
+      <a href="#week-one" class="sb-link"><span class="ch-num">04</span>Week One Playbook</a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Product Craft</div>
+      <a href="#retention" class="sb-link"><span class="ch-num">05</span>Retention Mechanics</a>
+      <a href="#shipping" class="sb-link"><span class="ch-num">06</span>Shipping Discipline</a>
+      <a href="#prioritization" class="sb-link stub"><span class="ch-num">07</span>Prioritization</a>
+      <a href="#metrics" class="sb-link stub"><span class="ch-num">08</span>Metrics & Analytics</a>
+      <a href="#ux-patterns" class="sb-link stub"><span class="ch-num">09</span>UX Patterns</a>
+      <a href="#gamification" class="sb-link stub"><span class="ch-num">10</span>Gamification Design</a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Scale</div>
+      <a href="#live-ops" class="sb-link stub"><span class="ch-num">11</span>Live Ops & Events</a>
+      <a href="#monetization" class="sb-link stub"><span class="ch-num">12</span>Monetization</a>
+      <a href="#community" class="sb-link stub"><span class="ch-num">13</span>Community</a>
+      <a href="#team" class="sb-link stub"><span class="ch-num">14</span>Team & Delegation</a>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Reference</div>
+      <a href="#glossary" class="sb-link stub"><span class="ch-num">G</span>Glossary</a>
+      <a href="#templates" class="sb-link stub"><span class="ch-num">T</span>Prompt Templates</a>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <div class="content-col">
+  <main class="content">
+
+    <!-- ── INTRO ── -->
+    <div style="margin-bottom:56px">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Product Development Handbook</div>
+      <h1 style="font-size:36px;font-weight:900;color:var(--text);line-height:1.1;margin-bottom:12px">Build products like<br>a head of studio.</h1>
+      <p style="font-size:16px;color:var(--text2);max-width:560px;line-height:1.7">
+        This handbook is built from real work — every project session adds a lesson. The goal: run the entire product development process — from idea to live product — using AI as your execution layer, with you as the director.
+      </p>
+      <div class="callout callout-gold" style="margin-top:24px">
+        <div class="callout-label">How to use this</div>
+        <p>Read linearly once. Then use it as a reference before starting any new project or feature. Each chapter ends with a <strong>Before You Leave</strong> checklist. Do those before writing code.</p>
+      </div>
+    </div>
+
+    <!-- ── CHAPTER 1: CORE LOOP ── -->
+    <div class="chapter" id="core-loop">
+      <div class="ch-eyebrow">Chapter 01</div>
+      <h2 class="ch-title">The Core Loop</h2>
+      <p class="ch-sub">Every successful product has one action users repeat. Get this wrong and no feature will save you.</p>
+
+      <h3>What a core loop is</h3>
+      <p>A core loop is the <strong>single repeating action</strong> that drives all value in your product. It's what users do every time they open the app. Everything else — progression, social, monetization — wraps around it.</p>
+
+      <div class="phase-flow">
+        <div class="pf-step"><div class="pf-num">Trigger</div><div class="pf-name">User opens app</div><div class="pf-time">motivation</div></div>
+        <div class="pf-step"><div class="pf-num">Action</div><div class="pf-name">Core activity</div><div class="pf-time">the loop</div></div>
+        <div class="pf-step"><div class="pf-num">Reward</div><div class="pf-name">Visible progress</div><div class="pf-time">dopamine</div></div>
+        <div class="pf-step"><div class="pf-num">Investment</div><div class="pf-name">Raises stakes</div><div class="pf-time">retention</div></div>
+        <div class="pf-step"><div class="pf-num">Trigger</div><div class="pf-name">Stronger urge</div><div class="pf-time">next session</div></div>
+      </div>
+
+      <p><strong>Solo Leveling core loop:</strong> Log reps → mastery advances → new movement unlocks → train it → log reps. Every feature either feeds this or it's a distraction.</p>
+
+      <h3>Define it before writing a line of code</h3>
+      <p>The single most expensive mistake in product development is building features before the core loop is proven. EA studios spend 3–6 months on a prototype of just the core loop before greenlighting full production.</p>
+
+      <div class="rules">
+        <div class="rule"><div class="rule-num">1</div><div class="rule-body"><div class="rule-title">Write the loop in one sentence</div><div class="rule-desc">If you can't explain the loop in one sentence, you don't understand it yet. "Users do X, then Y happens, which makes them want to do X again."</div></div></div>
+        <div class="rule"><div class="rule-num">2</div><div class="rule-body"><div class="rule-title">Keep the action short</div><div class="rule-desc">The action must be completable in &lt;3 minutes. If it takes longer, most users won't finish it, which means the reward never lands.</div></div></div>
+        <div class="rule"><div class="rule-num">3</div><div class="rule-body"><div class="rule-title">The reward must be visible and immediate</div><div class="rule-desc">Progress bars, XP ticks, level-ups, sound effects. Invisible rewards don't work. Users need to see the number go up.</div></div></div>
+        <div class="rule"><div class="rule-num">4</div><div class="rule-body"><div class="rule-title">Investment locks users in</div><div class="rule-desc">Streak count, mastery level, unlocked content — these are "sunk costs" that make leaving feel expensive. Build them early.</div></div></div>
+      </div>
+
+      <h3>Secondary and tertiary loops</h3>
+      <p>Once the core loop works, you layer longer loops around it:</p>
+      <table>
+        <tr><th>Loop type</th><th>Timeframe</th><th>Example</th><th>Purpose</th></tr>
+        <tr><td><strong>Core</strong></td><td>2–5 min</td><td>Log reps → advance</td><td>Daily habit</td></tr>
+        <tr><td><strong>Session</strong></td><td>15–30 min</td><td>Complete quest → bonus XP</td><td>Session length</td></tr>
+        <tr><td><strong>Weekly</strong></td><td>7 days</td><td>Streak → grace token</td><td>D7 retention</td></tr>
+        <tr><td><strong>Monthly</strong></td><td>30 days</td><td>Monthly challenge</td><td>D30 retention</td></tr>
+        <tr><td><strong>Prestige</strong></td><td>Months</td><td>Defeat all Mestres → Ehi</td><td>Endgame retention</td></tr>
+      </table>
+
+      <div class="callout callout-red">
+        <div class="callout-label">EA lesson — why games fail</div>
+        <p>The #1 reason good games fail: the core loop works but there's no secondary loop to pull you back tomorrow. Players finish a session satisfied — and never return. <strong>Session satisfaction ≠ retention.</strong></p>
+      </div>
+
+      <h3>Before you leave ✓</h3>
+      <ul>
+        <li>Write the core loop in one sentence</li>
+        <li>Can a new user complete one full loop in &lt;5 minutes?</li>
+        <li>Is the reward for completing it visible and instant?</li>
+        <li>Is there a reason to come back tomorrow (investment)?</li>
+        <li>Have you identified your D1/D7/D30 loop layers?</li>
+      </ul>
+    </div>
+
+    <!-- ── CHAPTER 2: AI WORKFLOW ── -->
+    <div class="chapter" id="ai-workflow">
+      <div class="ch-eyebrow">Chapter 02</div>
+      <h2 class="ch-title">AI Workflow</h2>
+      <p class="ch-sub">How to use Claude and OpenAI as a senior co-founder — not a code monkey. The difference is in how you brief it.</p>
+
+      <h3>The mental model</h3>
+      <p>You are the <strong>director</strong>. AI is the <strong>studio</strong>. Directors don't write every line — they define what must be true and let the studio execute. Your job is to have taste, make decisions, and review outputs. AI's job is to generate options, implement specs, catch issues you missed.</p>
+
+      <div class="callout callout-gold">
+        <div class="callout-label">The key insight</div>
+        <p>AI gives you the execution capacity of a 10-person team. The bottleneck is no longer "who will build this" — it's <strong>"what should be built, in what order, to what spec."</strong> Your leverage is entirely in the quality of your decisions and briefs.</p>
+      </div>
+
+      <h3>Model selection</h3>
+      <table>
+        <tr><th>Model</th><th>Best for</th><th>Cost</th><th>When to use</th></tr>
+        <tr><td><strong>Claude Sonnet</strong></td><td>Code, long files, data work</td><td>Medium</td><td>Default for all implementation</td></tr>
+        <tr><td><strong>Claude Opus</strong></td><td>Architecture, hard decisions, strategy</td><td>High</td><td>Design sessions, reviewing plans</td></tr>
+        <tr><td><strong>Claude Haiku</strong></td><td>Repetitive tasks, transforms</td><td>Low</td><td>Bulk data generation, formatting</td></tr>
+        <tr><td><strong>GPT-4o</strong></td><td>Second opinion, different angle</td><td>Medium</td><td>When Claude is stuck or wrong</td></tr>
+        <tr><td><strong>o3/o1</strong></td><td>Hard reasoning, math, algorithms</td><td>High</td><td>Complex logic, data structures</td></tr>
+      </table>
+
+      <h3>Token efficiency rules</h3>
+      <p>Tokens = time + money. These rules cut waste by 60% without losing quality:</p>
+
+      <div class="rules">
+        <div class="rule"><div class="rule-num">1</div><div class="rule-body"><div class="rule-title">Front-load context, not history</div><div class="rule-desc">Don't re-explain what was done. Explain what is true NOW — current file state, current constraint, current goal. Claude reads code better than it reads summaries of code.</div></div></div>
+        <div class="rule"><div class="rule-num">2</div><div class="rule-body"><div class="rule-title">One ticket per prompt</div><div class="rule-desc">Batching 5 features into one prompt produces 5 half-finished features. One clear ticket → one complete implementation you can actually review.</div></div></div>
+        <div class="rule"><div class="rule-num">3</div><div class="rule-body"><div class="rule-title">Define done before you start</div><div class="rule-desc">"Add a chart" is not a spec. "Add a 30-bar SVG chart on the Body page showing daily VIG, colored green/amber/red by quality, pulling from recoveryLog" is a spec. Vague briefs produce vague output.</div></div></div>
+        <div class="rule"><div class="rule-num">4</div><div class="rule-body"><div class="rule-title">Use subagents for parallel work</div><div class="rule-desc">When two features don't depend on each other, run them in parallel (Agent tool). Cut wall-clock time 40–60% on large batches.</div></div></div>
+        <div class="rule"><div class="rule-num">5</div><div class="rule-body"><div class="rule-title">Never paste full files. Point to lines.</div><div class="rule-desc">Instead of pasting 300 lines, say "in DailyQuest.jsx:1420, the FlowSession timer…" Claude will read it. Pasting wastes context for everyone.</div></div></div>
+        <div class="rule"><div class="rule-num">6</div><div class="rule-body"><div class="rule-title">Test immediately after every feature</div><div class="rule-desc">Run npm test after each ticket, not after a batch. Catching failures early = fewer tokens fixing cascading issues later.</div></div></div>
+        <div class="rule"><div class="rule-num">7</div><div class="rule-body"><div class="rule-title">Use memory files</div><div class="rule-desc">Save key decisions, constraints, and user preferences to memory. Claude re-reads these at the start of each session — you don't re-explain them. The MEMORY.md file IS your product brain.</div></div></div>
+      </div>
+
+      <h3>The perfect prompt structure</h3>
+      <pre><code>TICKET: [ID] — [Title]
+
+CONTEXT:
+What is true right now. Current state. What was tried. What exists.
+
+GOAL:
+Exactly what done looks like. Be specific. Include file paths and line numbers if relevant.
+
+CONSTRAINTS:
+Things it must not break. Edge cases. Performance requirements.
+
+SPEC:
+1. Step-by-step what needs to happen
+2. Data shape if relevant
+3. Where in the codebase it lives
+
+DONE WHEN:
+- Concrete checkable criteria
+- Tests pass
+- No console errors
+- Specific UI behaviour works</code></pre>
+
+      <h3>When to use Claude vs OpenAI</h3>
+      <p>Use <strong>Claude</strong> as your default. Switch to <strong>GPT-4o</strong> when:</p>
+      <ul>
+        <li>Claude keeps making the same mistake after 2 corrections — try OpenAI for a fresh angle</li>
+        <li>You want a genuine second opinion on architecture (not a rubber stamp)</li>
+        <li>File is >4000 lines — GPT-4o's context window can sometimes handle differently</li>
+        <li>You're doing complex function calling / structured JSON output at scale</li>
+      </ul>
+      <p>Use <strong>o3</strong> when the problem requires deep reasoning: algorithm design, security analysis, complex data structure decisions.</p>
+
+      <h3>Session discipline</h3>
+      <p>Each working session should have:</p>
+      <ol>
+        <li><strong>One goal.</strong> "Today I'm shipping X." Not "I'll see what I can do."</li>
+        <li><strong>A ticket list.</strong> Pull from the backlog. Commit to 2–4 tickets max.</li>
+        <li><strong>A build check at the end.</strong> <code>npm run build</code> clean before closing.</li>
+        <li><strong>A memory update.</strong> Did anything surprise you? Save it.</li>
+      </ol>
+
+      <div class="callout callout-blue">
+        <div class="callout-label">Token budget per session</div>
+        <div class="token-grid">
+          <div class="tbox"><div class="tbox-label">Small session</div><div class="tbox-v">~50K</div><div class="tbox-desc">1–2 focused tickets, no research</div></div>
+          <div class="tbox"><div class="tbox-label">Normal session</div><div class="tbox-v">~200K</div><div class="tbox-desc">4–6 tickets, some exploration</div></div>
+          <div class="tbox"><div class="tbox-label">Architecture session</div><div class="tbox-v">~500K</div><div class="tbox-desc">Refactors, system design, testing</div></div>
+        </div>
+        <p style="margin-top:12px">If you're burning more than 500K on a session without shipping tangible features, you're exploring instead of executing. Write a spec, restart.</p>
+      </div>
+
+      <h3>Before you leave ✓</h3>
+      <ul>
+        <li>Did every prompt have a clear DONE WHEN criteria?</li>
+        <li>Did you run tests after each ticket?</li>
+        <li>Is there anything surprising from this session to save to memory?</li>
+        <li>Did you update the ticket board (done / in progress)?</li>
+        <li>Clean build before closing?</li>
+      </ul>
+    </div>
+
+    <!-- ── CHAPTER 3: PROJECT ANATOMY ── -->
+    <div class="chapter" id="project-anatomy">
+      <div class="ch-eyebrow">Chapter 03</div>
+      <h2 class="ch-title">Project Anatomy</h2>
+      <p class="ch-sub">Every project needs the same skeleton. Build it once, reference it forever.</p>
+
+      <h3>The five files every project needs</h3>
+      <div class="rules">
+        <div class="rule"><div class="rule-num">1</div><div class="rule-body"><div class="rule-title">tickets.html — the board</div><div class="rule-desc">Every feature is a ticket. Tickets have IDs, priorities, statuses. You should know at a glance what's blocked, what's ready, what's done. Rebuild this on every project.</div></div></div>
+        <div class="rule"><div class="rule-num">2</div><div class="rule-body"><div class="rule-title">handbook.html — this file</div><div class="rule-desc">The living playbook. Grows every session. Reference it before starting new work. Don't rebuild from scratch — carry it forward.</div></div></div>
+        <div class="rule"><div class="rule-num">3</div><div class="rule-body"><div class="rule-title">MEMORY.md — the brain</div><div class="rule-desc">Key decisions, user preferences, constraints. Loaded at the start of every AI session. Without it, you repeat yourself every session. With it, you build on prior work.</div></div></div>
+        <div class="rule"><div class="rule-num">4</div><div class="rule-body"><div class="rule-title">data-integrity tests — the guard</div><div class="rule-desc">Cross-reference tests that catch data bugs before they reach users. Run on every commit. In Solo Leveling they caught 15 real bugs that were silently wrong.</div></div></div>
+        <div class="rule"><div class="rule-num">5</div><div class="rule-body"><div class="rule-title">CLAUDE.md — the briefing doc</div><div class="rule-desc">Project context for AI: tech stack, conventions, what's off-limits, key file paths. Claude reads this at session start. 20 minutes writing this = hours saved per week.</div></div></div>
+      </div>
+
+      <h3>Phase structure</h3>
+      <p>Every project runs through the same four phases. The mistake is skipping phases or running them out of order.</p>
+      <table>
+        <tr><th>Phase</th><th>Goal</th><th>What you build</th><th>Exit criteria</th></tr>
+        <tr><td><strong>A — Baseline</strong></td><td>Foundation that should have existed day 1</td><td>Tests, CI/CD, auth, error monitoring, file structure</td><td>Clean build, 80%+ test coverage on core logic, no silent failures</td></tr>
+        <tr><td><strong>B — Score improvements</strong></td><td>Move each department from failing to passing</td><td>Onboarding, empty states, key features, analytics</td><td>D1 retention &gt; 40%, no critical UX failures</td></tr>
+        <tr><td><strong>C — Score maximizers</strong></td><td>Move each department from good to great</td><td>Performance, accessibility, deep gamification, full test suite</td><td>LCP &lt;2s, WCAG AA, D7 retention &gt;25%</td></tr>
+        <tr><td><strong>D — Expansion</strong></td><td>Go deeper, not wider</td><td>Content depth, community, live ops, monetization</td><td>D30 retention &gt;15%, NPS &gt;40</td></tr>
+      </table>
+
+      <h3>Folder structure (React + Vite)</h3>
+      <pre><code>src/
+  data/          ← All static data (no logic, pure exports)
+  store/         ← State management (split by domain: usePlayerStore, etc.)
+  pages/         ← One file per screen. Keep under 400 lines.
+  components/    ← Shared UI. Dumb components, no store imports.
+  utils/         ← Pure functions. Fully testable.
+  __tests__/     ← Colocated with what they test
+scripts/         ← One-shot migration/generation scripts
+CLAUDE.md        ← AI briefing doc
+tickets.html     ← Project board
+handbook.html    ← This file</code></pre>
+
+      <div class="callout callout-red">
+        <div class="callout-label">The 400-line rule</div>
+        <p>Any file over 400 lines is doing too many things. Split it. In Solo Leveling, <code>useStore.js</code> grew to 1400 lines and <code>DailyQuest.jsx</code> to 1900 — both are now technical debt. Split early, not after.</p>
+      </div>
+
+      <h3>State schema rules</h3>
+      <ol>
+        <li><strong>Version your state.</strong> Add <code>_v: 1</code> to every localStorage save. When you change the schema, write a migration function.</li>
+        <li><strong>Never lose user data.</strong> Always deep-merge saved state with default state — new keys get default values, existing keys are preserved.</li>
+        <li><strong>Test save/load on Day 1.</strong> The most common failure: app works but importing old data breaks silently.</li>
+        <li><strong>Separate UI state from persistence.</strong> <code>achievementQueue</code> (toast queue) should never persist to localStorage. <code>earnedAchievements</code> should.</li>
+      </ol>
+
+      <h3>Before you leave ✓</h3>
+      <ul>
+        <li>Do all five core files exist?</li>
+        <li>Is every page under 400 lines?</li>
+        <li>Is the state versioned and migration-ready?</li>
+        <li>Are tests running and covering core logic?</li>
+      </ul>
+    </div>
+
+    <!-- ── CHAPTER 4: WEEK ONE ── -->
+    <div class="chapter" id="week-one">
+      <div class="ch-eyebrow">Chapter 04</div>
+      <h2 class="ch-title">Week One Playbook</h2>
+      <p class="ch-sub">The first week determines everything. What you skip here becomes technical debt that compounds forever.</p>
+
+      <h3>Day 1 — Foundation only</h3>
+      <p>Do not write a single feature. Do not touch UI. Do this:</p>
+      <ul>
+        <li><strong>Define the core loop</strong> in one sentence. Write it on a sticky note.</li>
+        <li><strong>Set up the repo</strong> — Vite + React (or your stack). Clean slate.</li>
+        <li><strong>Write CLAUDE.md</strong> — tech stack, conventions, what not to touch.</li>
+        <li><strong>Create tickets.html</strong> — with Phase A tickets only. Fill Phase B–D later.</li>
+        <li><strong>Define the state schema</strong> — what data does the app need? Write it as a JS object with comments before you write any code.</li>
+        <li><strong>Set up error monitoring</strong> — Sentry free tier, 30 minutes. You will regret skipping this.</li>
+      </ul>
+
+      <h3>Day 2 — Core loop prototype</h3>
+      <ul>
+        <li>Build the bare minimum version of the core loop. No styling, no polish.</li>
+        <li>Can a user complete one loop from start to finish?</li>
+        <li>Is the reward visible and immediate?</li>
+        <li>Show it to one person outside the project. Watch them use it. Don't explain anything.</li>
+      </ul>
+
+      <h3>Day 3–4 — Make it feel real</h3>
+      <ul>
+        <li>Add the data layer — real content, not placeholders.</li>
+        <li>Add persistence — localStorage at minimum.</li>
+        <li>Write your first tests — core math and state logic only.</li>
+        <li>Add analytics — PostHog or equivalent. Instrument the core loop action.</li>
+      </ul>
+
+      <h3>Day 5–7 — First user feedback</h3>
+      <ul>
+        <li>Deploy to a real URL (Vercel/Netlify free tier, 10 minutes).</li>
+        <li>Send to 3–5 real users in your target audience. Not friends. People who actually do the thing your app is about.</li>
+        <li>Watch the analytics. Where do they drop off?</li>
+        <li>Fix the #1 drop-off point before building new features.</li>
+      </ul>
+
+      <div class="callout callout-gold">
+        <div class="callout-label">EA's biggest lesson on week one</div>
+        <p>EA's most successful studios run a "First Playable" review in Week 1. A rough, ugly prototype that proves the core loop is fun. If you can't prove the loop is engaging in week 1, you are building on sand. Stop. Rethink the loop.</p>
+      </div>
+
+      <h3>What to skip in Week One</h3>
+      <ul>
+        <li>User accounts / auth (use localStorage)</li>
+        <li>Payment / monetization</li>
+        <li>Multiple platforms</li>
+        <li>Settings / preferences</li>
+        <li>Nice-to-have features</li>
+        <li>Pixel-perfect design</li>
+      </ul>
+
+      <h3>Before you leave ✓</h3>
+      <ul>
+        <li>Is the core loop completable end-to-end?</li>
+        <li>Has one real user seen it?</li>
+        <li>Is it deployed to a real URL?</li>
+        <li>Is analytics installed and tracking the core action?</li>
+        <li>Do you have a ticket board with Phase A complete and Phase B–D stubbed?</li>
+      </ul>
+    </div>
+
+    <!-- ── CHAPTER 5: RETENTION ── -->
+    <div class="chapter" id="retention">
+      <div class="ch-eyebrow">Chapter 05</div>
+      <h2 class="ch-title">Retention Mechanics</h2>
+      <p class="ch-sub">Getting users on Day 1 is marketing. Getting them back on Day 7 is product. This is where the real game is played.</p>
+
+      <h3>The retention curve</h3>
+      <p>Every product has a retention curve — % of users still active N days after signup. Industry benchmarks for consumer apps:</p>
+      <table>
+        <tr><th>Day</th><th>Poor</th><th>Average</th><th>Good</th><th>Best-in-class</th></tr>
+        <tr><td>D1</td><td>&lt;20%</td><td>25–35%</td><td>40–50%</td><td>&gt;60%</td></tr>
+        <tr><td>D7</td><td>&lt;5%</td><td>10–15%</td><td>20–30%</td><td>&gt;40%</td></tr>
+        <tr><td>D30</td><td>&lt;2%</td><td>5–8%</td><td>10–20%</td><td>&gt;25%</td></tr>
+      </table>
+      <p>Training/fitness apps (like Solo Leveling) target higher because they replace a real habit. Aim: D1 &gt;50%, D7 &gt;30%, D30 &gt;20%.</p>
+
+      <h3>The mechanics that work</h3>
+      <div class="rules">
+        <div class="rule"><div class="rule-num">1</div><div class="rule-body"><div class="rule-title">Streaks</div><div class="rule-desc">The most powerful retention mechanic ever built. The fear of losing a streak pulls users back on days they'd otherwise skip. Add grace tokens to make streaks feel fair, not punishing. Duolingo's entire retention strategy is built on this.</div></div></div>
+        <div class="rule"><div class="rule-num">2</div><div class="rule-body"><div class="rule-title">Daily quests with variable rewards</div><div class="rule-desc">Fixed quests get ignored. Variable rewards (daily bonus challenge rotating 30 ways) trigger the dopamine system. The key: every day must feel slightly different from the last.</div></div></div>
+        <div class="rule"><div class="rule-num">3</div><div class="rule-body"><div class="rule-title">Near-miss progression</div><div class="rule-desc">The most powerful moment is when a user is "just 12 reps from Owning." Show the gap clearly. This is why progress bars with visible endpoints outperform abstract XP.</div></div></div>
+        <div class="rule"><div class="rule-num">4</div><div class="rule-body"><div class="rule-title">Weekly + monthly goals</div><div class="rule-desc">Streaks are daily. Weekly reports and monthly challenges create mid-term goals that survive missed days. A user who breaks their streak still has a monthly challenge to care about.</div></div></div>
+        <div class="rule"><div class="rule-num">5</div><div class="rule-body"><div class="rule-title">Push notifications at the right time</div><div class="rule-desc">At 7pm local time if they haven't trained yet. Not earlier (annoying), not later (too late). The message: "Your streak is at risk." Tested: 35% open rate vs 8% average.</div></div></div>
+        <div class="rule"><div class="rule-num">6</div><div class="rule-body"><div class="rule-title">Endgame content</div><div class="rule-desc">Users with no long-term goal to work toward stop logging in after D30. Mestres → Orishas → Ehi ascension is an endgame. Every product needs one. "What's left to achieve" must always have an answer.</div></div></div>
+      </div>
+
+      <div class="callout callout-green">
+        <div class="callout-label">The retention test</div>
+        <p>Ask yourself: <strong>why would a user open this app on a Sunday evening when they're tired?</strong> If you can't answer that, you don't have D7 retention. The streak fear, the near-miss, the daily challenge expiring — these are the answers.</p>
+      </div>
+
+      <h3>Before you leave ✓</h3>
+      <ul>
+        <li>Is there a daily reason to return (quest, streak, challenge)?</li>
+        <li>Is the user's streak investment visible and meaningful?</li>
+        <li>Is there a "near miss" moment visible to the user right now?</li>
+        <li>Is there endgame content for your most engaged users?</li>
+        <li>Are you tracking D1/D7/D30 retention in analytics?</li>
+      </ul>
+    </div>
+
+    <!-- ── CHAPTER 6: SHIPPING ── -->
+    <div class="chapter" id="shipping">
+      <div class="ch-eyebrow">Chapter 06</div>
+      <h2 class="ch-title">Shipping Discipline</h2>
+      <p class="ch-sub">A feature that's 95% done and not shipped is worth 0. A feature that's 80% done and shipped is worth everything.</p>
+
+      <h3>The shipping test</h3>
+      <p>Before marking any ticket done, run this checklist:</p>
+      <div class="rules">
+        <div class="rule"><div class="rule-num">✓</div><div class="rule-body"><div class="rule-title">Build passes</div><div class="rule-desc"><code>npm run build</code> exits 0. No console errors in production build.</div></div></div>
+        <div class="rule"><div class="rule-num">✓</div><div class="rule-body"><div class="rule-title">Tests pass</div><div class="rule-desc"><code>npm test</code> all green. Any new logic has at least one test.</div></div></div>
+        <div class="rule"><div class="rule-num">✓</div><div class="rule-body"><div class="rule-title">Golden path works</div><div class="rule-desc">Open the app as a new user. Complete the feature. Does it work as intended?</div></div></div>
+        <div class="rule"><div class="rule-num">✓</div><div class="rule-body"><div class="rule-title">Edge cases handled</div><div class="rule-desc">Empty state (no data), first-time user, max data (10,000 reps). None should crash.</div></div></div>
+        <div class="rule"><div class="rule-num">✓</div><div class="rule-body"><div class="rule-title">Mobile works</div><div class="rule-desc">DevTools mobile viewport. Tap targets ≥44px. Nothing overflows.</div></div></div>
+      </div>
+
+      <h3>What NOT to gold-plate</h3>
+      <p>Perfection is the enemy of shipping. These things do not need to be perfect to ship:</p>
+      <ul>
+        <li><strong>Copy</strong> — placeholder text ships. Polish copy in v2.</li>
+        <li><strong>Animations</strong> — functional first. Delightful later.</li>
+        <li><strong>Edge cases that affect &lt;1% of users</strong> — file a ticket, move on.</li>
+        <li><strong>Design consistency</strong> — close enough ships. Pixel-perfect in a design pass.</li>
+      </ul>
+
+      <h3>The batch discipline</h3>
+      <p>Work in batches of 3–5 related tickets. After each batch:</p>
+      <ol>
+        <li>Clean build</li>
+        <li>All tests green</li>
+        <li>Update ticket board</li>
+        <li>One-line daily log entry</li>
+        <li>Deploy if possible</li>
+      </ol>
+
+      <div class="callout callout-gold">
+        <div class="callout-label">Ship daily</div>
+        <p>The best studios ship something to production every single day. Not a full feature — even a copy change, a bug fix, a performance tweak. <strong>Daily shipping = daily feedback = faster learning.</strong> If you go 3 days without shipping, you're over-engineering something.</p>
+      </div>
+
+      <h3>Before you leave ✓</h3>
+      <ul>
+        <li>Did you ship something today? (Even one small thing?)</li>
+        <li>Are all completed tickets marked done on the board?</li>
+        <li>Is the build clean?</li>
+        <li>Is there a daily log entry for today?</li>
+      </ul>
+    </div>
+
+    <!-- ── STUB CHAPTERS ── -->
+    <div id="prioritization">
+    <div class="stub-chapter">
+      <div class="stub-icon">🎯</div>
+      <div class="stub-title">Chapter 07 — Prioritization</div>
+      <div class="stub-desc">RICE framework, ICE scoring, MoSCoW. How to decide what to build next when everything feels urgent. Coming soon.</div>
+    </div>
+    </div>
+
+    <div id="metrics">
+    <div class="stub-chapter">
+      <div class="stub-icon">📊</div>
+      <div class="stub-title">Chapter 08 — Metrics & Analytics</div>
+      <div class="stub-desc">North Star metric, funnel analysis, cohort retention, instrumentation strategy. What to track, what to ignore. Coming soon.</div>
+    </div>
+    </div>
+
+    <div id="ux-patterns">
+    <div class="stub-chapter">
+      <div class="stub-icon">📐</div>
+      <div class="stub-title">Chapter 09 — UX Patterns</div>
+      <div class="stub-desc">Empty states, onboarding, progressive disclosure, error states, loading states. The patterns that appear in every product. Coming soon.</div>
+    </div>
+    </div>
+
+    <div id="gamification">
+    <div class="stub-chapter">
+      <div class="stub-icon">🎮</div>
+      <div class="stub-title">Chapter 10 — Gamification Design</div>
+      <div class="stub-desc">Progression systems, achievement design, boss mechanics, prestige loops. When gamification works and when it backfires. Coming soon.</div>
+    </div>
+    </div>
+
+    <div id="live-ops">
+    <div class="stub-chapter">
+      <div class="stub-icon">📅</div>
+      <div class="stub-title">Chapter 11 — Live Ops & Events</div>
+      <div class="stub-desc">Seasonal challenges, limited-time events, double XP weekends. How EA keeps games alive for years. Coming soon.</div>
+    </div>
+    </div>
+
+    <div id="monetization">
+    <div class="stub-chapter">
+      <div class="stub-icon">💰</div>
+      <div class="stub-title">Chapter 12 — Monetization</div>
+      <div class="stub-desc">IAP, subscriptions, cosmetics, premium tiers. What works for habit apps vs games. Coming soon.</div>
+    </div>
+    </div>
+
+    <div id="community">
+    <div class="stub-chapter">
+      <div class="stub-icon">🌍</div>
+      <div class="stub-title">Chapter 13 — Community</div>
+      <div class="stub-desc">Discord strategy, feedback loops, ambassador programs, content creators. How community becomes your best retention mechanic. Coming soon.</div>
+    </div>
+    </div>
+
+    <div id="team">
+    <div class="stub-chapter">
+      <div class="stub-icon">👥</div>
+      <div class="stub-title">Chapter 14 — Team & Delegation</div>
+      <div class="stub-desc">When to hire, what to delegate to humans vs AI, how to hire contractors for AI-augmented teams. Coming soon.</div>
+    </div>
+    </div>
+
+    <div id="glossary">
+    <div class="stub-chapter">
+      <div class="stub-icon">📖</div>
+      <div class="stub-title">Glossary</div>
+      <div class="stub-desc">D1/D7/D30, LTV, DAU/MAU, retention curve, core loop, meta loop, live ops, prestige. Defined clearly. Coming soon.</div>
+    </div>
+    </div>
+
+    <div id="templates">
+    <div class="stub-chapter">
+      <div class="stub-icon">📋</div>
+      <div class="stub-title">Prompt Templates</div>
+      <div class="stub-desc">Copy-paste prompts for: feature spec, data integrity test, UI component, migration script, analytics event, A/B test design. Coming soon.</div>
+    </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:32px 0;border-top:1px solid var(--border);text-align:center">
+      <div style="font-size:11px;color:var(--text3)">
+        This handbook grows with every project session.<br>
+        Built from real work on Solo Leveling: Capoeira — and every project that follows.
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:8px;opacity:.5">
+        Last updated: 2026-06-04 · 6 of 14 chapters written
+      </div>
+    </div>
+
+  </main>
+  </div><!-- /content-col -->
+</div><!-- /layout -->
+
+<script>
+  function initTheme() {
+    const stored = localStorage.getItem('sl-handbook-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', stored);
+    updateBtn(stored);
+  }
+
+  function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('sl-handbook-theme', next);
+    updateBtn(next);
+  }
+
+  function updateBtn(theme) {
+    const btn = document.querySelector('.theme-btn');
+    if (btn) btn.textContent = theme === 'dark' ? '☀ Light' : '◐ Dark';
+  }
+
+  // Sidebar active link on window scroll
+  const links = document.querySelectorAll('.sb-link, .mobile-nav a');
+  const chapters = document.querySelectorAll('[id]');
+
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    chapters.forEach(c => { if (window.scrollY >= c.offsetTop - 100) cur = c.id; });
+    links.forEach(a => {
+      const href = a.getAttribute('href');
+      a.classList.toggle('active', href && href === '#' + cur);
+    });
+  });
+
+  initTheme();
+</script>
+</body>
+</html>

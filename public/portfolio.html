@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BTR Vault — Permitting Intelligence Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+/* ── reset ── */
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* ── washi paper root ── */
+:root{
+  --ink:      #1a1008;
+  --ink2:     #2d1f0e;
+  --paper:    #f2e8d5;
+  --paper2:   #e6d6be;
+  --paper3:   #d9c8aa;
+  --cinnabar: #b5281c;
+  --gold:     #8a6914;
+  --gold2:    #c9a84c;
+  --brush:    #4a3728;
+  --muted:    #7a6555;
+  --fiber:    rgba(90,60,30,.06);
+}
+
+/* ── paper texture body ── */
+body{
+  background-color: var(--paper);
+  background-image:
+    repeating-linear-gradient(90deg, var(--fiber) 0, var(--fiber) 1px, transparent 0, transparent 50%),
+    repeating-linear-gradient(0deg,  var(--fiber) 0, var(--fiber) 1px, transparent 0, transparent 50%);
+  background-size: 6px 6px;
+  color: var(--ink);
+  font-family: 'Crimson Text', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── ink wash header ── */
+.hero{
+  position: relative;
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(26,16,8,.92) 0%, rgba(26,16,8,.97) 100%);
+  overflow: hidden;
+}
+
+/* brushstroke texture on hero */
+.hero::before{
+  content:'';
+  position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(170deg, rgba(255,255,255,.015) 0, rgba(255,255,255,.015) 1px, transparent 0, transparent 12px),
+    repeating-linear-gradient(80deg,  rgba(255,255,255,.01)  0, rgba(255,255,255,.01)  1px, transparent 0, transparent 18px);
+  pointer-events:none;
+}
+
+/* ink drip bottom edge */
+.hero::after{
+  content:'';
+  position:absolute;bottom:-1px;left:0;right:0;height:40px;
+  background: var(--paper);
+  clip-path: polygon(
+    0% 100%, 2% 60%, 5% 80%, 8% 40%, 12% 70%, 16% 30%, 20% 65%,
+    25% 20%, 30% 55%, 35% 25%, 40% 60%, 45% 15%, 50% 50%,
+    55% 20%, 60% 55%, 65% 30%, 70% 65%, 75% 25%, 80% 60%,
+    85% 35%, 90% 70%, 94% 40%, 97% 65%, 100% 45%, 100% 100%
+  );
+}
+
+/* red seal */
+.seal{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:64px;height:64px;border-radius:50%;
+  background: var(--cinnabar);
+  border: 3px solid #8a1510;
+  box-shadow: 0 0 0 6px rgba(181,40,28,.18), inset 0 2px 8px rgba(0,0,0,.3);
+  margin-bottom:1.5rem;
+  font-size:1.5rem;color:#f2e8d5;
+  font-family:'Noto Serif JP',serif;
+  font-weight:700;
+}
+
+.hero-kana{
+  font-family:'Noto Serif JP',serif;
+  font-size:.75rem;font-weight:300;
+  letter-spacing:.6em;
+  color:rgba(242,232,213,.45);
+  text-transform:uppercase;
+  margin-bottom:.75rem;
+}
+
+.hero-title{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.8rem,4vw,3.2rem);
+  font-weight:900;
+  color:#f2e8d5;
+  letter-spacing:.12em;
+  line-height:1.1;
+  margin-bottom:.5rem;
+}
+.hero-title span{ color:var(--cinnabar); }
+
+.hero-sub{
+  font-family:'Crimson Text',serif;
+  font-style:italic;
+  font-size:1.15rem;
+  color:rgba(242,232,213,.6);
+  letter-spacing:.04em;
+  margin-bottom:2rem;
+}
+
+/* vertical rule trio */
+.hero-rule{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:1.5rem;
+}
+.hero-rule span{
+  display:block;width:1px;background:rgba(181,40,28,.6);
+}
+.hero-rule .r1{height:30px}
+.hero-rule .r2{height:48px}
+.hero-rule .r3{height:30px}
+
+.hero-meta{
+  font-size:.78rem;color:rgba(242,232,213,.35);letter-spacing:.15em;
+  text-transform:uppercase;font-family:'Cinzel',serif;
+}
+
+/* ── brushstroke divider ── */
+.brush-divider{
+  display:flex;align-items:center;gap:1.5rem;
+  padding:2rem 0 1.5rem;
+}
+.brush-divider::before,.brush-divider::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,var(--paper3),transparent);
+}
+.brush-divider-text{
+  font-family:'Cinzel',serif;
+  font-size:.68rem;letter-spacing:.25em;
+  color:var(--muted);text-transform:uppercase;
+  white-space:nowrap;
+}
+
+/* ── main layout ── */
+main{
+  max-width:1200px;
+  margin:0 auto;
+  padding:3rem 2rem 5rem;
+}
+
+/* ── section header ── */
+.section-header{
+  display:flex;align-items:center;gap:1rem;
+  margin-bottom:2.5rem;
+}
+.section-num{
+  font-family:'Cinzel',serif;font-size:.65rem;
+  letter-spacing:.2em;color:var(--cinnabar);
+  writing-mode:vertical-rl;text-orientation:mixed;
+  border-left:2px solid var(--cinnabar);
+  padding:.5rem .4rem;
+  line-height:1;
+}
+.section-title-block h2{
+  font-family:'Cinzel',serif;
+  font-size:1.4rem;font-weight:700;
+  color:var(--ink);letter-spacing:.08em;
+}
+.section-title-block p{
+  font-style:italic;color:var(--muted);font-size:.9rem;margin-top:.2rem;
+}
+
+/* ── project grid ── */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+  gap:1.75rem;
+}
+
+/* ── project card ── */
+.card{
+  background: linear-gradient(145deg, #fffaf2 0%, var(--paper2) 100%);
+  border: 1px solid var(--paper3);
+  border-radius:2px;
+  position:relative;
+  overflow:hidden;
+  transition:transform .2s, box-shadow .2s;
+  box-shadow:
+    2px 3px 12px rgba(26,16,8,.08),
+    0 1px 3px rgba(26,16,8,.04);
+}
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:4px 8px 28px rgba(26,16,8,.14),0 2px 6px rgba(26,16,8,.06);
+}
+
+/* corner fold */
+.card::after{
+  content:'';
+  position:absolute;top:0;right:0;
+  width:24px;height:24px;
+  background:linear-gradient(225deg, var(--paper3) 50%, transparent 50%);
+  border-bottom-left-radius:2px;
+}
+
+/* left accent bar */
+.card-accent{
+  position:absolute;top:0;left:0;bottom:0;width:3px;
+  background:var(--cinnabar);
+}
+
+.card-body{ padding:1.5rem 1.5rem 1.25rem 1.75rem; }
+
+/* project number */
+.card-num{
+  font-family:'Cinzel',serif;font-size:.6rem;
+  letter-spacing:.2em;color:var(--cinnabar);
+  text-transform:uppercase;margin-bottom:.6rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.card-num::after{content:'';flex:1;height:1px;background:var(--paper3)}
+
+.card-title{
+  font-family:'Cinzel',serif;
+  font-size:1.05rem;font-weight:700;
+  color:var(--ink);letter-spacing:.05em;
+  line-height:1.25;margin-bottom:.65rem;
+}
+
+.card-desc{
+  font-size:.92rem;color:var(--brush);
+  line-height:1.65;margin-bottom:1.1rem;
+  font-style:italic;
+}
+
+/* tool tags */
+.tools{
+  display:flex;flex-wrap:wrap;gap:.4rem;
+  margin-bottom:1.25rem;
+}
+.tool-tag{
+  font-size:.65rem;font-family:'Cinzel',serif;letter-spacing:.1em;
+  padding:.2rem .55rem;
+  border:1px solid var(--paper3);
+  border-radius:1px;
+  background:rgba(26,16,8,.04);
+  color:var(--muted);
+  text-decoration:none;
+  transition:all .15s;
+  white-space:nowrap;
+}
+.tool-tag:hover{
+  background:var(--cinnabar);
+  border-color:var(--cinnabar);
+  color:#f2e8d5;
+}
+
+/* open button */
+.card-footer{
+  border-top:1px solid var(--paper3);
+  padding:.9rem 1.5rem .9rem 1.75rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(26,16,8,.02);
+}
+.btn-open{
+  font-family:'Cinzel',serif;font-size:.65rem;
+  letter-spacing:.18em;text-transform:uppercase;
+  padding:.4rem 1rem;
+  background:var(--ink);
+  color:var(--paper);
+  border:1px solid var(--ink2);
+  border-radius:1px;
+  text-decoration:none;
+  transition:background .15s,color .15s;
+  display:inline-flex;align-items:center;gap:.4rem;
+}
+.btn-open:hover{ background:var(--cinnabar); border-color:#8a1510; }
+.btn-open::after{ content:'→'; font-family:serif; }
+
+.port-label{
+  font-size:.62rem;color:var(--muted);font-family:'Cinzel',serif;
+  letter-spacing:.1em;
+}
+
+/* ── stack card (full width) ── */
+.card.full{ grid-column:1/-1; }
+.card.full .card-body{
+  display:grid;grid-template-columns:1fr 1fr;gap:2rem;
+}
+@media(max-width:640px){
+  .card.full .card-body{grid-template-columns:1fr}
+}
+
+/* ── data strip ── */
+.data-strip{
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink2) 100%);
+  padding:2rem;border-radius:2px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:1.5rem;margin-bottom:3rem;
+  position:relative;overflow:hidden;
+}
+.data-strip::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,.015) 0,rgba(255,255,255,.015) 1px,transparent 0,transparent 8px);
+}
+.stat-item{text-align:center;position:relative}
+.stat-val{
+  font-family:'Cinzel',serif;font-size:1.6rem;font-weight:900;
+  color:var(--paper);display:block;line-height:1;
+}
+.stat-val em{ color:var(--cinnabar); font-style:normal; }
+.stat-lbl{
+  font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(242,232,213,.4);margin-top:.35rem;display:block;
+  font-family:'Cinzel',serif;
+}
+
+/* ── footer ── */
+.site-footer{
+  text-align:center;padding:2.5rem 2rem;
+  border-top:1px solid var(--paper3);
+  background:rgba(26,16,8,.03);
+}
+.footer-kana{
+  font-family:'Noto Serif JP',serif;font-size:.75rem;
+  letter-spacing:.4em;color:var(--muted);margin-bottom:.5rem;
+}
+.footer-text{font-size:.75rem;color:var(--muted);letter-spacing:.06em;}
+
+/* ink circle decoration */
+.ink-circle{
+  display:inline-block;width:8px;height:8px;border-radius:50%;
+  background:var(--cinnabar);opacity:.7;margin:0 .3rem;
+  vertical-align:middle;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="seal">許</div>
+  <div class="hero-kana">許可情報　·　Permit Intelligence Portfolio</div>
+  <h1 class="hero-title">BTR <span>Vault</span></h1>
+  <p class="hero-sub">Orlando Main Street · Permitting Intelligence Suite</p>
+  <div class="hero-rule">
+    <span class="r1"></span><span class="r2"></span><span class="r3"></span>
+  </div>
+  <p class="hero-meta">College Park Economic Development &nbsp;·&nbsp; City of Orlando Open Data &nbsp;·&nbsp; 2026</p>
+</header>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════════════════ -->
+<main>
+
+  <!-- data strip -->
+  <div class="data-strip">
+    <div class="stat-item">
+      <span class="stat-val">130<em>,</em>832</span>
+      <span class="stat-lbl">Permit Records</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">13</span>
+      <span class="stat-lbl">Main Street Districts</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">$12<em>.</em>7B</span>
+      <span class="stat-lbl">Permitted Investment</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">6</span>
+      <span class="stat-lbl">Live Applications</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">10</span>
+      <span class="stat-lbl">Open-Source Tools</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">94<em>%</em></span>
+      <span class="stat-lbl">Data Compression</span>
+    </div>
+  </div>
+
+  <!-- section header -->
+  <div class="section-header">
+    <div class="section-num">Projects</div>
+    <div class="section-title-block">
+      <h2>Permitting Intelligence Applications</h2>
+      <p>Six tools built on 130,832 city permit records — each measuring a different dimension of corridor vitality.</p>
+    </div>
+  </div>
+
+  <!-- ── project grid ── -->
+  <div class="grid">
+
+    <!-- 1. Economic Vitality Site -->
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-num">Project 一 &nbsp; Analytics Platform</div>
+        <h2 class="card-title">Economic Vitality Intelligence Site</h2>
+        <p class="card-desc">
+          Five-section data platform covering vitality leaderboard, district deep-dives, permit trends, investment tracking,
+          and activity matrix — each district scored against its own pre-COVID baseline. Outlier filter removes
+          mega-projects to reveal true corridor-level investment patterns.
+        </p>
+        <div class="tools">
+          <a class="tool-tag" href="https://www.python.org" target="_blank">Python</a>
+          <a class="tool-tag" href="https://duckdb.org" target="_blank">DuckDB</a>
+          <a class="tool-tag" href="https://www.chartjs.org" target="_blank">Chart.js</a>
+          <a class="tool-tag" href="https://pola.rs" target="_blank">Polars</a>
+          <a class="tool-tag" href="https://pyarrow.apache.org" target="_blank">PyArrow</a>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="port-label">localhost:5173</span>
+        <a class="btn-open" href="http://localhost:5173/vitality_site.html" target="_blank">Open Project</a>
+      </div>
+    </div>
+
+    <!-- 2. Corridor Vitality Score -->
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-num">Project 二 &nbsp; Scoring Model</div>
+        <h2 class="card-title">Corridor Vitality Score Dashboard</h2>
+        <p class="card-desc">
+          Weighted composite score ranking all 13 Orlando Main Street districts by momentum, investment,
+          change-of-use rate, ABL retention, and risk. Each metric normalized relative to the district's
+          own historical baseline — not absolute volume.
+        </p>
+        <div class="tools">
+          <a class="tool-tag" href="https://www.python.org" target="_blank">Python</a>
+          <a class="tool-tag" href="https://pandas.pydata.org" target="_blank">Pandas</a>
+          <a class="tool-tag" href="https://pola.rs" target="_blank">Polars</a>
+          <a class="tool-tag" href="https://www.chartjs.org" target="_blank">Chart.js</a>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="port-label">localhost:5173</span>
+        <a class="btn-open" href="http://localhost:5173/corridor_vitality.html" target="_blank">Open Project</a>
+      </div>
+    </div>
+
+    <!-- 3. Contractor Database -->
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-num">Project 三 &nbsp; CRM Tool</div>
+        <h2 class="card-title">Contractor Database</h2>
+        <p class="card-desc">
+          Full CRUD management interface for 106 trade contractors seeded from the vault business directory.
+          Sortable by trade type, district, preferred status, and rating. Edits persist to localStorage;
+          export any filtered view as a timestamped CSV.
+        </p>
+        <div class="tools">
+          <a class="tool-tag" href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank">HTML5</a>
+          <a class="tool-tag" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">JavaScript</a>
+          <a class="tool-tag" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank">localStorage API</a>
+          <a class="tool-tag" href="https://www.python.org" target="_blank">Python</a>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="port-label">localhost:5173</span>
+        <a class="btn-open" href="http://localhost:5173/contractor_db.html" target="_blank">Open Project</a>
+      </div>
+    </div>
+
+    <!-- 4. Marimo + DuckDB -->
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-num">Project 四 &nbsp; Reactive Notebook</div>
+        <h2 class="card-title">Permit Intelligence Notebook</h2>
+        <p class="card-desc">
+          Reactive analysis environment where every dropdown and slider instantly reruns all dependent cells.
+          DuckDB queries 130K permit records from Parquet in under 100ms. Includes a live SQL console —
+          type any query against the vault and see results immediately.
+        </p>
+        <div class="tools">
+          <a class="tool-tag" href="https://marimo.io" target="_blank">Marimo</a>
+          <a class="tool-tag" href="https://duckdb.org" target="_blank">DuckDB</a>
+          <a class="tool-tag" href="https://plotly.com/python" target="_blank">Plotly</a>
+          <a class="tool-tag" href="https://pola.rs" target="_blank">Polars</a>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="port-label">localhost:2719</span>
+        <a class="btn-open" href="http://localhost:2719" target="_blank">Open Project</a>
+      </div>
+    </div>
+
+    <!-- 5. Prophet + Streamlit -->
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-num">Project 五 &nbsp; Forecasting App</div>
+        <h2 class="card-title">Permit Volume Forecast</h2>
+        <p class="card-desc">
+          Meta Prophet time-series model forecasting permit volume and investment ($M) per district
+          through 2028. Toggle COVID-year exclusion, adjust horizon, compare all 13 districts simultaneously.
+          Downloads forecast CSVs for each district or the full summary.
+        </p>
+        <div class="tools">
+          <a class="tool-tag" href="https://facebook.github.io/prophet" target="_blank">Prophet</a>
+          <a class="tool-tag" href="https://streamlit.io" target="_blank">Streamlit</a>
+          <a class="tool-tag" href="https://plotly.com/python" target="_blank">Plotly</a>
+          <a class="tool-tag" href="https://pola.rs" target="_blank">Polars</a>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="port-label">localhost:8502</span>
+        <a class="btn-open" href="http://localhost:8502" target="_blank">Open Project</a>
+      </div>
+    </div>
+
+    <!-- 6. Datasette -->
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-num">Project 六 &nbsp; Data API + Portal</div>
+        <h2 class="card-title">Vault Data Portal</h2>
+        <p class="card-desc">
+          Entire vault as a searchable, filterable web portal and REST API — zero frontend code.
+          11 tables, 8 pre-built canned queries, auto-generated map view for parcels and businesses,
+          Vega charts on any result, and a live dashboard. Every table is also a JSON API endpoint.
+        </p>
+        <div class="tools">
+          <a class="tool-tag" href="https://datasette.io" target="_blank">Datasette</a>
+          <a class="tool-tag" href="https://sqlite-utils.datasette.io" target="_blank">sqlite-utils</a>
+          <a class="tool-tag" href="https://github.com/simonw/datasette-cluster-map" target="_blank">cluster-map</a>
+          <a class="tool-tag" href="https://github.com/simonw/datasette-vega" target="_blank">datasette-vega</a>
+          <a class="tool-tag" href="https://github.com/rclement/datasette-dashboards" target="_blank">dashboards</a>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="port-label">localhost:8503</span>
+        <a class="btn-open" href="http://localhost:8503" target="_blank">Open Project</a>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- ── infrastructure section ── -->
+  <div class="brush-divider"><span class="brush-divider-text">Infrastructure</span></div>
+
+  <div class="section-header">
+    <div class="section-num">Infra</div>
+    <div class="section-title-block">
+      <h2>Data Infrastructure Upgrades</h2>
+      <p>Foundation layer that makes every project above 10–23× faster.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card full">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div>
+          <div class="card-num">Infrastructure 一 &nbsp; Speed Layer</div>
+          <h2 class="card-title">Polars + Parquet Pipeline</h2>
+          <p class="card-desc">
+            All vault CSVs converted to zstd-compressed Parquet, reducing 68MB of CSV to 4MB — a 94% reduction.
+            <code>_utils.py</code> upgraded to prefer Parquet automatically: every existing script gains 10–23× speed
+            with zero code changes. <code>write_csv()</code> now auto-writes a Parquet sidecar on every save.
+            New <code>read_polars()</code> and <code>read_permits_pl()</code> helpers for native Polars workflows.
+          </p>
+          <div class="tools" style="margin-bottom:0">
+            <a class="tool-tag" href="https://pola.rs" target="_blank">Polars 1.41</a>
+            <a class="tool-tag" href="https://pyarrow.apache.org" target="_blank">PyArrow / Parquet</a>
+            <a class="tool-tag" href="https://www.python.org" target="_blank">Python</a>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.75rem;justify-content:center">
+          <div style="background:rgba(26,16,8,.04);border:1px solid var(--paper3);border-radius:2px;padding:1rem 1.25rem">
+            <div style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.15em;color:var(--cinnabar);margin-bottom:.75rem">BENCHMARK · 130,832 ROWS</div>
+            <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.82rem;font-family:'Crimson Text',serif">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="color:var(--muted)">pandas read_csv</span>
+                <span style="font-family:monospace;color:var(--brush)">1,228 ms</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="color:var(--muted)">polars read_csv</span>
+                <span style="font-family:monospace;color:var(--brush)">80 ms &nbsp;<span style="color:var(--gold2);font-size:.75rem">15×</span></span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--paper3);padding-top:.5rem">
+                <span style="color:var(--ink);font-weight:600">polars parquet</span>
+                <span style="font-family:monospace;color:var(--cinnabar);font-weight:600">52 ms &nbsp;<span style="font-size:.75rem">23×</span></span>
+              </div>
+            </div>
+          </div>
+          <div style="background:rgba(26,16,8,.04);border:1px solid var(--paper3);border-radius:2px;padding:1rem 1.25rem">
+            <div style="font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.15em;color:var(--cinnabar);margin-bottom:.75rem">STORAGE</div>
+            <div style="font-size:.82rem;display:flex;justify-content:space-between">
+              <span style="color:var(--muted)">68 MB CSV</span>
+              <span style="color:var(--cinnabar);font-weight:600">→ 4 MB Parquet (94% smaller)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="brush-divider"><span class="brush-divider-text">Coming Next</span></div>
+
+  <!-- upcoming -->
+  <div class="grid">
+    <div class="card" style="opacity:.65">
+      <div class="card-accent" style="background:var(--muted)"></div>
+      <div class="card-body">
+        <div class="card-num" style="color:var(--muted)">Next 七 &nbsp; Geospatial</div>
+        <h2 class="card-title">Kepler.gl + H3 Investment Maps</h2>
+        <p class="card-desc">Animated investment flow maps with H3 hexbin density — watch construction capital move through Orlando corridors year by year, 3D-tilted with height = dollar value.</p>
+        <div class="tools">
+          <a class="tool-tag" href="https://kepler.gl" target="_blank">Kepler.gl</a>
+          <a class="tool-tag" href="https://h3geo.org" target="_blank">H3</a>
+          <a class="tool-tag" href="https://deck.gl" target="_blank">deck.gl</a>
+        </div>
+      </div>
+      <div class="card-footer"><span class="port-label">Pending</span></div>
+    </div>
+
+    <div class="card" style="opacity:.65">
+      <div class="card-accent" style="background:var(--muted)"></div>
+      <div class="card-body">
+        <div class="card-num" style="color:var(--muted)">Next 八 &nbsp; Spatial SQL</div>
+        <h2 class="card-title">Apache Sedona Spatial Queries</h2>
+        <p class="card-desc">SQL queries with geographic awareness — all permits within 500m of a corridor, parcels intersecting flood zones, nearest businesses to any vacant lot.</p>
+        <div class="tools">
+          <a class="tool-tag" href="https://sedona.apache.org" target="_blank">Apache Sedona</a>
+          <a class="tool-tag" href="https://duckdb.org" target="_blank">DuckDB Spatial</a>
+        </div>
+      </div>
+      <div class="card-footer"><span class="port-label">Pending</span></div>
+    </div>
+
+    <div class="card" style="opacity:.65">
+      <div class="card-accent" style="background:var(--muted)"></div>
+      <div class="card-body">
+        <div class="card-num" style="color:var(--muted)">Next 九 &nbsp; BI Reports</div>
+        <h2 class="card-title">Evidence.dev Report Site</h2>
+        <p class="card-desc">SQL-first BI framework — write Markdown + SQL queries, get publication-quality static stakeholder reports. Monthly district briefings as deployable sites.</p>
+        <div class="tools">
+          <a class="tool-tag" href="https://evidence.dev" target="_blank">Evidence.dev</a>
+          <a class="tool-tag" href="https://duckdb.org" target="_blank">DuckDB</a>
+        </div>
+      </div>
+      <div class="card-footer"><span class="port-label">Pending</span></div>
+    </div>
+
+    <div class="card" style="opacity:.65">
+      <div class="card-accent" style="background:var(--muted)"></div>
+      <div class="card-body">
+        <div class="card-num" style="color:var(--muted)">Next 十 &nbsp; Graph DB</div>
+        <h2 class="card-title">Neo4j Ownership Graph</h2>
+        <p class="card-desc">Graph the owner → parcel → business → permit relationships. Visual explorer to find ownership chains and shell company clusters that flat CSV queries cannot surface.</p>
+        <div class="tools">
+          <a class="tool-tag" href="https://neo4j.com" target="_blank">Neo4j</a>
+          <a class="tool-tag" href="https://neo4j.com/bloom" target="_blank">Bloom</a>
+        </div>
+      </div>
+      <div class="card-footer"><span class="port-label">Pending</span></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="footer-kana">許可情報ポートフォリオ</div>
+  <p class="footer-text">
+    BTR College Park ED Vault
+    <span class="ink-circle"></span>
+    Orlando Main Street System
+    <span class="ink-circle"></span>
+    2026
+  </p>
+</footer>
+
+</body>
+</html>

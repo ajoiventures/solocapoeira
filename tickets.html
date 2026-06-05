@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Solo Leveling: Capoeira — Project Dashboard</title>
+<style>
+  :root {
+    --bg:#0B111C; --surface:#111A26; --surface2:#151F2E; --surface3:#1A2636;
+    --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.13);
+    --text:#EDE8DE; --text2:#AAB3C2; --text3:#6F7A8A;
+    --accent:#D9A441; --green:#2E8C78; --blue:#4F7CFF; --red:#C95252;
+    --orange:#D4854A; --purple:#7C3AED;
+    --r:10px; --r-sm:6px;
+  }
+
+  :root[data-theme="light"] {
+    --bg:#f6f5f1; --surface:#fffdf8; --surface2:#f9f8f5; --surface3:#f0ede8;
+    --border:#d7dcd7; --border2:#c5cbbf;
+    --text:#1c2430; --text2:#5a6370; --text3:#8b94a3;
+    --accent:#8f4a2a; --green:#1f5d57; --blue:#265f86; --red:#9f3a32;
+    --orange:#c4893a; --purple:#5b3f8a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.5}
+
+  /* ── Header ── */
+  header{background:rgba(10,16,24,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);
+    padding:0 28px;height:56px;display:flex;align-items:center;gap:16px;
+    position:sticky;top:0;z-index:100}
+  .hbrand{display:flex;align-items:center;gap:10px;text-decoration:none}
+  .hbrand-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#D9A441,#D4854A);
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#0A1018}
+  .hbrand-name{font-size:14px;font-weight:700;color:var(--text)}
+  .hbrand-sub{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+  .hnav{display:flex;gap:4px;margin-left:24px}
+  .hnav a{font-size:11px;font-weight:600;color:var(--text3);padding:5px 12px;border-radius:6px;
+    text-decoration:none;transition:all .15s}
+  .hnav a:hover,.hnav a.active{background:rgba(255,255,255,.06);color:var(--text)}
+  .hright{margin-left:auto;display:flex;gap:20px;align-items:center}
+  .hstat{text-align:right}
+  .hstat-v{font-size:17px;font-weight:800;color:var(--accent);line-height:1}
+  .hstat-l{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px}
+  .hpill{font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;
+    background:rgba(46,140,120,.18);border:1px solid rgba(46,140,120,.35);color:var(--green)}
+
+  /* ── Layout ── */
+  .main{max-width:1280px;margin:0 auto;padding:32px 24px 120px}
+
+  /* ── Section headers ── */
+  .sec{margin-bottom:32px}
+  .sec-hd{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;padding-bottom:10px;
+    border-bottom:1px solid var(--border)}
+  .sec-title{font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3)}
+  .sec-sub{font-size:12px;color:var(--text3)}
+  .sec-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;
+    background:rgba(255,255,255,.06);color:var(--text3);margin-left:auto}
+
+  /* ── Score strip ── */
+  .score-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:32px}
+  @media(max-width:900px){.score-grid{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:560px){.score-grid{grid-template-columns:repeat(2,1fr)}}
+  .score-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+    padding:12px 10px;text-align:center;position:relative;overflow:hidden}
+  .score-box::after{content:"";position:absolute;bottom:0;left:0;right:0;height:3px}
+  .score-box.grade-a::after{background:var(--green)}
+  .score-box.grade-b::after{background:var(--blue)}
+  .score-box.grade-c::after{background:var(--orange)}
+  .score-box.grade-d::after{background:var(--red)}
+  .score-dept{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+  .score-val{font-size:20px;font-weight:800;line-height:1}
+  .score-label{font-size:9px;color:var(--text3);margin-top:2px}
+
+  /* ── Pipeline ── */
+  .pipeline{display:grid;grid-template-columns:1fr 1fr 1fr 1.4fr;gap:12px;margin-bottom:40px}
+  @media(max-width:1000px){.pipeline{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.pipeline{grid-template-columns:1fr}}
+  .pipe-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+  .pipe-hd{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+  .pipe-title{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+  .pipe-count{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px}
+  .pipe-blocked .pipe-hd{background:rgba(201,82,82,.08)}
+  .pipe-blocked .pipe-title{color:var(--red)}
+  .pipe-blocked .pipe-count{background:rgba(201,82,82,.15);color:var(--red)}
+  .pipe-ready .pipe-hd{background:rgba(79,124,255,.08)}
+  .pipe-ready .pipe-title{color:var(--blue)}
+  .pipe-ready .pipe-count{background:rgba(79,124,255,.15);color:var(--blue)}
+  .pipe-doing .pipe-hd{background:rgba(212,133,74,.08)}
+  .pipe-doing .pipe-title{color:var(--orange)}
+  .pipe-doing .pipe-count{background:rgba(212,133,74,.15);color:var(--orange)}
+  .pipe-done-col .pipe-hd{background:rgba(46,140,120,.08)}
+  .pipe-done-col .pipe-title{color:var(--green)}
+  .pipe-done-col .pipe-count{background:rgba(46,140,120,.15);color:var(--green)}
+  .pipe-body{padding:8px;display:flex;flex-direction:column;gap:6px;max-height:480px;overflow-y:auto}
+  .pipe-body::-webkit-scrollbar{width:4px}
+  .pipe-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+  /* ── Ticket card ── */
+  .tk{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);
+    padding:9px 11px;transition:border-color .15s}
+  .tk:hover{border-color:var(--border2)}
+  .tk-id{font-size:8px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+  .tk-title{font-size:11px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:4px}
+  .tk-desc{font-size:10px;color:var(--text3);line-height:1.5}
+  .tk-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+  .tag{font-size:8px;font-weight:700;padding:1px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.5px}
+  .tag-p0{background:rgba(201,82,82,.2);color:var(--red)}
+  .tag-p1{background:rgba(212,133,74,.2);color:var(--orange)}
+  .tag-p2{background:rgba(79,124,255,.2);color:var(--blue)}
+  .tag-p3{background:rgba(255,255,255,.08);color:var(--text3)}
+  .tag-infra{background:rgba(106,116,130,.15);color:var(--text3)}
+  .tag-qa{background:rgba(201,82,82,.15);color:var(--red)}
+  .tag-ux{background:rgba(124,58,237,.15);color:var(--purple)}
+  .tag-feat{background:rgba(212,133,74,.15);color:var(--orange)}
+  .tag-data{background:rgba(46,140,120,.15);color:var(--green)}
+  .tag-eng{background:rgba(79,124,255,.15);color:var(--blue)}
+  .tk.done-tk .tk-title{text-decoration:line-through;color:var(--text3)}
+  .tk.doing-tk{border-left:3px solid var(--orange)}
+  .tk.blocked-tk{border-left:3px solid var(--red)}
+
+  /* ── Roadmap ── */
+  .roadmap{display:flex;flex-direction:column;gap:0;position:relative;margin-bottom:40px}
+  .roadmap::before{content:"";position:absolute;left:20px;top:0;bottom:0;width:2px;
+    background:linear-gradient(to bottom,var(--green),var(--blue),var(--orange),var(--text3));opacity:.4}
+  .rm-phase{display:flex;gap:20px;align-items:flex-start;padding:0 0 28px;position:relative}
+  .rm-dot{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
+    justify-content:center;font-size:13px;font-weight:800;z-index:1;margin-top:2px;
+    border:3px solid var(--surface)}
+  .rm-dot.done{background:var(--green);color:#fff;box-shadow:0 0 0 3px rgba(46,140,120,.3)}
+  .rm-dot.partial{background:var(--blue);color:#fff;box-shadow:0 0 0 3px rgba(79,124,255,.3)}
+  .rm-dot.pending{background:var(--surface3);color:var(--text3);border-color:var(--border2)}
+  .rm-body{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+  .rm-hd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .rm-tag{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.8px}
+  .rm-tag.done{background:rgba(46,140,120,.2);color:var(--green)}
+  .rm-tag.partial{background:rgba(79,124,255,.2);color:var(--blue)}
+  .rm-tag.pending{background:rgba(255,255,255,.06);color:var(--text3)}
+  .rm-name{font-size:14px;font-weight:800;color:var(--text)}
+  .rm-date{font-size:10px;color:var(--text3);margin-left:auto}
+  .rm-desc{font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:10px}
+  .rm-progress{height:5px;border-radius:3px;background:var(--surface3);overflow:hidden;margin-bottom:8px}
+  .rm-progress-bar{height:100%;border-radius:3px;transition:width .4s}
+  .rm-items{display:flex;flex-wrap:wrap;gap:5px}
+  .rm-item{font-size:9px;padding:2px 8px;border-radius:20px;background:var(--surface2);
+    border:1px solid var(--border);color:var(--text3)}
+  .rm-item.done{background:rgba(46,140,120,.1);border-color:rgba(46,140,120,.25);color:var(--green)}
+  .rm-item.partial{background:rgba(79,124,255,.1);border-color:rgba(79,124,255,.25);color:var(--blue)}
+
+  /* ── Daily Log ── */
+  .log-entry{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+    margin-bottom:10px;overflow:hidden}
+  .log-hd{padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;
+    user-select:none;border-bottom:1px solid transparent;transition:border-color .15s}
+  .log-hd:hover{background:rgba(255,255,255,.02)}
+  .log-entry.open .log-hd{border-bottom-color:var(--border)}
+  .log-date{font-size:11px;font-weight:800;color:var(--accent)}
+  .log-summary{font-size:11px;color:var(--text2);flex:1}
+  .log-chips{display:flex;gap:4px;flex-wrap:wrap}
+  .log-chip{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px}
+  .log-chevron{font-size:12px;color:var(--text3);flex-shrink:0;transition:transform .2s}
+  .log-entry.open .log-chevron{transform:rotate(90deg)}
+  .log-body{display:none;padding:12px 16px}
+  .log-entry.open .log-body{display:block}
+  .log-item{display:flex;gap:10px;align-items:flex-start;padding:5px 0;
+    border-bottom:1px solid var(--border)}
+  .log-item:last-child{border-bottom:none}
+  .log-icon{font-size:14px;flex-shrink:0;width:20px;text-align:center}
+  .log-item-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px}
+  .log-item-desc{font-size:10px;color:var(--text3);line-height:1.5}
+
+  /* ── Backlog table ── */
+  .backlog-section{margin-bottom:20px}
+  .backlog-hd{display:flex;align-items:center;gap:10px;padding:10px 14px;
+    background:var(--surface2);border-radius:var(--r-sm);margin-bottom:6px;cursor:pointer;user-select:none}
+  .backlog-hd:hover{background:var(--surface3)}
+  .backlog-name{font-size:11px;font-weight:700;color:var(--text)}
+  .backlog-count{font-size:10px;color:var(--text3)}
+  .backlog-bar{flex:1;height:4px;border-radius:2px;background:var(--surface3);overflow:hidden;margin:0 12px}
+  .backlog-bar-fill{height:100%;border-radius:2px}
+  .backlog-pct{font-size:10px;font-weight:700;margin-right:4px}
+  .backlog-chevron{font-size:11px;color:var(--text3);transition:transform .2s;flex-shrink:0}
+  .backlog-section.open .backlog-chevron{transform:rotate(90deg)}
+  .backlog-items{display:none;flex-direction:column;gap:4px;padding-left:8px;margin-bottom:8px}
+  .backlog-section.open .backlog-items{display:flex}
+  .bl-item{display:flex;gap:8px;align-items:flex-start;padding:6px 10px;border-radius:6px;
+    background:var(--surface2);border:1px solid var(--border)}
+  .bl-id{font-size:8px;font-weight:700;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;
+    flex-shrink:0;width:80px;margin-top:1px}
+  .bl-title{font-size:11px;color:var(--text);flex:1}
+  .bl-status{font-size:8px;font-weight:700;padding:1px 7px;border-radius:20px;flex-shrink:0}
+  .bl-done{background:rgba(46,140,120,.2);color:var(--green)}
+  .bl-partial{background:rgba(79,124,255,.2);color:var(--blue)}
+  .bl-blocked{background:rgba(201,82,82,.2);color:var(--red)}
+  .bl-todo{background:rgba(255,255,255,.06);color:var(--text3)}
+
+  /* ── Theme toggle ── */
+  .theme-toggle{background:none;border:1px solid var(--border);border-radius:6px;
+    padding:4px 10px;color:var(--text3);font-size:12px;font-weight:600;cursor:pointer;
+    transition:all .15s}
+  .theme-toggle:hover{background:rgba(255,255,255,.05);color:var(--text)}
+
+  /* ── misc ── */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px}
+  @media(max-width:700px){.two-col{grid-template-columns:1fr}}
+  a{color:var(--blue)}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <a href="#" class="hbrand">
+    <div class="hbrand-mark">SL</div>
+    <div>
+      <div class="hbrand-name">Solo Leveling: Capoeira</div>
+      <div class="hbrand-sub">Project Dashboard</div>
+    </div>
+  </a>
+  <nav class="hnav">
+    <a href="#pipeline" class="active">Pipeline</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="#log">Daily Log</a>
+    <a href="#backlog">Backlog</a>
+  </nav>
+  <div class="hright">
+    <div class="hstat"><div class="hstat-v">108</div><div class="hstat-l">Done</div></div>
+    <div class="hstat"><div class="hstat-v">212</div><div class="hstat-l">Total</div></div>
+    <div class="hstat"><div class="hstat-v">51%</div><div class="hstat-l">Complete</div></div>
+    <div class="hpill">B+ → A target</div>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">◐ Dark</button>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- ── SCORES ── -->
+  <div class="sec">
+    <div class="sec-hd" style="margin-bottom:12px">
+      <div class="sec-title">Department Grades</div>
+      <div class="sec-sub">Current → Target (after all phases)</div>
+    </div>
+    <div class="score-grid">
+      <div class="score-box grade-a"><div class="score-dept">Product</div><div class="score-val" style="color:var(--green)">A−</div><div class="score-label">→ A+</div></div>
+      <div class="score-box grade-a"><div class="score-dept">Content</div><div class="score-val" style="color:var(--green)">A+</div><div class="score-label">→ A+</div></div>
+      <div class="score-box grade-b"><div class="score-dept">Design/UX</div><div class="score-val" style="color:var(--blue)">B+</div><div class="score-label">→ A</div></div>
+      <div class="score-box grade-b"><div class="score-dept">Engineering</div><div class="score-val" style="color:var(--blue)">B</div><div class="score-label">→ A−</div></div>
+      <div class="score-box grade-b"><div class="score-dept">Cust. Success</div><div class="score-val" style="color:var(--blue)">B−</div><div class="score-label">→ A</div></div>
+      <div class="score-box grade-c"><div class="score-dept">DevOps</div><div class="score-val" style="color:var(--orange)">C+</div><div class="score-label">→ A−</div></div>
+      <div class="score-box grade-d"><div class="score-dept">QA</div><div class="score-val" style="color:var(--red)">D+</div><div class="score-label">→ B+</div></div>
+      <div class="score-box grade-b"><div class="score-dept">Overall</div><div class="score-val" style="color:var(--accent)">B+ 74</div><div class="score-label">→ A 93</div></div>
+    </div>
+  </div>
+
+  <!-- ── PIPELINE ── -->
+  <div class="sec" id="pipeline">
+    <div class="sec-hd">
+      <div class="sec-title">Active Pipeline</div>
+      <div class="sec-sub">Blocked · Ready · In Progress · Recently Done</div>
+    </div>
+
+    <div class="pipeline">
+
+      <!-- BLOCKED -->
+      <div class="pipe-col pipe-blocked">
+        <div class="pipe-hd">
+          <span class="pipe-title">Blocked</span>
+          <span class="pipe-count">6</span>
+          <span style="font-size:9px;color:var(--red);margin-left:auto">needs accounts</span>
+        </div>
+        <div class="pipe-body">
+          <div class="tk blocked-tk"><div class="tk-id">A-INF-01 · P0</div><div class="tk-title">Cloud sync — Supabase</div><div class="tk-desc">Needs: Supabase project URL + anon key. 30-min setup. Highest churn risk.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-infra">infra</span></div></div>
+          <div class="tk blocked-tk"><div class="tk-id">A-INF-02 · P0</div><div class="tk-title">Auth — email magic link</div><div class="tk-desc">Depends on A-INF-01. Same Supabase project.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-infra">infra</span></div></div>
+          <div class="tk blocked-tk"><div class="tk-id">A-INF-03 · P0</div><div class="tk-title">Sentry error monitoring</div><div class="tk-desc">Needs: Sentry DSN. sentry.io free tier. ErrorBoundary already wired — just needs DSN.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-infra">infra</span></div></div>
+          <div class="tk blocked-tk"><div class="tk-id">A-INF-04 · P1</div><div class="tk-title">Analytics — PostHog</div><div class="tk-desc">Needs: PostHog API key. posthog.com free tier (1M events/mo).</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-infra">infra</span></div></div>
+          <div class="tk blocked-tk"><div class="tk-id">A-INF-05 · P1</div><div class="tk-title">CI/CD — GitHub Actions</div><div class="tk-desc">Needs: GitHub repo. npm run build → deploy to Vercel/Netlify via CLI.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-infra">infra</span></div></div>
+          <div class="tk blocked-tk"><div class="tk-id">B-CS-02 · P0</div><div class="tk-title">Cross-device restore</div><div class="tk-desc">Depends on A-INF-01 (cloud sync). Cannot build without auth.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-infra">infra</span></div></div>
+        </div>
+      </div>
+
+      <!-- READY -->
+      <div class="pipe-col pipe-ready">
+        <div class="pipe-hd">
+          <span class="pipe-title">Ready to Build</span>
+          <span class="pipe-count">12</span>
+        </div>
+        <div class="pipe-body">
+          <div class="tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js into slices</div><div class="tk-desc">1400 lines. Split: usePlayerStore, useMovementStore, useBossStore, useRecoveryStore, useSessionStore.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
+          <div class="tk"><div class="tk-id">A-ENG-02 · P0</div><div class="tk-title">Split DailyQuest.jsx</div><div class="tk-desc">1900 lines. Extract: CheckInCard, BonusSection, NeedsDrillingCard, WeeklySummary, FlowSessionCard.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
+          <div class="tk"><div class="tk-id">A-QA-05 · P1</div><div class="tk-title">E2E smoke test — Playwright</div><div class="tk-desc">open app → complete quest → log reps → verify XP increments. Run in CI.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-qa">testing</span></div></div>
+          <div class="tk"><div class="tk-id">A-QA-06 · P2</div><div class="tk-title">Snapshot tests — Daily page</div><div class="tk-desc">React Testing Library snapshots: Day 1, mid-sprint, rest day, all quests done.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-qa">testing</span></div></div>
+          <div class="tk"><div class="tk-id">A-ENG-03 · P1</div><div class="tk-title">Fix hydrationMl naming</div><div class="tk-desc">Store hydration in ml but field name lies. Add getHydrationOz() / setHydrationOz() helpers at boundary.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">bug</span></div></div>
+          <div class="tk"><div class="tk-id">A-ENG-04 · P1</div><div class="tk-title">Remove !important from CSS</div><div class="tk-desc">8 occurrences. Fix via higher-specificity selectors.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">css</span></div></div>
+          <div class="tk"><div class="tk-id">A-INF-06 · P2</div><div class="tk-title">Code splitting — lazy load Library</div><div class="tk-desc">Lazy import: MovementsLibrary, SequencesLibrary, BossTests, Glossary. ~40% bundle reduction.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-infra">perf</span></div></div>
+          <div class="tk"><div class="tk-id">C-ENG-01 · P1</div><div class="tk-title">Virtual scroll — 249-movement list</div><div class="tk-desc">SkillTrees renders all 249 cards. Windowing: render only visible + 5 buffer.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">perf</span></div></div>
+          <div class="tk"><div class="tk-id">C-ENG-03 · P1</div><div class="tk-title">React.memo on MovementCard</div><div class="tk-desc">Cuts re-renders 95% during rep logging. Custom comparator on masteryLevel + reps.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">perf</span></div></div>
+          <div class="tk"><div class="tk-id">B-UX-03 · P1</div><div class="tk-title">Contextual tooltips — first interaction</div><div class="tk-desc">First tap on concept tree strip → tooltip explaining the system. One-shot, seenTooltips[].</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-ux">ux</span></div></div>
+          <div class="tk"><div class="tk-id">C-UX-09 · P2</div><div class="tk-title">Landscape orientation layout</div><div class="tk-desc">@media (orientation: landscape) and (max-height: 500px): two-column layout.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-ux">ux</span></div></div>
+          <div class="tk"><div class="tk-id">C-UX-10 · P2</div><div class="tk-title">Color blind mode</div><div class="tk-desc">Deuteranopia/protanopia safe palette. Replace red/green pairs with blue/orange.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-ux">accessibility</span></div></div>
+        </div>
+      </div>
+
+      <!-- IN PROGRESS (current sprint) -->
+      <div class="pipe-col pipe-doing">
+        <div class="pipe-hd">
+          <span class="pipe-title">Current Sprint</span>
+          <span class="pipe-count">3</span>
+          <span style="font-size:9px;color:var(--orange);margin-left:auto">Sprint 17</span>
+        </div>
+        <div class="pipe-body">
+          <div class="tk doing-tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js — domain slices</div><div class="tk-desc">Next: extract useMovementStore as first slice to validate the pattern.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
+          <div class="tk doing-tk"><div class="tk-id">A-ENG-02 · P0</div><div class="tk-title">Split DailyQuest.jsx</div><div class="tk-desc">Extract FlowSessionCard, DailyBonusChallenge, SessionLogBlock as standalone components.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
+          <div class="tk doing-tk"><div class="tk-id">D-CNT-06 · P2</div><div class="tk-title">Drill card AI generation</div><div class="tk-desc">Claude API batch-generate drillCards[] for 240+ movements missing them. Human review pass.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-data">content</span></div></div>
+        </div>
+      </div>
+
+      <!-- RECENTLY DONE -->
+      <div class="pipe-col pipe-done-col">
+        <div class="pipe-hd">
+          <span class="pipe-title">Recently Done</span>
+          <span class="pipe-count">108</span>
+          <span style="font-size:9px;color:var(--green);margin-left:auto">51% total</span>
+        </div>
+        <div class="pipe-body">
+          <div class="tk done-tk"><div class="tk-id">D-GAM-03</div><div class="tk-title">Monthly community challenge</div></div>
+          <div class="tk done-tk"><div class="tk-id">C-UX-07</div><div class="tk-title">Font size preference (Small/Default/Large)</div></div>
+          <div class="tk done-tk"><div class="tk-id">D-CNT-05</div><div class="tk-title">YouTube embed on MovementDetail</div></div>
+          <div class="tk done-tk"><div class="tk-id">A-QA-04</div><div class="tk-title">State persistence integration tests</div></div>
+          <div class="tk done-tk"><div class="tk-id">D-GAM-01</div><div class="tk-title">Prestige title badges (15 titles)</div></div>
+          <div class="tk done-tk"><div class="tk-id">C-CS-03</div><div class="tk-title">Streak insurance — Grace tokens</div></div>
+          <div class="tk done-tk"><div class="tk-id">C-QA-06</div><div class="tk-title">Data integrity tests (15 bugs found)</div></div>
+          <div class="tk done-tk"><div class="tk-id">D-GAM-02</div><div class="tk-title">Daily bonus challenge (30 rotating)</div></div>
+          <div class="tk done-tk"><div class="tk-id">D-TRN-03</div><div class="tk-title">Flow session mode (20-min timer)</div></div>
+          <div class="tk done-tk"><div class="tk-id">D-CNT-01</div><div class="tk-title">Mestre quotes (10 Mestres, 3–5 each)</div></div>
+          <div class="tk done-tk"><div class="tk-id">C-UX-03</div><div class="tk-title">Haptic feedback (7 patterns)</div></div>
+          <div class="tk done-tk"><div class="tk-id">D-TRN-06</div><div class="tk-title">30-day VIG trend chart (Body page)</div></div>
+          <div class="tk done-tk"><div class="tk-id">D-TRN-01</div><div class="tk-title">Smart rest day detection</div></div>
+          <div class="tk done-tk"><div class="tk-id">C-UX-12</div><div class="tk-title">Movement progress comparison (30-day)</div></div>
+          <div class="tk done-tk"><div class="tk-id">B-CS-03</div><div class="tk-title">Weekly training report (Sun/Mon)</div></div>
+          <div class="tk done-tk"><div class="tk-id">C-UX-11</div><div class="tk-title">Training journal (session notes + Axé)</div></div>
+          <div class="tk done-tk"><div class="tk-id">A-QA-03</div><div class="tk-title">Mestre defeat chain integration tests</div></div>
+          <div class="tk done-tk"><div class="tk-id">A-QA-01/02</div><div class="tk-title">Core math + XP grant chain tests (58)</div></div>
+          <div class="tk done-tk"><div class="tk-id">C-CS-01</div><div class="tk-title">Achievement badge system (25 badges)</div></div>
+          <div class="tk done-tk"><div class="tk-id">B-CS-04</div><div class="tk-title">Rank-up celebration overlay</div></div>
+          <div class="tk done-tk"><div class="tk-id">D-TRN-02</div><div class="tk-title">Movement staleness ⚡ Rusty indicator</div></div>
+          <div class="tk done-tk"><div class="tk-id">C-UX-01</div><div class="tk-title">Page transition animations (forward/back)</div></div>
+          <div class="tk done-tk"><div class="tk-id">B-UX-01</div><div class="tk-title">First-run onboarding (3-screen system explainer)</div></div>
+          <div class="tk done-tk"><div class="tk-id">B-UX-02</div><div class="tk-title">Empty states (5 locations)</div></div>
+          <div class="tk done-tk"><div class="tk-id">B-UX-05</div><div class="tk-title">Mestre/Orisha teaser on Daily</div></div>
+          <div class="tk done-tk"><div class="tk-id">B-CNT-01</div><div class="tk-title">Video links — 21 Foundation movements</div></div>
+          <div class="tk done-tk"><div class="tk-id">NEW-03</div><div class="tk-title">Mestre victory scene (full overlay)</div></div>
+          <div class="tk done-tk"><div class="tk-id">NEW-04</div><div class="tk-title">Phase advancement ritual overlay</div></div>
+          <div class="tk done-tk"><div class="tk-id">NEW-05</div><div class="tk-title">Drill cards — all Foundation tier-1</div></div>
+          <div class="tk done-tk"><div class="tk-id">NEW-02</div><div class="tk-title">Orisha integration aura flash</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── ROADMAP ── -->
+  <div class="sec" id="roadmap">
+    <div class="sec-hd">
+      <div class="sec-title">Roadmap</div>
+      <div class="sec-sub">Zero to 5-star product</div>
+    </div>
+    <div class="roadmap">
+
+      <!-- Phase A -->
+      <div class="rm-phase">
+        <div class="rm-dot partial">A</div>
+        <div class="rm-body">
+          <div class="rm-hd">
+            <span class="rm-tag partial">In Progress</span>
+            <span class="rm-name">Phase A — Baseline</span>
+            <span class="rm-date">5/19 done · 26%</span>
+          </div>
+          <div class="rm-desc">Things that should have existed from Day 1. The most impactful are blocked on external accounts (Supabase, Sentry, PostHog). Engineering debt (useStore split, file splits) can start now.</div>
+          <div class="rm-progress"><div class="rm-progress-bar" style="width:26%;background:var(--blue)"></div></div>
+          <div class="rm-items">
+            <span class="rm-item done">A-QA-01 Unit tests ✓</span>
+            <span class="rm-item done">A-QA-02 XP chain tests ✓</span>
+            <span class="rm-item done">A-QA-03 Integration tests ✓</span>
+            <span class="rm-item done">A-QA-04 Persistence tests ✓</span>
+            <span class="rm-item done">A-ENG-07 Video URLs ✓</span>
+            <span class="rm-item" style="background:rgba(201,82,82,.08);border-color:rgba(201,82,82,.2);color:var(--red)">A-INF-01 Cloud sync ⛔</span>
+            <span class="rm-item" style="background:rgba(201,82,82,.08);border-color:rgba(201,82,82,.2);color:var(--red)">A-INF-02 Auth ⛔</span>
+            <span class="rm-item" style="background:rgba(201,82,82,.08);border-color:rgba(201,82,82,.2);color:var(--red)">A-INF-03 Sentry ⛔</span>
+            <span class="rm-item">A-ENG-01 useStore split</span>
+            <span class="rm-item">A-ENG-02 DailyQuest split</span>
+            <span class="rm-item">A-QA-05 E2E Playwright</span>
+            <span class="rm-item">A-ENG-04 Remove !important</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase B -->
+      <div class="rm-phase">
+        <div class="rm-dot partial">B</div>
+        <div class="rm-body">
+          <div class="rm-hd">
+            <span class="rm-tag partial">In Progress</span>
+            <span class="rm-name">Phase B — Score Improvements</span>
+            <span class="rm-date">22/34 done · 65%</span>
+          </div>
+          <div class="rm-desc">User-facing features that move each department from current grade to next tier. Onboarding, empty states, Mestre teaser, video links, weekly reports, journal — all shipped.</div>
+          <div class="rm-progress"><div class="rm-progress-bar" style="width:65%;background:var(--orange)"></div></div>
+          <div class="rm-items">
+            <span class="rm-item done">B-UX-01 Onboarding ✓</span>
+            <span class="rm-item done">B-UX-02 Empty states ✓</span>
+            <span class="rm-item done">B-UX-05 Mestre teaser ✓</span>
+            <span class="rm-item done">B-CNT-01 Video links ✓</span>
+            <span class="rm-item done">B-CS-03 Weekly report ✓</span>
+            <span class="rm-item done">B-CS-04 Rank-up ✓</span>
+            <span class="rm-item done">B-CS-03 Weekly report ✓</span>
+            <span class="rm-item">B-UX-03 Tooltips</span>
+            <span class="rm-item">B-UX-04 Accessibility audit</span>
+            <span class="rm-item">B-CS-01 Push notifications</span>
+            <span class="rm-item">B-CNT-02 Kick tree drills</span>
+            <span class="rm-item">B-CNT-03 Sprint 2 program</span>
+            <span class="rm-item">B-OPS-01 Push notif SW</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase C -->
+      <div class="rm-phase">
+        <div class="rm-dot partial">C</div>
+        <div class="rm-body">
+          <div class="rm-hd">
+            <span class="rm-tag partial">In Progress</span>
+            <span class="rm-name">Phase C — Score Maximizers</span>
+            <span class="rm-date">18/57 done · 32%</span>
+          </div>
+          <div class="rm-desc">Push each department from good to great. Heavy on engineering performance, QA automation, deep gamification, and content expansion.</div>
+          <div class="rm-progress"><div class="rm-progress-bar" style="width:32%;background:var(--accent)"></div></div>
+          <div class="rm-items">
+            <span class="rm-item done">C-CS-01 Achievement badges ✓</span>
+            <span class="rm-item done">C-CS-03 Grace tokens ✓</span>
+            <span class="rm-item done">C-UX-01 Page transitions ✓</span>
+            <span class="rm-item done">C-UX-03 Haptic feedback ✓</span>
+            <span class="rm-item done">C-UX-07 Font size ✓</span>
+            <span class="rm-item done">C-UX-11 Training journal ✓</span>
+            <span class="rm-item done">C-UX-12 Progress comparison ✓</span>
+            <span class="rm-item done">C-QA-06 Data integrity ✓</span>
+            <span class="rm-item done">C-CNT-01 Mestre quotes ✓</span>
+            <span class="rm-item done">C-MKT-02 Podcast tour (planned)</span>
+            <span class="rm-item">C-ENG-01 Virtual scroll</span>
+            <span class="rm-item">C-ENG-03 React.memo</span>
+            <span class="rm-item">C-UX-09 Landscape layout</span>
+            <span class="rm-item">C-QA-01 Visual regression</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase D -->
+      <div class="rm-phase">
+        <div class="rm-dot partial">D</div>
+        <div class="rm-body">
+          <div class="rm-hd">
+            <span class="rm-tag partial">In Progress</span>
+            <span class="rm-name">Phase D — English Expansion</span>
+            <span class="rm-date">9/18 done · 50%</span>
+          </div>
+          <div class="rm-desc">Go deeper, not wider. Gamification depth, training intelligence, content expansion, community features.</div>
+          <div class="rm-progress"><div class="rm-progress-bar" style="width:50%;background:var(--purple)"></div></div>
+          <div class="rm-items">
+            <span class="rm-item done">D-GAM-01 Title badges ✓</span>
+            <span class="rm-item done">D-GAM-02 Daily challenge ✓</span>
+            <span class="rm-item done">D-GAM-03 Monthly challenge ✓</span>
+            <span class="rm-item done">D-CNT-01 Mestre quotes ✓</span>
+            <span class="rm-item done">D-CNT-05 YouTube embed ✓</span>
+            <span class="rm-item done">D-TRN-01 Rest day detection ✓</span>
+            <span class="rm-item done">D-TRN-02 Rusty indicator ✓</span>
+            <span class="rm-item done">D-TRN-03 Flow session ✓</span>
+            <span class="rm-item done">D-TRN-06 VIG trend chart ✓</span>
+            <span class="rm-item">D-GAM-04 Combo builder</span>
+            <span class="rm-item">D-CNT-02 History timeline</span>
+            <span class="rm-item">D-CNT-03 Anatomy guide</span>
+            <span class="rm-item">D-CNT-04 Sprint 3+4</span>
+            <span class="rm-item">D-TRN-04 Pain correlation</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── DAILY LOG ── -->
+  <div class="sec" id="log">
+    <div class="sec-hd">
+      <div class="sec-title">Daily Log</div>
+      <div class="sec-sub">What shipped, when</div>
+      <div class="sec-badge">Most recent first</div>
+    </div>
+
+    <div class="log-entry open">
+      <div class="log-hd" onclick="this.parentElement.classList.toggle('open')">
+        <div class="log-date">2026-06-04 · Today</div>
+        <div class="log-summary">Content + UX + QA batch · 4 features · 98 tests total</div>
+        <div class="log-chips">
+          <span class="log-chip" style="background:rgba(46,140,120,.2);color:var(--green)">98 tests</span>
+          <span class="log-chip" style="background:rgba(79,124,255,.2);color:var(--blue)">D-CNT-05</span>
+          <span class="log-chip" style="background:rgba(79,124,255,.2);color:var(--blue)">C-UX-07</span>
+        </div>
+        <span class="log-chevron">›</span>
+      </div>
+      <div class="log-body">
+        <div class="log-item"><div class="log-icon">▶</div><div><div class="log-item-title">D-CNT-05 — YouTube embed on MovementDetail</div><div class="log-item-desc">watch?v= URLs render as 16:9 inline iframes (youtube-nocookie.com). Search URLs fall back to external link. 21 Foundation movements now show embedded tutorials.</div></div></div>
+        <div class="log-item"><div class="log-icon">Aa</div><div><div class="log-item-title">C-UX-07 — Font size preference</div><div class="log-item-desc">Settings → Appearance → Text Size: Small (11px) / Default (13px) / Large (15px). CSS custom property --base-font-size, persisted to localStorage, applied on boot.</div></div></div>
+        <div class="log-item"><div class="log-icon">🏆</div><div><div class="log-item-title">D-GAM-03 — Monthly community challenge</div><div class="log-item-desc">12 month-specific challenges tied to Capoeira calendar. Live progress bar + days remaining on Daily page. June = Au Básico (Bimba birthday month).</div></div></div>
+        <div class="log-item"><div class="log-icon">🧪</div><div><div class="log-item-title">A-QA-04 — State persistence tests (16 tests)</div><div class="log-item-desc">Old v1 save compatibility, achievement detection from legacy data, VIG with corrupted data, mastery with edge state. Total: 98 tests across 3 files.</div></div></div>
+      </div>
+    </div>
+
+    <div class="log-entry">
+      <div class="log-hd" onclick="this.parentElement.classList.toggle('open')">
+        <div class="log-date">2026-06-04 · Session 5</div>
+        <div class="log-summary">QA + Gamification · 82 tests · 15 data bugs fixed</div>
+        <div class="log-chips">
+          <span class="log-chip" style="background:rgba(201,82,82,.2);color:var(--red)">15 bugs fixed</span>
+          <span class="log-chip" style="background:rgba(46,140,120,.2);color:var(--green)">82 tests</span>
+        </div>
+        <span class="log-chevron">›</span>
+      </div>
+      <div class="log-body">
+        <div class="log-item"><div class="log-icon">🧪</div><div><div class="log-item-title">C-QA-06 — Data integrity tests</div><div class="log-item-desc">Found and fixed 15 real data bugs: 10 duplicate movement IDs, 3 invalid prerequisite IDs (soco_simples, chamada, lateral), 3 movements using "esquiva" as prereq. All silently wrong before tests.</div></div></div>
+        <div class="log-item"><div class="log-icon">🛡️</div><div><div class="log-item-title">C-CS-03 — Streak insurance / Grace tokens</div><div class="log-item-desc">Earn 1 token per 7-day streak (max 3). 🛡️2 badge in Daily header. Tap → uses token, marks rest day, streak survives. Turns missed day from loss into resource decision.</div></div></div>
+        <div class="log-item"><div class="log-icon">👑</div><div><div class="log-item-title">D-GAM-01 — Prestige title badges</div><div class="log-item-desc">15 earned display titles on Profile from achievement unlocks. Active title shown as colored pill below rank. Tap → title picker with all earned options.</div></div></div>
+      </div>
+    </div>
+
+    <div class="log-entry">
+      <div class="log-hd" onclick="this.parentElement.classList.toggle('open')">
+        <div class="log-date">2026-06-04 · Session 4</div>
+        <div class="log-summary">Gamification + Content · Daily challenge · Flow session · Mestre quotes · Haptics</div>
+        <span class="log-chevron">›</span>
+      </div>
+      <div class="log-body">
+        <div class="log-item"><div class="log-icon">🎯</div><div><div class="log-item-title">D-GAM-02 — Daily bonus challenge</div><div class="log-item-desc">30 rotating challenges seeded by date. Appears after all quests done. Mark Complete → XP with prestige multiplier. Persisted in bonusChallengesDone state.</div></div></div>
+        <div class="log-item"><div class="log-icon">🌀</div><div><div class="log-item-title">D-TRN-03 — Flow session mode</div><div class="log-item-desc">20-minute countdown timer. Start / Pause / Resume / Cancel. On completion → "Log Flow Session +100 XP".</div></div></div>
+        <div class="log-item"><div class="log-icon">📿</div><div><div class="log-item-title">D-CNT-01 — Mestre quotes</div><div class="log-item-desc">3–5 sourced quotes for 10 Mestres. Rendered on MestreDetail under "In Their Words" with source attribution.</div></div></div>
+        <div class="log-item"><div class="log-icon">📳</div><div><div class="log-item-title">C-UX-03 — Haptic feedback</div><div class="log-item-desc">7 distinct vibration patterns. Wired to MasteryToast (advance/victory), AchievementToast (achievement/rankUp), BossTests Mestre defeat. Silent no-op on iOS Safari.</div></div></div>
+      </div>
+    </div>
+
+    <div class="log-entry">
+      <div class="log-hd" onclick="this.parentElement.classList.toggle('open')">
+        <div class="log-date">2026-06-04 · Session 3</div>
+        <div class="log-summary">Training Intelligence · VIG trend · Rest day · Progress comparison · Weekly report · Journal</div>
+        <span class="log-chevron">›</span>
+      </div>
+      <div class="log-body">
+        <div class="log-item"><div class="log-icon">📊</div><div><div class="log-item-title">D-TRN-06 — 30-day VIG trend chart (Body page)</div><div class="log-item-desc">SVG bar chart per day, colored green/amber/red by quality. Average in header. Zero deps, pure SVG from recoveryLog.</div></div></div>
+        <div class="log-item"><div class="log-icon">💙</div><div><div class="log-item-title">D-TRN-01 — Smart rest day detection</div><div class="log-item-desc">Fires when 5+ sessions this week AND pain ≥ 7 today. Blue banner: "A rest day now builds the next 5 sessions." Single tap → marks rest day.</div></div></div>
+        <div class="log-item"><div class="log-icon">📈</div><div><div class="log-item-title">C-UX-12 — Movement progress comparison</div><div class="log-item-desc">MovementDetail shows last 30 vs prev 30 days with growth %. Mastery gained during period. Only renders when data exists.</div></div></div>
+        <div class="log-item"><div class="log-icon">📋</div><div><div class="log-item-title">B-CS-03 — Weekly training report card</div><div class="log-item-desc">Shows Sunday + Monday on Daily. 4-cell grid: Sessions · XP · Reps · Advancements. Plus best movement of the week.</div></div></div>
+        <div class="log-item"><div class="log-icon">✏️</div><div><div class="log-item-title">C-UX-11 — Training journal</div><div class="log-item-desc">✏️ toggle on Log Session button opens 280-char textarea. Last 4 journal entries shown on Axé page as italicised quotes.</div></div></div>
+      </div>
+    </div>
+
+    <div class="log-entry">
+      <div class="log-hd" onclick="this.parentElement.classList.toggle('open')">
+        <div class="log-date">2026-06-04 · Session 2</div>
+        <div class="log-summary">Achievements · Rank-up · Staleness · Page transitions · Mestre teaser fix</div>
+        <span class="log-chevron">›</span>
+      </div>
+      <div class="log-body">
+        <div class="log-item"><div class="log-icon">🏆</div><div><div class="log-item-title">C-CS-01 — Achievement badge system (25 badges)</div><div class="log-item-desc">Bottom toast fires on unlock. Rank-ups get large centered overlay. 5-column badge grid on Axé. Checked inside update() — fires on every state change. Haptics wired.</div></div></div>
+        <div class="log-item"><div class="log-icon">🎖️</div><div><div class="log-item-title">B-CS-04 — Rank-up celebration</div><div class="log-item-desc">AchievementToast renders rank-up as full dark overlay with color glow. Detects rank change in the core update() function on every XP change.</div></div></div>
+        <div class="log-item"><div class="log-icon">⚡</div><div><div class="log-item-title">D-TRN-02 — Rusty indicator</div><div class="log-item-desc">Movements at mastery ≥ 2 not trained in 14+ days show amber ⚡ Rusty badge. New "⚡ Rusty" filter in mastery filter bar. getMovementLastTrained() added to store.</div></div></div>
+        <div class="log-item"><div class="log-icon">→</div><div><div class="log-item-title">C-UX-01 — Page transition animations</div><div class="log-item-desc">Forward: slide-in from right. Back: slide-in from left. navDir state + data-nav-dir attribute. prefers-reduced-motion compliant.</div></div></div>
+        <div class="log-item"><div class="log-icon">🗡️</div><div><div class="log-item-title">Mestre/Orisha teaser fixed</div><div class="log-item-desc">Removed BOSS_TESTS dependency. Now reads Mestre requirements[] directly (type:"movement", type:"concept_tree"). Shows nearest Mestre → switches to Orisha path after first defeat.</div></div></div>
+      </div>
+    </div>
+
+    <div class="log-entry">
+      <div class="log-hd" onclick="this.parentElement.classList.toggle('open')">
+        <div class="log-date">2026-06-04 · Session 1</div>
+        <div class="log-summary">Onboarding · Empty states · 82 tests · Video links · Mestre teaser · Sprint Focus · Weekly summary</div>
+        <span class="log-chevron">›</span>
+      </div>
+      <div class="log-body">
+        <div class="log-item"><div class="log-icon">🌀</div><div><div class="log-item-title">B-UX-01 — First-run onboarding (3 screens)</div><div class="log-item-desc">Replaced generic wellness slides with concept tree → Mestres → Orishas system explainer. Per-slide accent color, glow, detail hint, animated progress dots.</div></div></div>
+        <div class="log-item"><div class="log-icon">📭</div><div><div class="log-item-title">B-UX-02 — Empty states (5 locations)</div><div class="log-item-desc">Concept Trees strip: tappable Roda CTA. Sequences tab: 🗡️ card with explanation. Needs Drilling: motivational hint. Roda Orishas: 4-step numbered path. Axé session history: log instruction.</div></div></div>
+        <div class="log-item"><div class="log-icon">🧪</div><div><div class="log-item-title">A-QA-01/02 — Unit tests (58 tests)</div><div class="log-item-desc">computeVIG, computePrestigeMultiplier, computeMasteryThresholds, computeMasteryLevel, XP chain. Found real bug: computeVIG(NaN) returned NaN silently — fixed with isFinite guard.</div></div></div>
+        <div class="log-item"><div class="log-icon">▶</div><div><div class="log-item-title">B-CNT-01 — Video links (21 Foundation movements)</div><div class="log-item-desc">tutorialUrl + videoUrl populated via scripts/add-video-links.mjs. Ginga, Cocorinha, MLDC, Au, Negativa, Rolê + 15 more. Feeds existing "Watch Tutorial" buttons in MovementDetail.</div></div></div>
+      </div>
+    </div>
+
+    <div class="log-entry">
+      <div class="log-hd" onclick="this.parentElement.classList.toggle('open')">
+        <div class="log-date">2026-06-03 · Sprint 16 completion</div>
+        <div class="log-summary">Mestre victory scene · Phase ritual · Concept tree toasts · oz conversion · 76 original tickets done</div>
+        <span class="log-chevron">›</span>
+      </div>
+      <div class="log-body">
+        <div class="log-item"><div class="log-icon">🗡️</div><div><div class="log-item-title">NEW-03 — Mestre victory scene</div><div class="log-item-desc">Full dark overlay: Mestre icon, colored glow, victory text left-bordered, XP + Sequences reward chips, first 3 unlocked sequence names. "Continue Training" button.</div></div></div>
+        <div class="log-item"><div class="log-icon">🌊</div><div><div class="log-item-title">NEW-04 — Phase advancement ritual</div><div class="log-item-desc">Full-screen ceremony: phase icon transition, new phase name + description, "New Focus" movement list, "Begin [Phase] →" in phase color.</div></div></div>
+        <div class="log-item"><div class="log-icon">✨</div><div><div class="log-item-title">NEW-02 — Orisha aura flash</div><div class="log-item-desc">Radial glow in Orisha color pulses outward on integration. 1.8s @keyframes auraFade, pointerEvents:none.</div></div></div>
+        <div class="log-item"><div class="log-icon">💧</div><div><div class="log-item-title">oz/ml conversion — water input</div><div class="log-item-desc">Quick-add buttons changed to [8, 16, 32] oz. OZ_TO_ML = 29.5735 constant. Hydration stores ml internally, displays oz. VIG calibration comment updated.</div></div></div>
+        <div class="log-item"><div class="log-icon">🌳</div><div><div class="log-item-title">NEW-05 — Drill cards: all Foundation tier-1</div><div class="log-item-desc">Ginga (2), Cocorinha (1), Esquiva Baixa (1), Negativa (2), Au Básico (2). Each: title, chain, cue, 6 steps, watchFor errors, philosophical anchor.</div></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── FULL BACKLOG ── -->
+  <div class="sec" id="backlog">
+    <div class="sec-hd">
+      <div class="sec-title">Full Backlog</div>
+      <div class="sec-sub">All 212 tickets by phase</div>
+      <div class="sec-badge">Click to expand</div>
+    </div>
+
+    <!-- Phase A -->
+    <div class="backlog-section open">
+      <div class="backlog-hd" onclick="this.parentElement.classList.toggle('open')">
+        <span class="backlog-name">Phase A — Baseline (Should Have Existed Day 1)</span>
+        <span class="backlog-count">5/19</span>
+        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:26%;background:var(--blue)"></div></div>
+        <span class="backlog-pct" style="color:var(--blue)">26%</span>
+        <span class="backlog-chevron">›</span>
+      </div>
+      <div class="backlog-items">
+        <div class="bl-item"><span class="bl-id">A-INF-01</span><span class="bl-title">Cloud sync — Supabase free tier</span><span class="bl-status bl-blocked">Blocked</span></div>
+        <div class="bl-item"><span class="bl-id">A-INF-02</span><span class="bl-title">Auth — email magic link</span><span class="bl-status bl-blocked">Blocked</span></div>
+        <div class="bl-item"><span class="bl-id">A-INF-03</span><span class="bl-title">Sentry error monitoring</span><span class="bl-status bl-blocked">Blocked</span></div>
+        <div class="bl-item"><span class="bl-id">A-INF-04</span><span class="bl-title">Analytics — PostHog</span><span class="bl-status bl-blocked">Blocked</span></div>
+        <div class="bl-item"><span class="bl-id">A-INF-05</span><span class="bl-title">CI/CD — GitHub Actions</span><span class="bl-status bl-blocked">Blocked</span></div>
+        <div class="bl-item"><span class="bl-id">A-INF-06</span><span class="bl-title">Code splitting — lazy load Library</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-QA-01</span><span class="bl-title">Unit tests — core math functions</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">A-QA-02</span><span class="bl-title">Unit tests — XP grant chain</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">A-QA-03</span><span class="bl-title">Integration tests — Mestre defeat chain</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">A-QA-04</span><span class="bl-title">Integration tests — state persistence</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">A-QA-05</span><span class="bl-title">E2E smoke test — Playwright</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-QA-06</span><span class="bl-title">Snapshot tests — Daily page render</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-ENG-01</span><span class="bl-title">Split useStore.js into domain slices</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-ENG-02</span><span class="bl-title">Split DailyQuest.jsx — extract sub-components</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-ENG-03</span><span class="bl-title">Fix hydrationMl naming — unit at boundary</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-ENG-04</span><span class="bl-title">Remove !important from App.css</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-ENG-05</span><span class="bl-title">Add PropTypes to all components</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-ENG-06</span><span class="bl-title">TypeScript migration — store + data layer</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-ENG-07</span><span class="bl-title">Populate movement video/tutorial URLs</span><span class="bl-status bl-done">Done ✓</span></div>
+      </div>
+    </div>
+
+    <!-- Phase B -->
+    <div class="backlog-section open">
+      <div class="backlog-hd" onclick="this.parentElement.classList.toggle('open')">
+        <span class="backlog-name">Phase B — Score Improvements</span>
+        <span class="backlog-count">22/34</span>
+        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:65%;background:var(--orange)"></div></div>
+        <span class="backlog-pct" style="color:var(--orange)">65%</span>
+        <span class="backlog-chevron">›</span>
+      </div>
+      <div class="backlog-items">
+        <div class="bl-item"><span class="bl-id">B-UX-01</span><span class="bl-title">First-run onboarding — 3-screen explainer</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">B-UX-02</span><span class="bl-title">Empty states — Day 1 purpose-built screens</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">B-UX-03</span><span class="bl-title">Contextual tooltips on first interaction</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-UX-04</span><span class="bl-title">Accessibility audit — aria-labels + keyboard nav</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-UX-05</span><span class="bl-title">Day 3 problem — Mestre/Orisha teaser on Daily</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">B-UX-06</span><span class="bl-title">Sprint Focus auto-switches tree tab</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-UX-07</span><span class="bl-title">Progressive disclosure — collapse quest bullets</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-UX-08</span><span class="bl-title">Haptic feedback on mastery advance</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">B-CNT-01</span><span class="bl-title">Video links — 20 Foundation movements</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">B-CNT-02</span><span class="bl-title">Drill cards — Kick tree tier-1</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-CNT-03</span><span class="bl-title">Sprint 2 program data</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-CNT-04</span><span class="bl-title">Add 60 remaining movements</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-CS-01</span><span class="bl-title">Push notifications — streak reminder (PWA)</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-CS-02</span><span class="bl-title">Cross-device progress restore</span><span class="bl-status bl-blocked">Blocked</span></div>
+        <div class="bl-item"><span class="bl-id">B-CS-03</span><span class="bl-title">Weekly training report — Sunday summary</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">B-CS-04</span><span class="bl-title">Milestone celebrations — rank up, first Mestre</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">B-CS-05</span><span class="bl-title">Community Roda — anonymized activity feed</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-CS-06</span><span class="bl-title">Shareable progress card with deep link</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-CS-07</span><span class="bl-title">Instructor mode — custom sprint programs</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-PM-01</span><span class="bl-title">Define North Star metric + weekly review</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-PM-02</span><span class="bl-title">User interviews — 5 practitioners at Week 2</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-PM-03</span><span class="bl-title">App Store listing — iOS / Android PWA</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-OPS-01</span><span class="bl-title">PWA push notification service worker</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-OPS-02</span><span class="bl-title">Performance budget — LCP &lt;2s mobile</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-OPS-03</span><span class="bl-title">Offline-first verification</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-OPS-04</span><span class="bl-title">GDPR / privacy — data deletion + export</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-ENG-08</span><span class="bl-title">useCallback / useMemo audit — reduce re-renders</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-ENG-09</span><span class="bl-title">Error boundary per page</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-ENG-10</span><span class="bl-title">localStorage quota protection</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-ENG-11</span><span class="bl-title">State migration system v1→v2→v3</span><span class="bl-status bl-todo">Todo</span></div>
+      </div>
+    </div>
+
+    <!-- Phase C + D (collapsed) -->
+    <div class="backlog-section open">
+      <div class="backlog-hd" onclick="this.parentElement.classList.toggle('open')">
+        <span class="backlog-name">Phase C — Score Maximizers (B+ → A)</span>
+        <span class="backlog-count">18/57</span>
+        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:32%;background:var(--accent)"></div></div>
+        <span class="backlog-pct" style="color:var(--accent)">32%</span>
+        <span class="backlog-chevron">›</span>
+      </div>
+      <div class="backlog-items">
+        <div class="bl-item"><span class="bl-id">C-UX-01</span><span class="bl-title">Page transition animations</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">C-UX-03</span><span class="bl-title">Haptic feedback — 7 patterns</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">C-UX-07</span><span class="bl-title">Font size preference (Small/Default/Large)</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">C-UX-08</span><span class="bl-title">Reduce motion mode</span><span class="bl-status bl-partial">Partial</span></div>
+        <div class="bl-item"><span class="bl-id">C-UX-09</span><span class="bl-title">Landscape orientation layout</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">C-UX-10</span><span class="bl-title">Color blind mode</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">C-UX-11</span><span class="bl-title">Personal training journal</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">C-UX-12</span><span class="bl-title">Movement progress comparison (30-day)</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">C-CS-01</span><span class="bl-title">Achievement badge system — 25 badges</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">C-CS-03</span><span class="bl-title">Streak insurance — Grace tokens</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">C-CNT-01</span><span class="bl-title">Mestre audio quotes (10 Mestres)</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">C-CNT-05</span><span class="bl-title">YouTube embed on MovementDetail</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">C-QA-06</span><span class="bl-title">Data integrity tests — movement IDs</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">C-ENG-01</span><span class="bl-title">Virtual scroll — 249-movement list</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">C-ENG-03</span><span class="bl-title">React.memo on MovementCard</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">C-OPS-01</span><span class="bl-title">Staging environment</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">C-QA-01</span><span class="bl-title">Visual regression — Chromatic/Percy</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">C-QA-02</span><span class="bl-title">Automated accessibility — axe-core in CI</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">C-QA-08</span><span class="bl-title">Regression test suite — 8 P0 audit bugs</span><span class="bl-status bl-partial">Partial</span></div>
+        <div class="bl-item"><span class="bl-id">C-CS-05</span><span class="bl-title">Shareable public profile URL</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">C-PM-03</span><span class="bl-title">NPS survey — in-app quarterly</span><span class="bl-status bl-todo">Todo</span></div>
+      </div>
+    </div>
+
+    <div class="backlog-section open">
+      <div class="backlog-hd" onclick="this.parentElement.classList.toggle('open')">
+        <span class="backlog-name">Phase D — English Expansion</span>
+        <span class="backlog-count">9/18</span>
+        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:50%;background:var(--purple)"></div></div>
+        <span class="backlog-pct" style="color:var(--purple)">50%</span>
+        <span class="backlog-chevron">›</span>
+      </div>
+      <div class="backlog-items">
+        <div class="bl-item"><span class="bl-id">D-GAM-01</span><span class="bl-title">Prestige title badges (15 titles)</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">D-GAM-02</span><span class="bl-title">Daily bonus challenge (30 rotating)</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">D-GAM-03</span><span class="bl-title">Monthly community challenge</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">D-GAM-04</span><span class="bl-title">Movement combo builder</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">D-GAM-05</span><span class="bl-title">XP multiplier events — double XP</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">D-GAM-06</span><span class="bl-title">Mastery leaderboard — weekly top movers</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">D-CNT-01</span><span class="bl-title">Mestre quotes (10 Mestres, sourced)</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">D-CNT-02</span><span class="bl-title">Historical timeline — 1500s to today</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">D-CNT-03</span><span class="bl-title">Anatomy guide — muscles per movement</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">D-CNT-04</span><span class="bl-title">Sprint 3 + Sprint 4 programs</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">D-CNT-05</span><span class="bl-title">YouTube embed on MovementDetail</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">D-CNT-06</span><span class="bl-title">Drill card AI generation (240+ movements)</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">D-TRN-01</span><span class="bl-title">Smart rest day detection</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">D-TRN-02</span><span class="bl-title">Movement staleness — Rusty indicator</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">D-TRN-03</span><span class="bl-title">Flow session mode — 20-min timer</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">D-TRN-04</span><span class="bl-title">Pain correlation report</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">D-TRN-05</span><span class="bl-title">Training partner matching</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">D-TRN-06</span><span class="bl-title">Recovery score trend — 30-day VIG chart</span><span class="bl-status bl-done">Done ✓</span></div>
+      </div>
+    </div>
+
+    <!-- Totals -->
+    <div style="margin-top:24px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+      <div style="font-size:22px;font-weight:800;color:var(--accent)">212 total tickets</div>
+      <div style="color:var(--text3);font-size:12px;flex:1">
+        <span style="color:var(--green);font-weight:700">108 done</span> ·
+        <span style="color:var(--red);font-weight:700">6 blocked</span> (need accounts) ·
+        <span style="color:var(--blue);font-weight:700">98 remaining</span> ·
+        <span style="color:var(--text3)">3 tests files · 98 tests · build ✓</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+  // Theme toggle
+  function initTheme() {
+    const stored = localStorage.getItem('sl-dashboard-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', stored);
+    updateThemeButton(stored);
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('sl-dashboard-theme', next);
+    updateThemeButton(next);
+  }
+
+  function updateThemeButton(theme) {
+    const btn = document.querySelector('.theme-toggle');
+    if (btn) btn.textContent = theme === 'dark' ? '☀ Light' : '◐ Dark';
+  }
+
+  initTheme();
+
+  // Log entries toggle (already handled by onclick)
+  // Nav highlight on scroll
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('.hnav a');
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) cur = s.id; });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + cur);
+    });
+  });
+</script>
+</body>
+</html>
