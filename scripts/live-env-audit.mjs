@@ -44,7 +44,12 @@ const js = await fetch(jsUrl).then((res) => {
   return res.text();
 });
 
-const supabaseHost = env.VITE_SUPABASE_URL ? new URL(env.VITE_SUPABASE_URL).host : "";
+const supabaseUrl = env.VITE_SUPABASE_URL || env.VITE_SUPABASE_PROJECT_URL || env.SUPABASE_URL;
+const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY
+  || env.VITE_SUPABASE_KEY
+  || env.VITE_SUPABASE_PUBLIC_KEY
+  || env.SUPABASE_ANON_KEY;
+const supabaseHost = supabaseUrl ? new URL(supabaseUrl).host : "";
 const sentryHost = env.VITE_SENTRY_DSN ? new URL(env.VITE_SENTRY_DSN).host : "";
 
 const checks = {
@@ -53,7 +58,7 @@ const checks = {
   titleIsCapoeira: html.includes("Solo Leveling: Capoeira"),
   legacyStaticShellAbsent: !/contractor|vitality|portfolio/i.test(html),
   supabaseUrlPresent: Boolean(supabaseHost && js.includes(supabaseHost)),
-  supabaseAnonPresent: containsValue(js, env.VITE_SUPABASE_ANON_KEY, 16),
+  supabaseAnonPresent: containsValue(js, supabaseAnonKey, 16),
   sentryDsnPresent: Boolean(sentryHost && js.includes(sentryHost)),
   posthogKeyPresent: containsValue(js, env.VITE_POSTHOG_KEY, 10),
   posthogHostPresent: containsValue(js, env.VITE_POSTHOG_HOST || "https://app.posthog.com", 20),
@@ -72,8 +77,8 @@ const requiredNetlifyEnv = [
 ];
 
 const missingAdvice = {
-  supabaseUrlPresent: "Set VITE_SUPABASE_URL in Netlify Production environment variables.",
-  supabaseAnonPresent: "Set VITE_SUPABASE_ANON_KEY in Netlify Production environment variables.",
+  supabaseUrlPresent: "Set VITE_SUPABASE_URL in Netlify Production environment variables. Fallbacks accepted: VITE_SUPABASE_PROJECT_URL or SUPABASE_URL.",
+  supabaseAnonPresent: "Set VITE_SUPABASE_ANON_KEY in Netlify Production environment variables. Fallbacks accepted: VITE_SUPABASE_KEY, VITE_SUPABASE_PUBLIC_KEY, or SUPABASE_ANON_KEY.",
   sentryDsnPresent: "Set VITE_SENTRY_DSN in Netlify Production environment variables.",
   posthogKeyPresent: "Set VITE_POSTHOG_KEY in Netlify Production environment variables.",
   posthogHostPresent: "Set VITE_POSTHOG_HOST in Netlify Production environment variables.",
