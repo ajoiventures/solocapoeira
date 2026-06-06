@@ -138,6 +138,7 @@ const MovementCard = memo(function MovementCard({ movement, masteryLevel, isUnlo
           <div style={{ position: "relative" }}>
             <button
               onClick={(e) => { e.stopPropagation(); onQuickLog(); }}
+              aria-label={`Log 5 reps for ${movement.name}`}
               style={{
                 fontSize: 10, padding: "2px 7px", borderRadius: 10, fontWeight: 800,
                 background: "var(--surface2)", border: "1px solid var(--border)",
@@ -644,6 +645,7 @@ export default function SkillTrees({ store, navigate }) {
                   <button
                     key={f.id}
                     onClick={() => setMasteryFilter(f.id)}
+                    aria-label={`Filter movements by ${f.label}`}
                     style={{
                       flexShrink: 0, padding: "4px 12px", borderRadius: 20, fontSize: 11,
                       fontWeight: 700, cursor: "pointer",

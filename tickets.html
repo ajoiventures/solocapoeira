@@ -265,11 +265,12 @@
       <div class="pipe-col pipe-blocked">
         <div class="pipe-hd">
           <span class="pipe-title">Blocked</span>
-          <span class="pipe-count">1</span>
+          <span class="pipe-count">2</span>
           <span style="font-size:9px;color:var(--red);margin-left:auto">platform follow-up</span>
         </div>
         <div class="pipe-body">
           <div class="tk blocked-tk"><div class="tk-id">A-INF-05 · P1</div><div class="tk-title">CI/CD — GitHub Actions runner follow-up</div><div class="tk-desc">Netlify deploy is green from GitHub. GitHub Actions still fails before steps on the runner/platform path, so keep this as the only platform blocker.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-infra">infra</span></div></div>
+          <div class="tk blocked-tk"><div class="tk-id">A-QA-05 - P1</div><div class="tk-title">E2E smoke test - CI workflow hook</div><div class="tk-desc">Playwright smoke passes locally (11/11), but GitHub rejected workflow changes because the push token lacks workflow scope.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-qa">testing</span></div></div>
         </div>
       </div>
 
@@ -277,12 +278,11 @@
       <div class="pipe-col pipe-ready">
         <div class="pipe-hd">
           <span class="pipe-title">Ready to Build</span>
-          <span class="pipe-count">6</span>
+          <span class="pipe-count">5</span>
         </div>
         <div class="pipe-body">
           <div class="tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js into slices</div><div class="tk-desc">1400 lines. Split: usePlayerStore, useMovementStore, useBossStore, useRecoveryStore, useSessionStore.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
           <div class="tk"><div class="tk-id">A-ENG-02 · P0</div><div class="tk-title">Split DailyQuest.jsx</div><div class="tk-desc">1900 lines. Extract: CheckInCard, BonusSection, NeedsDrillingCard, WeeklySummary, FlowSessionCard.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
-          <div class="tk"><div class="tk-id">A-QA-05 · P1</div><div class="tk-title">E2E smoke test — Playwright</div><div class="tk-desc">open app → complete quest → log reps → verify XP increments. Run in CI.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-qa">testing</span></div></div>
           <div class="tk"><div class="tk-id">A-QA-06 · P2</div><div class="tk-title">Snapshot tests — Daily page</div><div class="tk-desc">React Testing Library snapshots: Day 1, mid-sprint, rest day, all quests done.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-qa">testing</span></div></div>
           <div class="tk"><div class="tk-id">B-UX-03 · P1</div><div class="tk-title">Contextual tooltips — first interaction</div><div class="tk-desc">First tap on concept tree strip → tooltip explaining the system. One-shot, seenTooltips[].</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-ux">ux</span></div></div>
           <div class="tk"><div class="tk-id">C-UX-09 · P2</div><div class="tk-title">Landscape orientation layout</div><div class="tk-desc">@media (orientation: landscape) and (max-height: 500px): two-column layout.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-ux">ux</span></div></div>
@@ -635,7 +635,7 @@
         <div class="bl-item"><span class="bl-id">A-QA-02</span><span class="bl-title">Unit tests — XP grant chain</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">A-QA-03</span><span class="bl-title">Integration tests — Mestre defeat chain</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">A-QA-04</span><span class="bl-title">Integration tests — state persistence</span><span class="bl-status bl-done">Done ✓</span></div>
-        <div class="bl-item"><span class="bl-id">A-QA-05</span><span class="bl-title">E2E smoke test — Playwright</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-QA-05</span><span class="bl-title">E2E smoke test — Playwright</span><span class="bl-status bl-blocked">Blocked</span></div>
         <div class="bl-item"><span class="bl-id">A-QA-06</span><span class="bl-title">Snapshot tests — Daily page render</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">A-ENG-01</span><span class="bl-title">Split useStore.js into domain slices</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">A-ENG-02</span><span class="bl-title">Split DailyQuest.jsx — extract sub-components</span><span class="bl-status bl-todo">Todo</span></div>
@@ -760,9 +760,9 @@
       <div style="font-size:22px;font-weight:800;color:var(--accent)">213 total tickets</div>
       <div style="color:var(--text3);font-size:12px;flex:1">
         <span style="color:var(--green);font-weight:700">122 done</span> ·
-        <span style="color:var(--red);font-weight:700">1 blocked</span> (GitHub Actions runner) ·
-        <span style="color:var(--blue);font-weight:700">90 remaining</span> ·
-        <span style="color:var(--text3)">119 tests · live env audit ✓ · build ✓</span>
+        <span style="color:var(--red);font-weight:700">2 blocked</span> (GitHub Actions runner + workflow token scope) ·
+        <span style="color:var(--blue);font-weight:700">89 remaining</span> ·
+        <span style="color:var(--text3)">119 unit - 11 e2e local - connective audit ok - build ok</span>
       </div>
     </div>
   </div>

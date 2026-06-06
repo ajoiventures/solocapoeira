@@ -1955,6 +1955,16 @@ export default function DailyQuest({ store, navigate }) {
                 className={`quest-check${done ? " checked" : ""}`}
                 style={done ? {} : { borderColor: q.color }}
                 onClick={() => store.completeQuestItem(q.id, q.xp || 0)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    store.completeQuestItem(q.id, q.xp || 0);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`${done ? "Undo" : "Complete"} ${q.label}`}
+                aria-pressed={done}
               >
                 {done && "✓"}
               </div>
