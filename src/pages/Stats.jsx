@@ -6,6 +6,7 @@ import { SKILL_TREES } from "../data/trees.js";
 import PlayerProfile from "../components/PlayerProfile.jsx";
 import { calculateIntegrationBonuses, getBonusDescriptions } from "../data/orishaStatSystem.js";
 import { ACHIEVEMENTS } from "../data/achievements.js";
+import { mlToOz, ozToMl } from "../data/units.js";
 
 function computePools(state) {
   const today = new Date().toISOString().split("T")[0];
@@ -283,26 +284,25 @@ export default function Stats({ store }) {
   }, [state, streak, inGrace, longestStreak, totalMastered, topTrees]);
 
   const today = new Date().toISOString().split("T")[0];
-  const rec = state.apf?.recoveryLog?.[today] || { hydrationMl: 0, sleepHours: 0 };
+  const rec = store.getRecoveryForDate?.(today) || { hydrationMl: 0, sleepHours: 0 };
 
-  const [hydration, setHydration] = useState(String(rec.hydrationMl || ""));
+  const [hydration, setHydration] = useState(String(mlToOz(rec.hydrationMl) || ""));
   const [sleep, setSleep] = useState(String(rec.sleepHours || ""));
 
   function commitRecovery(newHydration, newSleep) {
-    const h = parseFloat(newHydration) || 0;
     const s = parseFloat(newSleep) || 0;
-    store.logRecovery({ hydrationMl: h, sleepHours: s });
+    store.logRecoveryOz({ hydrationOz: newHydration, sleepHours: s });
   }
 
-  function addHydration(ml) {
+  function addHydration(oz) {
     const current = parseFloat(hydration) || 0;
-    const next = current + ml;
+    const next = current + oz;
     setHydration(String(next));
     commitRecovery(next, parseFloat(sleep) || 0);
   }
 
   const liveVIG = computeVIG({
-    hydrationMl: parseFloat(hydration) || 0,
+    hydrationMl: ozToMl(hydration),
     sleepHours: parseFloat(sleep) || 0,
   });
 
@@ -403,7 +403,7 @@ export default function Stats({ store }) {
           <div style={{ marginTop: 10, display: "flex", gap: 10, alignItems: "flex-end" }}>
             <div style={{ flex: 1 }}>
               <label style={{ fontSize: 10, color: "var(--text3)", display: "block", marginBottom: 4 }}>
-                HYDRATION (ml)
+                HYDRATION (oz)
               </label>
               <input
                 type="number"
@@ -419,14 +419,14 @@ export default function Stats({ store }) {
                 placeholder="0"
               />
               <div style={{ display: "flex", gap: 4, marginTop: 5 }}>
-                {[250, 500, 750].map((ml) => (
+                {[8, 16, 32].map((oz) => (
                   <button
-                    key={ml}
+                    key={oz}
                     className="btn btn-secondary btn-sm"
                     style={{ flex: 1, fontSize: 10, padding: "4px 0" }}
-                    onClick={() => addHydration(ml)}
+                    onClick={() => addHydration(oz)}
                   >
-                    +{ml}
+                    +{oz}
                   </button>
                 ))}
               </div>

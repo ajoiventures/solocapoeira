@@ -224,9 +224,9 @@
     <a href="#backlog">Backlog</a>
   </nav>
   <div class="hright">
-    <div class="hstat"><div class="hstat-v">120</div><div class="hstat-l">Done</div></div>
+    <div class="hstat"><div class="hstat-v">122</div><div class="hstat-l">Done</div></div>
     <div class="hstat"><div class="hstat-v">213</div><div class="hstat-l">Total</div></div>
-    <div class="hstat"><div class="hstat-v">56%</div><div class="hstat-l">Complete</div></div>
+    <div class="hstat"><div class="hstat-v">57%</div><div class="hstat-l">Complete</div></div>
     <div class="hpill">B+ → A target</div>
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">◐ Dark</button>
   </div>
@@ -277,15 +277,13 @@
       <div class="pipe-col pipe-ready">
         <div class="pipe-hd">
           <span class="pipe-title">Ready to Build</span>
-          <span class="pipe-count">8</span>
+          <span class="pipe-count">6</span>
         </div>
         <div class="pipe-body">
           <div class="tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js into slices</div><div class="tk-desc">1400 lines. Split: usePlayerStore, useMovementStore, useBossStore, useRecoveryStore, useSessionStore.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
           <div class="tk"><div class="tk-id">A-ENG-02 · P0</div><div class="tk-title">Split DailyQuest.jsx</div><div class="tk-desc">1900 lines. Extract: CheckInCard, BonusSection, NeedsDrillingCard, WeeklySummary, FlowSessionCard.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
           <div class="tk"><div class="tk-id">A-QA-05 · P1</div><div class="tk-title">E2E smoke test — Playwright</div><div class="tk-desc">open app → complete quest → log reps → verify XP increments. Run in CI.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-qa">testing</span></div></div>
           <div class="tk"><div class="tk-id">A-QA-06 · P2</div><div class="tk-title">Snapshot tests — Daily page</div><div class="tk-desc">React Testing Library snapshots: Day 1, mid-sprint, rest day, all quests done.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-qa">testing</span></div></div>
-          <div class="tk"><div class="tk-id">A-ENG-03 · P1</div><div class="tk-title">Fix hydrationMl naming</div><div class="tk-desc">Store hydration in ml but field name lies. Add getHydrationOz() / setHydrationOz() helpers at boundary.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">bug</span></div></div>
-          <div class="tk"><div class="tk-id">A-ENG-04 · P1</div><div class="tk-title">Remove !important from CSS</div><div class="tk-desc">8 occurrences. Fix via higher-specificity selectors.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">css</span></div></div>
           <div class="tk"><div class="tk-id">B-UX-03 · P1</div><div class="tk-title">Contextual tooltips — first interaction</div><div class="tk-desc">First tap on concept tree strip → tooltip explaining the system. One-shot, seenTooltips[].</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-ux">ux</span></div></div>
           <div class="tk"><div class="tk-id">C-UX-09 · P2</div><div class="tk-title">Landscape orientation layout</div><div class="tk-desc">@media (orientation: landscape) and (max-height: 500px): two-column layout.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-ux">ux</span></div></div>
           <div class="tk"><div class="tk-id">C-UX-10 · P2</div><div class="tk-title">Color blind mode</div><div class="tk-desc">Deuteranopia/protanopia safe palette. Replace red/green pairs with blue/orange.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-ux">accessibility</span></div></div>
@@ -309,12 +307,13 @@
       <div class="pipe-col pipe-done-col">
         <div class="pipe-hd">
           <span class="pipe-title">Recently Done</span>
-          <span class="pipe-count">120</span>
-          <span style="font-size:9px;color:var(--green);margin-left:auto">56% total</span>
+          <span class="pipe-count">122</span>
+          <span style="font-size:9px;color:var(--green);margin-left:auto">57% total</span>
         </div>
         <div class="pipe-body">
           <div class="tk done-tk"><div class="tk-id">A-INF-01/02</div><div class="tk-title">Supabase sync + magic link auth live</div></div>
           <div class="tk done-tk"><div class="tk-id">A-INF-03/04</div><div class="tk-title">Sentry + PostHog production keys verified</div></div>
+          <div class="tk done-tk"><div class="tk-id">A-ENG-03/04</div><div class="tk-title">Hydration unit boundary + CSS specificity</div></div>
           <div class="tk done-tk"><div class="tk-id">C-ENG-01</div><div class="tk-title">True virtual scroll for movement search</div></div>
           <div class="tk done-tk"><div class="tk-id">C-ENG-04</div><div class="tk-title">Startup bundle cut to 151.74 kB gzip</div></div>
           <div class="tk done-tk"><div class="tk-id">A-INF-06</div><div class="tk-title">Route code splitting + lazy Sentry loading</div></div>
@@ -372,10 +371,10 @@
           <div class="rm-hd">
             <span class="rm-tag partial">In Progress</span>
             <span class="rm-name">Phase A — Baseline</span>
-            <span class="rm-date">10/19 done · 53%</span>
+            <span class="rm-date">12/19 done · 63%</span>
           </div>
           <div class="rm-desc">Things that should have existed from Day 1. Infra is now live on Netlify/Supabase/Sentry/PostHog. Engineering debt (useStore split, file splits) can start now.</div>
-          <div class="rm-progress"><div class="rm-progress-bar" style="width:53%;background:var(--blue)"></div></div>
+          <div class="rm-progress"><div class="rm-progress-bar" style="width:63%;background:var(--blue)"></div></div>
           <div class="rm-items">
             <span class="rm-item done">A-QA-01 Unit tests ✓</span>
             <span class="rm-item done">A-QA-02 XP chain tests ✓</span>
@@ -390,7 +389,8 @@
             <span class="rm-item">A-ENG-01 useStore split</span>
             <span class="rm-item">A-ENG-02 DailyQuest split</span>
             <span class="rm-item">A-QA-05 E2E Playwright</span>
-            <span class="rm-item">A-ENG-04 Remove !important</span>
+            <span class="rm-item done">A-ENG-03 Hydration boundary ✓</span>
+            <span class="rm-item done">A-ENG-04 Remove !important ✓</span>
           </div>
         </div>
       </div>
@@ -619,9 +619,9 @@
     <div class="backlog-section open">
       <div class="backlog-hd" onclick="this.parentElement.classList.toggle('open')">
         <span class="backlog-name">Phase A — Baseline (Should Have Existed Day 1)</span>
-        <span class="backlog-count">10/19</span>
-        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:53%;background:var(--blue)"></div></div>
-        <span class="backlog-pct" style="color:var(--blue)">53%</span>
+        <span class="backlog-count">12/19</span>
+        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:63%;background:var(--blue)"></div></div>
+        <span class="backlog-pct" style="color:var(--blue)">63%</span>
         <span class="backlog-chevron">›</span>
       </div>
       <div class="backlog-items">
@@ -639,8 +639,8 @@
         <div class="bl-item"><span class="bl-id">A-QA-06</span><span class="bl-title">Snapshot tests — Daily page render</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">A-ENG-01</span><span class="bl-title">Split useStore.js into domain slices</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">A-ENG-02</span><span class="bl-title">Split DailyQuest.jsx — extract sub-components</span><span class="bl-status bl-todo">Todo</span></div>
-        <div class="bl-item"><span class="bl-id">A-ENG-03</span><span class="bl-title">Fix hydrationMl naming — unit at boundary</span><span class="bl-status bl-todo">Todo</span></div>
-        <div class="bl-item"><span class="bl-id">A-ENG-04</span><span class="bl-title">Remove !important from App.css</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-ENG-03</span><span class="bl-title">Fix hydrationMl naming — unit at boundary</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">A-ENG-04</span><span class="bl-title">Remove !important from App.css</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">A-ENG-05</span><span class="bl-title">Add PropTypes to all components</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">A-ENG-06</span><span class="bl-title">TypeScript migration — store + data layer</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">A-ENG-07</span><span class="bl-title">Populate movement video/tutorial URLs</span><span class="bl-status bl-done">Done ✓</span></div>
@@ -759,10 +759,10 @@
     <div style="margin-top:24px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:flex;gap:24px;flex-wrap:wrap;align-items:center">
       <div style="font-size:22px;font-weight:800;color:var(--accent)">213 total tickets</div>
       <div style="color:var(--text3);font-size:12px;flex:1">
-        <span style="color:var(--green);font-weight:700">120 done</span> ·
+        <span style="color:var(--green);font-weight:700">122 done</span> ·
         <span style="color:var(--red);font-weight:700">1 blocked</span> (GitHub Actions runner) ·
-        <span style="color:var(--blue);font-weight:700">92 remaining</span> ·
-        <span style="color:var(--text3)">118 tests · live env audit ✓ · build ✓</span>
+        <span style="color:var(--blue);font-weight:700">90 remaining</span> ·
+        <span style="color:var(--text3)">119 tests · live env audit ✓ · build ✓</span>
       </div>
     </div>
   </div>

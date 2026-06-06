@@ -16,6 +16,7 @@ import {
   levelProgress,
   RAW_MASTERY_THRESHOLDS,
 } from "../data/gameLogic.js";
+import { mlToOz, ozToMl } from "../data/units.js";
 
 // ─────────────────────────────────────────────
 // VIG — Vigor score
@@ -345,11 +346,16 @@ describe("Regression tests — bugs found in audit", () => {
   });
 
   it("BUG-04: oz conversion (8oz = 237ml) produces valid VIG signal", () => {
-    // 8 oz × 29.5735 = 236.6ml
-    const oz8 = Math.round(8 * 29.5735);
+    const oz8 = ozToMl(8);
     const vig = computeVIG({ hydrationMl: oz8, sleepHours: 0 });
     expect(vig).toBeGreaterThan(0);
     expect(vig).toBeLessThan(9999);
+  });
+
+  it("BUG-06: hydration helpers keep oz UI and ml storage aligned", () => {
+    expect(ozToMl(8)).toBe(237);
+    expect(ozToMl("16")).toBe(473);
+    expect(mlToOz(946)).toBe(32);
   });
 
   it("BUG-05: mastery thresholds with Orisha bonus never produce negative values", () => {

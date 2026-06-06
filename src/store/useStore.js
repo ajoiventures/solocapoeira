@@ -11,6 +11,7 @@ import { getMestreSequenceIds } from "../data/mestreSequenceUnlocks.js";
 import { getCoreOrishaCount, getOrishaMetaById } from "../data/orishaIndex.js";
 import { checkAchievements, getAchievementById } from "../data/achievements.js";
 import { RANKS } from "../data/rankUtils.js";
+import { mlToOz, ozToMl } from "../data/units.js";
 
 const STORAGE_KEY = "solo_leveling_state_v1";
 const STATE_VERSION = 2; // bump this when schema changes require migration
@@ -721,6 +722,18 @@ export function useStore() {
       },
     }));
   }, [update]);
+
+  const logRecoveryOz = useCallback(({ hydrationOz, sleepHours }) => {
+    logRecovery({ hydrationMl: ozToMl(hydrationOz), sleepHours });
+  }, [logRecovery]);
+
+  const getRecoveryForDate = useCallback((date = new Date().toISOString().split("T")[0]) => (
+    state.apf?.recoveryLog?.[date] || { hydrationMl: 0, sleepHours: 0 }
+  ), [state.apf?.recoveryLog]);
+
+  const getHydrationOz = useCallback((date = new Date().toISOString().split("T")[0]) => (
+    mlToOz(getRecoveryForDate(date).hydrationMl)
+  ), [getRecoveryForDate]);
 
   // ── Steps ────────────────────────────────────────────────────────
   // logSteps(total, meta?)
@@ -1520,6 +1533,9 @@ export function useStore() {
     getWeeklyConsistency,
     getWeekSummary,
     getMovementLastTrained,
+    getRecoveryForDate,
+    getHydrationOz,
+    logRecoveryOz,
     markRestDay,
     isRestDay,
     setMovementNote,

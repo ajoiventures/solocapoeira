@@ -16,24 +16,20 @@ import { getCurrentMonthChallenge } from "../data/monthlyChallenges.js";
 import { getAllCoreOrishas } from "../data/orishas.js";
 import { BOSS_TESTS } from "../data/bossTests.js"; // used only for WeekContextCard sprint boss field
 import { SEQUENCES, RANK_META, SEQ_TYPES, RANK_ORDER } from "../data/sequences.js";
-
-const OZ_TO_ML = 29.5735;
+import { ozToMl } from "../data/units.js";
 
 function CheckInCard({ store, navigate, painToday }) {
   const today = new Date().toISOString().split("T")[0];
-  const rec = store.state.apf?.recoveryLog?.[today] || { hydrationMl: 0, sleepHours: 0 };
-  // Display in oz; store internally in ml
-  const [hydration, setHydration] = useState(
-    String(rec.hydrationMl ? Math.round(rec.hydrationMl / OZ_TO_ML) : "")
-  );
+  const rec = store.getRecoveryForDate?.(today) || { hydrationMl: 0, sleepHours: 0 };
+  const [hydration, setHydration] = useState(String(store.getHydrationOz?.(today) || ""));
   const [sleep, setSleep] = useState(String(rec.sleepHours || ""));
 
-  const hydrationMl = (parseFloat(hydration) || 0) * OZ_TO_ML;
+  const hydrationMl = ozToMl(hydration);
   const vig    = computeVIG({ hydrationMl, sleepHours: parseFloat(sleep) || 0 });
   const vigPct = Math.min(100, (vig / 9999) * 100);
 
   function commit(ozVal, s) {
-    store.logRecovery({ hydrationMl: Math.round((parseFloat(ozVal) || 0) * OZ_TO_ML), sleepHours: parseFloat(s) || 0 });
+    store.logRecoveryOz({ hydrationOz: ozVal, sleepHours: parseFloat(s) || 0 });
   }
   function addHydration(oz) {
     const next = (parseFloat(hydration) || 0) + oz;
