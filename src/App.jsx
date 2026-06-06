@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, Component } from "react";
+import { useState, useEffect, useCallback, Component, lazy, Suspense } from "react";
 import { useStore } from "./store/useStore.js";
 import { track } from "./lib/analytics.js";
 
@@ -33,36 +33,45 @@ class ErrorBoundary extends Component {
 }
 
 import { getRank, getLevelFromXP } from "./data/bonusQuests.js";
-import SkillTrees from "./pages/SkillTrees.jsx";
-import MovementDetail from "./pages/MovementDetail.jsx";
-import BossTests from "./pages/BossTests.jsx";
-import DailyQuest from "./pages/DailyQuest.jsx";
-import PainLog from "./pages/PainLog.jsx";
-import Settings from "./pages/Settings.jsx";
-import TrainingPlan from "./pages/TrainingPlan.jsx";
-import Nutrition from "./pages/Nutrition.jsx";
-import Stats from "./pages/Stats.jsx";
-import WorkoutDetail from "./pages/WorkoutDetail.jsx";
-import ExerciseDetail from "./pages/ExerciseDetail.jsx";
-import BoxingTimer from "./pages/BoxingTimer.jsx";
-import SequenceDetail from "./pages/SequenceDetail.jsx";
-import WorkoutGenerator from "./pages/WorkoutGenerator.jsx";
-import Glossary from "./pages/Glossary.jsx";
-import ComboBuilder from "./pages/ComboBuilder.jsx";
-import BerimbauTimer from "./pages/BerimbauTimer.jsx";
-import MestreDetail from "./pages/MestreDetail.jsx";
 import MasteryToast from "./components/MasteryToast.jsx";
 import AchievementToast from "./components/AchievementToast.jsx";
-import MestresLibrary from "./pages/MestresLibrary.jsx";
-import ConceptTrees from "./pages/ConceptTrees.jsx";
-import PhaseProgress from "./pages/PhaseProgress.jsx";
-import Profile from "./pages/Profile.jsx";
-import SequencesLibrary from "./pages/SequencesLibrary.jsx";
-import MovementsLibrary from "./pages/MovementsLibrary.jsx";
-import PracticePlanDetail from "./pages/PracticePlanDetail.jsx";
-import OrishaDetail from "./pages/OrishaDetail.jsx";
-import ProgressionDetail from "./pages/ProgressionDetail.jsx";
 import "./App.css";
+
+const SkillTrees = lazy(() => import("./pages/SkillTrees.jsx"));
+const MovementDetail = lazy(() => import("./pages/MovementDetail.jsx"));
+const BossTests = lazy(() => import("./pages/BossTests.jsx"));
+const DailyQuest = lazy(() => import("./pages/DailyQuest.jsx"));
+const PainLog = lazy(() => import("./pages/PainLog.jsx"));
+const Settings = lazy(() => import("./pages/Settings.jsx"));
+const TrainingPlan = lazy(() => import("./pages/TrainingPlan.jsx"));
+const Nutrition = lazy(() => import("./pages/Nutrition.jsx"));
+const Stats = lazy(() => import("./pages/Stats.jsx"));
+const WorkoutDetail = lazy(() => import("./pages/WorkoutDetail.jsx"));
+const ExerciseDetail = lazy(() => import("./pages/ExerciseDetail.jsx"));
+const BoxingTimer = lazy(() => import("./pages/BoxingTimer.jsx"));
+const SequenceDetail = lazy(() => import("./pages/SequenceDetail.jsx"));
+const WorkoutGenerator = lazy(() => import("./pages/WorkoutGenerator.jsx"));
+const Glossary = lazy(() => import("./pages/Glossary.jsx"));
+const ComboBuilder = lazy(() => import("./pages/ComboBuilder.jsx"));
+const BerimbauTimer = lazy(() => import("./pages/BerimbauTimer.jsx"));
+const MestreDetail = lazy(() => import("./pages/MestreDetail.jsx"));
+const MestresLibrary = lazy(() => import("./pages/MestresLibrary.jsx"));
+const ConceptTrees = lazy(() => import("./pages/ConceptTrees.jsx"));
+const PhaseProgress = lazy(() => import("./pages/PhaseProgress.jsx"));
+const Profile = lazy(() => import("./pages/Profile.jsx"));
+const SequencesLibrary = lazy(() => import("./pages/SequencesLibrary.jsx"));
+const MovementsLibrary = lazy(() => import("./pages/MovementsLibrary.jsx"));
+const PracticePlanDetail = lazy(() => import("./pages/PracticePlanDetail.jsx"));
+const OrishaDetail = lazy(() => import("./pages/OrishaDetail.jsx"));
+const ProgressionDetail = lazy(() => import("./pages/ProgressionDetail.jsx"));
+
+function RouteLoader() {
+  return (
+    <div style={{ padding: 24, color: "var(--text3)", fontSize: 12 }}>
+      Loading...
+    </div>
+  );
+}
 
 // ── SVG Nav Icons ─────────────────────────────────────────────────────────
 const NAV_ICONS = {
@@ -733,52 +742,54 @@ export default function App() {
 
       <main id="main-content" className="app-main" data-nav-dir={navDir}>
         <ErrorBoundary key={page}>
-          {page === "daily"    && <DailyQuest store={store} navigate={navigate} />}
-          {page === "workout"  && <WorkoutDetail quest={selectedWorkout} store={store} navigate={navigate} onBack={goBack} backLabel={backContext?.backLabel || "Daily"} />}
-          {page === "timer"    && <BoxingTimer config={timerConfig} navigate={navigate} onBack={goBack} backLabel={backContext?.backLabel || "Back"} />}
-          {page === "exercise" && selectedExercise && (
-            <ExerciseDetail
-              exercise={selectedExercise}
-              navigate={navigate}
-              onBack={goBack}
-              onToggleDone={() => {
-                store.toggleBonusItem(selectedExercise.id, selectedExercise.xp);
-                setSelectedExercise({ ...selectedExercise });
-              }}
-              isDone={store.state.todayQuest?.bonusItems?.includes(selectedExercise.id)}
-            />
-          )}
-          {page === "movement" && <SkillTrees store={store} navigate={navigate} />}
-          {page === "skill"    && selectedMovement && (
-            <MovementDetail movementId={selectedMovement} store={store} navigate={navigate} onBack={goBack} backContext={backContext} />
-          )}
-          {page === "sequence" && selectedSequence && (
-            <SequenceDetail sequenceId={selectedSequence} store={store} navigate={navigate} onBack={goBack} backContext={backContext} />
-          )}
-          {page === "practicePlan" && selectedPracticePlan && (
-            <PracticePlanDetail plan={selectedPracticePlan} navigate={navigate} onBack={goBack} backContext={backContext} />
-          )}
-          {page === "training"   && <TrainingPlan store={store} navigate={navigate} />}
-          {page === "generator"  && <WorkoutGenerator store={store} navigate={navigate} onBack={goBack} />}
-          {page === "berimbau"   && <BerimbauTimer config={timerConfig} navigate={navigate} onBack={goBack} backLabel={backContext?.backLabel || "Back"} />}
-          {page === "roda"     && <BossTests store={store} navigate={navigate} />}
-          {page === "orishas"  && <BossTests store={store} navigate={navigate} initialTab="orishas" />}
-          {page === "mestres"  && <BossTests store={store} navigate={navigate} initialTab="masters" />}
-          {page === "body"     && <PainLog store={store} />}
-          {page === "fuel"     && <Nutrition store={store} />}
-          {page === "axe"      && <Stats store={store} onNavigate={navigate} />}
-          {page === "settings" && <Settings store={store} theme={theme} setTheme={setTheme} navigate={navigate} />}
-          {page === "profile"   && <Profile store={store} navigate={navigate} />}
-          {page === "mestre"    && selectedMestre && <MestreDetail mestreId={selectedMestre} store={store} navigate={navigate} onBack={goBack} backContext={backContext} />}
-          {page === "orisha"    && selectedOrisha  && <OrishaDetail orishaId={selectedOrisha} store={store} navigate={navigate} onBack={goBack} backContext={backContext} />}
-          {page === "concepts"  && <ConceptTrees store={store} navigate={navigate} />}
-          {page === "phases"    && <PhaseProgress store={store} navigate={navigate} />}
-          {page === "mestres"   && <MestresLibrary store={store} navigate={navigate} />}
-          {page === "movementsLib" && <MovementsLibrary store={store} navigate={navigate} />}
-          {page === "sequencesLib" && <SequencesLibrary store={store} navigate={navigate} />}
-          {page === "glossary"    && <Glossary navigate={navigate} />}
-          {page === "comboBuilder" && <ComboBuilder store={store} navigate={navigate} onBack={goBack} />}
-          {page === "progression" && <ProgressionDetail store={store} navigate={navigate} onBack={goBack} backContext={backContext} />}
+          <Suspense fallback={<RouteLoader />}>
+            {page === "daily"    && <DailyQuest store={store} navigate={navigate} />}
+            {page === "workout"  && <WorkoutDetail quest={selectedWorkout} store={store} navigate={navigate} onBack={goBack} backLabel={backContext?.backLabel || "Daily"} />}
+            {page === "timer"    && <BoxingTimer config={timerConfig} navigate={navigate} onBack={goBack} backLabel={backContext?.backLabel || "Back"} />}
+            {page === "exercise" && selectedExercise && (
+              <ExerciseDetail
+                exercise={selectedExercise}
+                navigate={navigate}
+                onBack={goBack}
+                onToggleDone={() => {
+                  store.toggleBonusItem(selectedExercise.id, selectedExercise.xp);
+                  setSelectedExercise({ ...selectedExercise });
+                }}
+                isDone={store.state.todayQuest?.bonusItems?.includes(selectedExercise.id)}
+              />
+            )}
+            {page === "movement" && <SkillTrees store={store} navigate={navigate} />}
+            {page === "skill"    && selectedMovement && (
+              <MovementDetail movementId={selectedMovement} store={store} navigate={navigate} onBack={goBack} backContext={backContext} />
+            )}
+            {page === "sequence" && selectedSequence && (
+              <SequenceDetail sequenceId={selectedSequence} store={store} navigate={navigate} onBack={goBack} backContext={backContext} />
+            )}
+            {page === "practicePlan" && selectedPracticePlan && (
+              <PracticePlanDetail plan={selectedPracticePlan} navigate={navigate} onBack={goBack} backContext={backContext} />
+            )}
+            {page === "training"   && <TrainingPlan store={store} navigate={navigate} />}
+            {page === "generator"  && <WorkoutGenerator store={store} navigate={navigate} onBack={goBack} />}
+            {page === "berimbau"   && <BerimbauTimer config={timerConfig} navigate={navigate} onBack={goBack} backLabel={backContext?.backLabel || "Back"} />}
+            {page === "roda"     && <BossTests store={store} navigate={navigate} />}
+            {page === "orishas"  && <BossTests store={store} navigate={navigate} initialTab="orishas" />}
+            {page === "mestres"  && <BossTests store={store} navigate={navigate} initialTab="masters" />}
+            {page === "body"     && <PainLog store={store} />}
+            {page === "fuel"     && <Nutrition store={store} />}
+            {page === "axe"      && <Stats store={store} onNavigate={navigate} />}
+            {page === "settings" && <Settings store={store} theme={theme} setTheme={setTheme} navigate={navigate} />}
+            {page === "profile"   && <Profile store={store} navigate={navigate} />}
+            {page === "mestre"    && selectedMestre && <MestreDetail mestreId={selectedMestre} store={store} navigate={navigate} onBack={goBack} backContext={backContext} />}
+            {page === "orisha"    && selectedOrisha  && <OrishaDetail orishaId={selectedOrisha} store={store} navigate={navigate} onBack={goBack} backContext={backContext} />}
+            {page === "concepts"  && <ConceptTrees store={store} navigate={navigate} />}
+            {page === "phases"    && <PhaseProgress store={store} navigate={navigate} />}
+            {page === "mestres"   && <MestresLibrary store={store} navigate={navigate} />}
+            {page === "movementsLib" && <MovementsLibrary store={store} navigate={navigate} />}
+            {page === "sequencesLib" && <SequencesLibrary store={store} navigate={navigate} />}
+            {page === "glossary"    && <Glossary navigate={navigate} />}
+            {page === "comboBuilder" && <ComboBuilder store={store} navigate={navigate} onBack={goBack} />}
+            {page === "progression" && <ProgressionDetail store={store} navigate={navigate} onBack={goBack} backContext={backContext} />}
+          </Suspense>
         </ErrorBoundary>
       </main>
 
