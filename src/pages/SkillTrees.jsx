@@ -18,6 +18,50 @@ const MASTERY_FILTERS = [
   { id: "rusty",    label: "⚡ Rusty" },
 ];
 
+const VIRTUAL_MOVEMENT_ROW_HEIGHT = 96;
+const VIRTUAL_MOVEMENT_OVERSCAN = 6;
+const VIRTUAL_MOVEMENT_MAX_HEIGHT = 560;
+
+function VirtualizedMovementList({ movements, renderMovement }) {
+  const [scrollTop, setScrollTop] = useState(0);
+  const viewportHeight = Math.min(
+    VIRTUAL_MOVEMENT_MAX_HEIGHT,
+    Math.max(VIRTUAL_MOVEMENT_ROW_HEIGHT * 2, movements.length * VIRTUAL_MOVEMENT_ROW_HEIGHT)
+  );
+  const totalHeight = movements.length * VIRTUAL_MOVEMENT_ROW_HEIGHT;
+  const firstVisible = Math.floor(scrollTop / VIRTUAL_MOVEMENT_ROW_HEIGHT);
+  const visibleCount = Math.ceil(viewportHeight / VIRTUAL_MOVEMENT_ROW_HEIGHT);
+  const startIndex = Math.max(0, firstVisible - VIRTUAL_MOVEMENT_OVERSCAN);
+  const endIndex = Math.min(movements.length, firstVisible + visibleCount + VIRTUAL_MOVEMENT_OVERSCAN);
+  const visibleMovements = movements.slice(startIndex, endIndex);
+
+  return (
+    <div
+      className="virtual-movement-list"
+      style={{ height: viewportHeight }}
+      onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
+      role="list"
+      aria-label={`${movements.length} movement search results`}
+    >
+      <div style={{ height: totalHeight, position: "relative" }}>
+        {visibleMovements.map((movement, visibleIndex) => {
+          const absoluteIndex = startIndex + visibleIndex;
+          return (
+            <div
+              key={movement.id}
+              className="virtual-movement-row"
+              style={{ transform: `translateY(${absoluteIndex * VIRTUAL_MOVEMENT_ROW_HEIGHT}px)` }}
+              role="listitem"
+            >
+              {renderMovement(movement)}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function MasteryDots({ level }) {
   return (
     <div className="mastery-dots">
@@ -345,29 +389,24 @@ export default function SkillTrees({ store, navigate }) {
               }}>
                 Movements ({searchResults.movements.length})
               </div>
-              <div className="tier-movements" style={{ marginBottom: 14 }}>
-                {searchResults.movements.slice(0, 40).map((m) => (
+              <VirtualizedMovementList
+                key={searchQuery}
+                movements={searchResults.movements}
+                renderMovement={(m) => (
                   <MovementCard
-                    key={m.id}
                     movement={m}
                     masteryLevel={store.getMasteryLevel(m.id)}
                     isUnlocked={unlockedIds.includes(m.id) || m.prerequisites.length === 0}
                     onClick={() => navigate("skill", m.id)}
                     onQuickLog={() => store.incrementReps(m.id, 5)}
                     currentReps={store.getMovementReps(m.id)}
-                    lastTrained={store.getMovementLastTrained?.(m.id)}
+                    lastTrained={lastTrainedMap.get(m.id)}
                     currentPhase={currentPhase}
                     todayStr={dateContext.todayStr}
                     nowMs={dateContext.nowMs}
                   />
-                ))}
-                {searchResults.movements.length > 40 && (
-                  <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "8px 0",
-                    fontSize: 11, color: "var(--text3)" }}>
-                    Showing 40 of {searchResults.movements.length} — refine your search to narrow results
-                  </div>
                 )}
-              </div>
+              />
             </>
           )}
 

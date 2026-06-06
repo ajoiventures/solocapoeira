@@ -437,6 +437,27 @@ html, body {
   padding-left: 8px; border-left: 2px solid var(--eh-line-strong);
 }
 .tier-movements { display: flex; flex-direction: column; gap: 8px; }
+.virtual-movement-list {
+  position: relative;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  padding-right: 4px;
+  contain: layout paint;
+  scrollbar-gutter: stable;
+}
+.virtual-movement-row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 4px;
+  height: 96px;
+  padding-bottom: 8px;
+  box-sizing: border-box;
+}
+.virtual-movement-row .movement-card {
+  min-height: 88px;
+  box-sizing: border-box;
+}
 
 /* ── Movement Detail ────────────────────────────────────────────── */
 .detail-back {
