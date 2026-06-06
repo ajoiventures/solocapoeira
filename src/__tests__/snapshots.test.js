@@ -8,7 +8,9 @@
  * Update snapshots (after intentional changes): npm test -- --update-snapshots
  */
 
-import { describe, it, expect } from "vitest";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import { computeVIG, computePrestigeMultiplier, computeMasteryLevel } from "../data/gameLogic.js";
 import { ACHIEVEMENTS } from "../data/achievements.js";
 import { MOVEMENTS } from "../data/movements.js";
@@ -16,6 +18,103 @@ import { getAllMestres } from "../data/mestres.js";
 import { getAllCoreOrishas } from "../data/orishas.js";
 import { MONTHLY_CHALLENGES } from "../data/monthlyChallenges.js";
 import { BONUS_CHALLENGES } from "../data/bonusChallenges.js";
+import DailyQuest from "../pages/DailyQuest.jsx";
+
+const SNAPSHOT_DATE = "2026-06-06T14:00:00.000Z";
+const SNAPSHOT_TODAY = "2026-06-06";
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+function makeDailyStore(overrides = {}) {
+  const state = {
+    player: {
+      totalXP: 0,
+      level: 1,
+      currentSprint: "sprint_1",
+      currentWeek: 1,
+      streakDays: 0,
+      lastTrainingDate: null,
+      spiritualPath: "Ogun (Core)",
+      ...(overrides.player || {}),
+    },
+    todayQuest: {
+      date: SNAPSHOT_TODAY,
+      completed: [],
+      skipped: [],
+      bonusItems: [],
+      bonusXP: 0,
+      ...(overrides.todayQuest || {}),
+    },
+    movementProgress: overrides.movementProgress || {},
+    repLog: overrides.repLog || [],
+    sessionLog: overrides.sessionLog || [],
+    stepsLog: overrides.stepsLog || {},
+    bonusChallengesDone: overrides.bonusChallengesDone || {},
+    painLog: overrides.painLog || {},
+    restDays: overrides.restDays || [],
+    graceTokens: overrides.graceTokens || 0,
+    orishasIntegrated: overrides.orishasIntegrated || [],
+    conceptTreeProgress: overrides.conceptTreeProgress || { malicia: 0, malandragem: 0, mandinga: 0 },
+    bonusLogs: overrides.bonusLogs || {},
+    apf: overrides.apf || { recoveryLog: {}, pillars: {} },
+  };
+
+  return {
+    state,
+    getTodayPain: () => state.painLog[SNAPSHOT_TODAY] || null,
+    getRecoveryForDate: (date = SNAPSHOT_TODAY) => state.apf.recoveryLog?.[date] || { hydrationMl: 0, sleepHours: 0 },
+    getHydrationOz: () => 0,
+    logRecoveryOz: vi.fn(),
+    completeQuestItem: vi.fn(),
+    getStreakDays: () => ({ streak: state.player.streakDays || 0, inGrace: false }),
+    getWeeklyConsistency: () => overrides.weeklyConsistency || { trained: 0, total: 7 },
+    isRestDay: (date = SNAPSHOT_TODAY) => state.restDays.includes(date),
+    getCurrentPhase: () => overrides.currentPhase || 1,
+    getPhaseCompletionPercent: () => overrides.phaseCompletion ?? 0,
+    canAdvanceToNextPhase: () => overrides.canAdvancePhase || false,
+    getWeekSummary: () => overrides.weekSummary || { sessions: 0, xpEarned: 0, masteryAdvances: 0, repsLogged: 0 },
+    getMasteryLevel: (id) => state.movementProgress[id]?.masteryLevel || 0,
+    getMovementReps: (id) => state.movementProgress[id]?.reps || 0,
+    isMestreDefeated: () => false,
+    isOrishaIntegrated: () => false,
+    markRestDay: vi.fn(),
+    useGraceToken: vi.fn(),
+    completeAllQuestsAndLog: vi.fn(),
+    logSession: vi.fn(),
+    logSteps: vi.fn(),
+    incrementReps: vi.fn(),
+    toggleBonusItem: vi.fn(),
+    logBonusExercise: vi.fn(),
+    completeBonusChallenge: vi.fn(),
+  };
+}
+
+function renderDailySummary(store) {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date(SNAPSHOT_DATE));
+  const html = renderToStaticMarkup(React.createElement(DailyQuest, { store, navigate: vi.fn() }));
+  const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+  return {
+    questCards: (html.match(/class="quest-item/g) || []).length,
+    checkedQuestCards: (html.match(/quest-check checked/g) || []).length,
+    completeButtons: (html.match(/aria-label="Complete /g) || []).length,
+    undoButtons: (html.match(/aria-label="Undo /g) || []).length,
+    hasDailyQuestHeader: text.includes("Daily Quest"),
+    hasCompleteHeader: text.includes("Complete"),
+    hasRestDayHeader: store.isRestDay(SNAPSHOT_TODAY),
+    hasBonusQuest: text.includes("Bonus Quest"),
+    hasLogSession: text.includes("Log Session"),
+    hasBodyRequired: text.includes("Log body check") && text.includes("Required daily"),
+    hasBodyLogged: text.includes("Body logged"),
+    hasWeeklyReport: text.includes("This week") || text.includes("This Week"),
+    hasRestSuggestion: text.includes("Take Rest Day"),
+    progressText: (text.match(/\d\/5/) || [null])[0],
+    weekText: (text.match(/Week \d+/) || [null])[0],
+  };
+}
 
 // ──────────────────────────────────────────────────────────────────
 // Game logic output snapshots
@@ -66,6 +165,127 @@ describe("Game logic — output snapshots", () => {
 // Data count snapshots
 // Catches accidental deletions or duplications of data records.
 // ──────────────────────────────────────────────────────────────────
+describe("DailyQuest page states - render snapshots", () => {
+  it("Day 1 new user state", () => {
+    const store = makeDailyStore();
+    expect(renderDailySummary(store)).toMatchInlineSnapshot(`
+      {
+        "checkedQuestCards": 0,
+        "completeButtons": 5,
+        "hasBodyLogged": false,
+        "hasBodyRequired": true,
+        "hasBonusQuest": false,
+        "hasCompleteHeader": false,
+        "hasDailyQuestHeader": true,
+        "hasLogSession": false,
+        "hasRestDayHeader": false,
+        "hasRestSuggestion": false,
+        "hasWeeklyReport": false,
+        "progressText": "0/5",
+        "questCards": 5,
+        "undoButtons": 0,
+        "weekText": "Week 1",
+      }
+    `);
+  });
+
+  it("mid-sprint partial progress state", () => {
+    const store = makeDailyStore({
+      player: { totalXP: 840, level: 9, currentWeek: 6, streakDays: 4 },
+      todayQuest: { completed: ["q_foot", "q_foundation"] },
+      painLog: { [SNAPSHOT_TODAY]: { foot: 1, knee: 0, wrist: 0, shoulder: 1, lowerBack: 0 } },
+      movementProgress: {
+        ginga: { masteryLevel: 3, reps: 220 },
+        negativa: { masteryLevel: 2, reps: 60 },
+      },
+      repLog: [{ movementId: "ginga", count: 40, date: SNAPSHOT_TODAY }],
+      weeklyConsistency: { trained: 3, total: 7 },
+      weekSummary: { sessions: 3, xpEarned: 310, masteryAdvances: 1, repsLogged: 140 },
+      currentPhase: 2,
+      phaseCompletion: 42,
+    });
+
+    expect(renderDailySummary(store)).toMatchInlineSnapshot(`
+      {
+        "checkedQuestCards": 2,
+        "completeButtons": 3,
+        "hasBodyLogged": true,
+        "hasBodyRequired": false,
+        "hasBonusQuest": false,
+        "hasCompleteHeader": false,
+        "hasDailyQuestHeader": true,
+        "hasLogSession": false,
+        "hasRestDayHeader": false,
+        "hasRestSuggestion": false,
+        "hasWeeklyReport": true,
+        "progressText": "2/5",
+        "questCards": 5,
+        "undoButtons": 2,
+        "weekText": "Week 6",
+      }
+    `);
+  });
+
+  it("rest day state", () => {
+    const store = makeDailyStore({
+      player: { totalXP: 1200, level: 13, currentWeek: 3, streakDays: 7 },
+      restDays: [SNAPSHOT_TODAY],
+      graceTokens: 1,
+      weeklyConsistency: { trained: 5, total: 7 },
+      painLog: { [SNAPSHOT_TODAY]: { foot: 7, knee: 2, wrist: 0, shoulder: 1, lowerBack: 1 } },
+    });
+
+    expect(renderDailySummary(store)).toMatchInlineSnapshot(`
+      {
+        "checkedQuestCards": 0,
+        "completeButtons": 5,
+        "hasBodyLogged": true,
+        "hasBodyRequired": false,
+        "hasBonusQuest": false,
+        "hasCompleteHeader": false,
+        "hasDailyQuestHeader": false,
+        "hasLogSession": false,
+        "hasRestDayHeader": true,
+        "hasRestSuggestion": false,
+        "hasWeeklyReport": false,
+        "progressText": null,
+        "questCards": 5,
+        "undoButtons": 0,
+        "weekText": "Week 3",
+      }
+    `);
+  });
+
+  it("all quests done state exposes bonus and session logging", () => {
+    const store = makeDailyStore({
+      player: { totalXP: 2200, level: 23, currentWeek: 8, streakDays: 12 },
+      todayQuest: { completed: ["q_foot", "q_foundation", "q_primary", "q_conditioning", "q_mobility"] },
+      painLog: { [SNAPSHOT_TODAY]: { foot: 0, knee: 0, wrist: 0, shoulder: 0, lowerBack: 0 } },
+      weeklyConsistency: { trained: 6, total: 7 },
+      weekSummary: { sessions: 6, xpEarned: 980, masteryAdvances: 2, repsLogged: 420 },
+    });
+
+    expect(renderDailySummary(store)).toMatchInlineSnapshot(`
+      {
+        "checkedQuestCards": 5,
+        "completeButtons": 0,
+        "hasBodyLogged": true,
+        "hasBodyRequired": false,
+        "hasBonusQuest": true,
+        "hasCompleteHeader": true,
+        "hasDailyQuestHeader": false,
+        "hasLogSession": true,
+        "hasRestDayHeader": false,
+        "hasRestSuggestion": false,
+        "hasWeeklyReport": true,
+        "progressText": "5/5",
+        "questCards": 5,
+        "undoButtons": 5,
+        "weekText": "Week 8",
+      }
+    `);
+  });
+});
 describe("Data counts — snapshot", () => {
   it("total movements count", () => {
     expect(MOVEMENTS.length).toMatchInlineSnapshot(`238`);

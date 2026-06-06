@@ -622,6 +622,7 @@ handbook.html    ← This file</code></pre>
       <div class="rules">
         <div class="rule"><div class="rule-num">✓</div><div class="rule-body"><div class="rule-title">Build passes</div><div class="rule-desc"><code>npm run build</code> exits 0. No console errors in production build.</div></div></div>
         <div class="rule"><div class="rule-num">✓</div><div class="rule-body"><div class="rule-title">Tests pass</div><div class="rule-desc"><code>npm test</code> all green. Any new logic has at least one test.</div></div></div>
+        <div class="rule"><div class="rule-num">ok</div><div class="rule-body"><div class="rule-title">Page states are locked</div><div class="rule-desc">For critical screens, snapshot the user-visible states, not just data shapes. DailyQuest now locks Day 1, mid-sprint, rest day, and all-done states.</div></div></div>
         <div class="rule"><div class="rule-num">✓</div><div class="rule-body"><div class="rule-title">Golden path works</div><div class="rule-desc">Open the app as a new user. Complete the feature. Does it work as intended?</div></div></div>
         <div class="rule"><div class="rule-num">✓</div><div class="rule-body"><div class="rule-title">Edge cases handled</div><div class="rule-desc">Empty state (no data), first-time user, max data (10,000 reps). None should crash.</div></div></div>
         <div class="rule"><div class="rule-num">✓</div><div class="rule-body"><div class="rule-title">Mobile works</div><div class="rule-desc">DevTools mobile viewport. Tap targets ≥44px. Nothing overflows.</div></div></div>
@@ -656,6 +657,7 @@ handbook.html    ← This file</code></pre>
         <li>Did you ship something today? (Even one small thing?)</li>
         <li>Are all completed tickets marked done on the board?</li>
         <li>Is the build clean?</li>
+        <li>Are critical page states covered by a focused snapshot or E2E check?</li>
         <li>Is there a daily log entry for today?</li>
       </ul>
     </div>
