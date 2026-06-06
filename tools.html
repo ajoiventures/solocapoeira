@@ -3,443 +3,779 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Solo Leveling — Project Tools</title>
+  <title>Solo Leveling - Project Tools</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { font-size: 13px; }
+    :root {
+      --bg: #09101a;
+      --panel: #101a29;
+      --panel2: #162235;
+      --panel3: #1d2a3d;
+      --line: rgba(255,255,255,.09);
+      --line2: rgba(217,164,65,.28);
+      --text: #ede8de;
+      --muted: #aeb8c6;
+      --quiet: #707c8f;
+      --gold: #d9a441;
+      --green: #2e8c78;
+      --blue: #5f85ff;
+      --red: #c95252;
+      --radius: 8px;
+    }
 
+    :root[data-theme="light"] {
+      --bg: #f6f5f1;
+      --panel: #fffdf8;
+      --panel2: #f0ede8;
+      --panel3: #e7e2d8;
+      --line: rgba(28,36,48,.12);
+      --line2: rgba(143,74,42,.25);
+      --text: #1c2430;
+      --muted: #566170;
+      --quiet: #7d8795;
+      --gold: #8f4a2a;
+      --green: #1f6f60;
+      --blue: #265f86;
+      --red: #9f3a32;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: 76px; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-      background: #09101A;
-      color: #EDE8DE;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
       line-height: 1.6;
     }
 
-    :root {
-      --text: #EDE8DE;
-      --text2: #B8C1CB;
-      --text3: #6F7A8A;
-      --surface: #0F1B2A;
-      --surface2: #162235;
-      --border: rgba(218,166,74,0.15);
-      --accent: #D9A441;
+    a { color: inherit; text-decoration: none; }
+    code {
+      display: inline-block;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      padding: 2px 6px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--panel2);
+      color: var(--gold);
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
     }
 
-    [data-theme="light"] {
-      --text: #1c2430;
-      --text2: #6a7482;
-      --text3: #8e9270;
-      --surface: #f6f5f1;
-      --surface2: #fffdf8;
-      --border: rgba(143,74,42,0.15);
-      --accent: #D5AE5B;
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 58px;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--panel) 92%, transparent);
+      backdrop-filter: blur(14px);
     }
-
-    .container {
+    .mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       display: grid;
-      grid-template-columns: 240px 1fr;
-      min-height: 100vh;
-      gap: 0;
+      place-items: center;
+      flex: 0 0 auto;
+      background: linear-gradient(135deg, var(--gold), #d4854a);
+      color: #08101a;
+      font-weight: 900;
     }
+    .brand { min-width: 245px; }
+    .brand-title { font-size: 14px; font-weight: 800; line-height: 1.1; }
+    .brand-sub { color: var(--quiet); font-size: 9px; letter-spacing: 1.7px; text-transform: uppercase; }
+    .top-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .top-links::-webkit-scrollbar { display: none; }
+    .top-links a {
+      flex: 0 0 auto;
+      color: var(--quiet);
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .top-links a:hover { background: rgba(255,255,255,.05); color: var(--text); }
+    .actions { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .status-pill {
+      color: var(--green);
+      border: 1px solid color-mix(in srgb, var(--green) 34%, transparent);
+      border-radius: 999px;
+      padding: 3px 9px;
+      background: color-mix(in srgb, var(--green) 12%, transparent);
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+    .theme-toggle {
+      cursor: pointer;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .theme-toggle:hover { color: var(--text); border-color: var(--line2); }
 
+    .mobile-nav { display: none; }
+    .layout { min-width: 0; }
     .sidebar {
       position: fixed;
+      top: 58px;
       left: 0;
-      top: 0;
-      width: 240px;
-      height: 100vh;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      padding: 20px 0;
+      z-index: 50;
+      width: 236px;
+      height: calc(100vh - 58px);
       overflow-y: auto;
+      padding: 24px 14px;
+      border-right: 1px solid var(--line);
+      background: var(--panel);
     }
-
-    .sidebar-title {
-      font-size: 10px;
-      font-weight: 800;
-      color: var(--text3);
+    .side-title {
+      margin: 18px 8px 8px;
+      color: var(--quiet);
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: 1.9px;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
-      padding: 0 14px;
-      margin-bottom: 10px;
     }
-
-    .sidebar-link {
-      display: block;
-      padding: 8px 14px;
-      color: var(--text2);
-      text-decoration: none;
-      font-size: 12px;
-      border-left: 2px solid transparent;
-      cursor: pointer;
-      transition: all .15s;
+    .side-title:first-child { margin-top: 0; }
+    .side-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 30px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.25;
     }
-
-    .sidebar-link:hover, .sidebar-link.active {
-      color: var(--accent);
-      background: rgba(217,164,65,0.08);
-      border-left-color: var(--accent);
-    }
+    .side-link .num { width: 18px; flex: 0 0 auto; text-align: right; color: var(--quiet); font-size: 9px; }
+    .side-link:hover, .side-link.active { color: var(--text); background: rgba(255,255,255,.05); }
+    .side-link.active .num { color: var(--gold); }
 
     .content {
-      margin-left: 240px;
-      padding: 48px 64px;
-      max-width: 1200px;
+      margin-left: 236px;
+      width: auto;
+      max-width: 1220px;
+      padding: 46px 72px 110px;
     }
 
-    .page-title {
-      font-size: 32px;
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 260px;
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+    .eyebrow {
+      margin-bottom: 10px;
+      color: var(--gold);
+      font-size: 10px;
       font-weight: 900;
-      color: var(--accent);
-      margin-bottom: 8px;
-      letter-spacing: -0.5px;
+      letter-spacing: 2.4px;
+      text-transform: uppercase;
     }
+    h1 {
+      max-width: 760px;
+      font-size: 38px;
+      line-height: 1.08;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+    .lede {
+      max-width: 700px;
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .summary-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 16px;
+    }
+    .summary-label {
+      color: var(--quiet);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+    }
+    .summary-value {
+      margin-top: 8px;
+      color: var(--gold);
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .summary-note { margin-top: 6px; color: var(--quiet); font-size: 11px; }
 
-    .page-subtitle {
-      font-size: 14px;
-      color: var(--text3);
-      margin-bottom: 40px;
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 42px;
     }
+    .metric {
+      min-width: 0;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+    .metric strong { display: block; font-size: 18px; line-height: 1; color: var(--text); }
+    .metric span { display: block; margin-top: 5px; color: var(--quiet); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .9px; }
 
     .section {
       margin-bottom: 48px;
+      scroll-margin-top: 78px;
     }
-
-    .section-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 20px;
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
       padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--line);
     }
-
+    h2 { font-size: 20px; line-height: 1.2; }
+    .section-note { max-width: 420px; color: var(--quiet); font-size: 12px; text-align: right; }
     .tool-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
     }
-
     .tool-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      transition: all .2s;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 15px;
+      transition: border-color .15s, background .15s, transform .15s;
     }
-
     .tool-card:hover {
-      border-color: var(--accent);
-      background: var(--surface2);
-      box-shadow: 0 4px 12px rgba(217,164,65,0.1);
+      border-color: var(--line2);
+      background: var(--panel2);
+      transform: translateY(-1px);
     }
-
-    .tool-icon {
-      font-size: 24px;
-      margin-bottom: 8px;
+    .tool-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 9px;
     }
-
-    .tool-name {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-
-    .tool-desc {
-      font-size: 11px;
-      color: var(--text3);
-      line-height: 1.5;
-      margin-bottom: 10px;
-    }
-
-    .tool-link {
+    .tool-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line2);
+      background: color-mix(in srgb, var(--gold) 13%, transparent);
+      color: var(--gold);
       font-size: 10px;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-      display: inline-block;
+      font-weight: 900;
+      letter-spacing: .4px;
     }
-
-    .tool-link:hover {
-      text-decoration: underline;
-    }
-
-    .tool-tag {
-      display: inline-block;
+    .tool-name { min-width: 0; color: var(--text); font-size: 14px; font-weight: 800; line-height: 1.2; }
+    .tool-role { margin-top: 2px; color: var(--quiet); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .7px; }
+    .tool-desc { color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+    .tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 7px;
+      background: var(--panel2);
+      color: var(--quiet);
       font-size: 9px;
-      padding: 2px 6px;
-      background: rgba(217,164,65,0.15);
-      color: var(--accent);
-      border-radius: 4px;
-      font-weight: 600;
-      margin-right: 4px;
-      margin-top: 4px;
+      font-weight: 800;
+      letter-spacing: .4px;
+      text-transform: uppercase;
     }
-
-    .theme-toggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text2);
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
+    .source-link {
+      display: inline-flex;
+      margin-top: 12px;
+      color: var(--gold);
       font-size: 11px;
-      font-weight: 600;
-      transition: all .2s;
+      font-weight: 800;
+    }
+    .source-link:hover { text-decoration: underline; }
+
+    .command-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .cmd-row {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr) 150px;
+      gap: 16px;
+      align-items: center;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .cmd-row:last-child { border-bottom: none; }
+    .cmd-desc { color: var(--muted); font-size: 12px; }
+    .cmd-source { color: var(--quiet); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .7px; }
+
+    .note-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .note {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 16px;
+    }
+    .note-title { color: var(--text); font-weight: 900; margin-bottom: 6px; }
+    .note p { color: var(--muted); font-size: 12px; }
+
+    @media (max-width: 1180px) {
+      .topbar { padding: 0 20px; }
+      .brand { min-width: 210px; }
+      .content { padding: 40px 44px 100px; }
+      .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    .theme-toggle:hover {
-      color: var(--accent);
-      border-color: var(--accent);
+    @media (max-width: 860px) {
+      html { scroll-padding-top: 112px; }
+      .topbar { padding: 0 16px; }
+      .brand { min-width: 0; flex: 1; }
+      .brand-sub, .top-links, .status-pill, .sidebar { display: none; }
+      .mobile-nav {
+        position: sticky;
+        top: 58px;
+        z-index: 90;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding: 8px 16px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+        scrollbar-width: none;
+      }
+      .mobile-nav::-webkit-scrollbar { display: none; }
+      .mobile-nav a {
+        flex: 0 0 auto;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--panel2);
+        color: var(--muted);
+        padding: 6px 10px;
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .mobile-nav a.active { color: var(--text); border-color: var(--line2); }
+      .content { margin-left: 0; max-width: 760px; margin-right: auto; margin-left: auto; padding: 30px 22px 80px; }
+      .hero { grid-template-columns: 1fr; gap: 16px; }
+      h1 { font-size: 31px; }
+      .summary-card { max-width: 320px; }
+      .section, .section[id] { scroll-margin-top: 118px; }
+      .section-head { align-items: flex-start; flex-direction: column; gap: 6px; }
+      .section-note { text-align: left; }
+      .cmd-row { grid-template-columns: 1fr; gap: 5px; }
+      .note-panel { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 1024px) {
-      .container { grid-template-columns: 1fr; }
-      .sidebar { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--border); display: flex; overflow-x: auto; padding: 10px 0; }
-      .content { margin-left: 0; padding: 32px 24px; }
+    @media (max-width: 560px) {
+      body { font-size: 13px; }
+      .topbar { gap: 10px; }
+      .mark { width: 30px; height: 30px; }
+      .brand-title { font-size: 12px; }
+      .theme-toggle { padding: 5px 8px; }
+      .content { padding: 26px 16px 72px; }
+      h1 { font-size: 28px; }
+      .quick-grid, .tool-grid { grid-template-columns: 1fr; }
+      .tool-card { padding: 14px; }
     }
   </style>
 </head>
 <body>
-  <button class="theme-toggle" onclick="toggleTheme()">☀️ Light</button>
-
-  <div class="container">
-    <div class="sidebar">
-      <div class="sidebar-title">Management</div>
-      <a class="sidebar-link active" onclick="scrollTo('management')">Cloud & Auth</a>
-      <a class="sidebar-link" onclick="scrollTo('monitoring')">Monitoring</a>
-      <a class="sidebar-link" onclick="scrollTo('analytics')">Analytics</a>
-      <a class="sidebar-link" onclick="scrollTo('deployment')">Deployment</a>
-
-      <div class="sidebar-title" style="margin-top: 20px;">Development</div>
-      <a class="sidebar-link" onclick="scrollTo('framework')">Framework</a>
-      <a class="sidebar-link" onclick="scrollTo('testing')">Testing</a>
-      <a class="sidebar-link" onclick="scrollTo('tooling')">Tooling</a>
-      <a class="sidebar-link" onclick="scrollTo('data')">Game Data</a>
+  <header class="topbar">
+    <div class="mark">SL</div>
+    <div class="brand">
+      <div class="brand-title">Solo Leveling Tools</div>
+      <div class="brand-sub">Project stack and operating map</div>
     </div>
-
-    <div class="content">
-      <h1 class="page-title">Project Tools</h1>
-      <p class="page-subtitle">All infrastructure, dev tools, and dependencies for Solo Leveling</p>
-
-      <!-- ── MANAGEMENT ── -->
-      <div id="management" class="section">
-        <h2 class="section-title">🔧 Cloud & Auth</h2>
-        <div class="tool-grid">
-          <div class="tool-card">
-            <div class="tool-icon">🗄️</div>
-            <div class="tool-name">Supabase</div>
-            <div class="tool-desc">Cloud database + email auth. Stores user_state table for cloud sync.</div>
-            <a href="https://supabase.com" target="_blank" class="tool-link">supabase.com →</a>
-            <div><span class="tool-tag">PostgreSQL</span><span class="tool-tag">Auth</span><span class="tool-tag">RLS</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── MONITORING ── -->
-      <div id="monitoring" class="section">
-        <h2 class="section-title">🚨 Monitoring & Errors</h2>
-        <div class="tool-grid">
-          <div class="tool-card">
-            <div class="tool-icon">🛡️</div>
-            <div class="tool-name">Sentry</div>
-            <div class="tool-desc">Error tracking & performance monitoring. Auto-reports crashes with stack traces.</div>
-            <a href="https://sentry.io" target="_blank" class="tool-link">sentry.io →</a>
-            <div><span class="tool-tag">Error Tracking</span><span class="tool-tag">Performance</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── ANALYTICS ── -->
-      <div id="analytics" class="section">
-        <h2 class="section-title">📊 Analytics</h2>
-        <div class="tool-grid">
-          <div class="tool-card">
-            <div class="tool-icon">📈</div>
-            <div class="tool-name">PostHog</div>
-            <div class="tool-desc">Product analytics. Tracks 12+ events: rep logging, mastery advances, streaks, achievements.</div>
-            <a href="https://posthog.com" target="_blank" class="tool-link">posthog.com →</a>
-            <div><span class="tool-tag">Events</span><span class="tool-tag">Funnels</span><span class="tool-tag">Cohorts</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── DEPLOYMENT ── -->
-      <div id="deployment" class="section">
-        <h2 class="section-title">🚀 Deployment & CI/CD</h2>
-        <div class="tool-grid">
-          <div class="tool-card">
-            <div class="tool-icon">📦</div>
-            <div class="tool-name">GitHub</div>
-            <div class="tool-desc">Code repo + GitHub Actions. Runs tests, lint, build on every push. Auto-deploy on merge to main.</div>
-            <a href="https://github.com" target="_blank" class="tool-link">github.com →</a>
-            <div><span class="tool-tag">Git</span><span class="tool-tag">CI/CD</span><span class="tool-tag">Actions</span></div>
-          </div>
-          <div class="tool-card">
-            <div class="tool-icon">⚡</div>
-            <div class="tool-name">Vercel (or Netlify)</div>
-            <div class="tool-desc">Edge deployment. Auto-deploys on GitHub push. Set via deploy.yml with env secrets.</div>
-            <a href="https://vercel.com" target="_blank" class="tool-link">vercel.com →</a>
-            <div><span class="tool-tag">Hosting</span><span class="tool-tag">Edge</span><span class="tool-tag">Preview</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── FRAMEWORK ── -->
-      <div id="framework" class="section">
-        <h2 class="section-title">⚛️ Frontend Framework</h2>
-        <div class="tool-grid">
-          <div class="tool-card">
-            <div class="tool-icon">⚛️</div>
-            <div class="tool-name">React 19</div>
-            <div class="tool-desc">UI framework. Used for all pages, components, state management via custom hooks.</div>
-            <a href="https://react.dev" target="_blank" class="tool-link">react.dev →</a>
-            <div><span class="tool-tag">UI</span><span class="tool-tag">Hooks</span><span class="tool-tag">JSX</span></div>
-          </div>
-          <div class="tool-card">
-            <div class="tool-icon">⚡</div>
-            <div class="tool-name">Vite</div>
-            <div class="tool-desc">Build tool & dev server. Fast HMR, optimized bundle. Entry: src/main.jsx → dist/</div>
-            <a href="https://vitejs.dev" target="_blank" class="tool-link">vitejs.dev →</a>
-            <div><span class="tool-tag">Build</span><span class="tool-tag">HMR</span><span class="tool-tag">Rollup</span></div>
-          </div>
-          <div class="tool-card">
-            <div class="tool-icon">📘</div>
-            <div class="tool-name">TypeScript</div>
-            <div class="tool-desc">Type safety. All .jsx files are .jsx (JS with types). tsconfig.json for strict mode.</div>
-            <a href="https://www.typescriptlang.org" target="_blank" class="tool-link">typescriptlang.org →</a>
-            <div><span class="tool-tag">Types</span><span class="tool-tag">IDE</span><span class="tool-tag">Strict</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── TESTING ── -->
-      <div id="testing" class="section">
-        <h2 class="section-title">🧪 Testing</h2>
-        <div class="tool-grid">
-          <div class="tool-card">
-            <div class="tool-icon">⚡</div>
-            <div class="tool-name">Vitest</div>
-            <div class="tool-desc">Unit & snapshot tests. 118 tests across gameLogic, data counts, shapes. Fast Vite-native runner.</div>
-            <a href="https://vitest.dev" target="_blank" class="tool-link">vitest.dev →</a>
-            <div><span class="tool-tag">Unit Tests</span><span class="tool-tag">Snapshots</span></div>
-          </div>
-          <div class="tool-card">
-            <div class="tool-icon">🎭</div>
-            <div class="tool-name">Playwright</div>
-            <div class="tool-desc">E2E smoke tests. 11 tests across app load, nav, core loop, settings. Runs in CI after unit tests.</div>
-            <a href="https://playwright.dev" target="_blank" class="tool-link">playwright.dev →</a>
-            <div><span class="tool-tag">E2E</span><span class="tool-tag">Smoke</span><span class="tool-tag">Mobile</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── TOOLING ── -->
-      <div id="tooling" class="section">
-        <h2 class="section-title">🔨 Code Quality</h2>
-        <div class="tool-grid">
-          <div class="tool-card">
-            <div class="tool-icon">✨</div>
-            <div class="tool-name">ESLint</div>
-            <div class="tool-desc">Linting. npm run lint in CI. Config: .eslintrc.json with @eslint/js recommended.</div>
-            <a href="https://eslint.org" target="_blank" class="tool-link">eslint.org →</a>
-            <div><span class="tool-tag">Lint</span><span class="tool-tag">Style</span></div>
-          </div>
-          <div class="tool-card">
-            <div class="tool-icon">📦</div>
-            <div class="tool-name">npm</div>
-            <div class="tool-desc">Package manager. 131 packages total. npm ci in CI, npm install locally.</div>
-            <a href="https://npmjs.com" target="_blank" class="tool-link">npmjs.com →</a>
-            <div><span class="tool-tag">Packages</span><span class="tool-tag">Scripts</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── GAME DATA ── -->
-      <div id="data" class="section">
-        <h2 class="section-title">🎮 Game Data & Content</h2>
-        <div class="tool-grid">
-          <div class="tool-card">
-            <div class="tool-icon">🥋</div>
-            <div class="tool-name">Movements (238)</div>
-            <div class="tool-desc">Movement library. Fields: name, tree, tier, muscles, drills, prerequisites, tutorials.</div>
-            <a href="src/data/movements.js" target="_blank" class="tool-link">movements.js →</a>
-            <div><span class="tool-tag">Core</span><span class="tool-tag">238 items</span></div>
-          </div>
-          <div class="tool-card">
-            <div class="tool-icon">🏆</div>
-            <div class="tool-name">Achievements (25)</div>
-            <div class="tool-desc">Achievement system. Unlock on milestones: streaks, reps, masteries, ranks, seasons.</div>
-            <a href="src/data/achievements.js" target="_blank" class="tool-link">achievements.js →</a>
-            <div><span class="tool-tag">Progression</span><span class="tool-tag">25 items</span></div>
-          </div>
-          <div class="tool-card">
-            <div class="tool-icon">🌟</div>
-            <div class="tool-name">Orishas (16)</div>
-            <div class="tool-desc">Spiritual entities. Integration unlocks stat bonuses. Each has color, icon, progression.</div>
-            <a href="src/data/orishas.js" target="_blank" class="tool-link">orishas.js →</a>
-            <div><span class="tool-tag">Stats</span><span class="tool-tag">16 items</span></div>
-          </div>
-          <div class="tool-card">
-            <div class="tool-icon">🥊</div>
-            <div class="tool-name">Mestres (43)</div>
-            <div class="tool-desc">Boss enemies. Lineages with progression. Defeat unlocks sequences + concept tree XP.</div>
-            <a href="src/data/mestreLineage.js" target="_blank" class="tool-link">mestreLineage.js →</a>
-            <div><span class="tool-tag">Bosses</span><span class="tool-tag">43 items</span></div>
-          </div>
-          <div class="tool-card">
-            <div class="tool-icon">📚</div>
-            <div class="tool-name">Sprint 1 & 2</div>
-            <div class="tool-desc">12-week training programs. 24 weeks total. Week structure: drills, conditioning, themes.</div>
-            <a href="src/data/sprint.js" target="_blank" class="tool-link">sprint.js →</a>
-            <div><span class="tool-tag">Content</span><span class="tool-tag">24 weeks</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── SUMMARY ── -->
-      <div class="section">
-        <h2 class="section-title">📋 Quick Reference</h2>
-        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; line-height: 1.8;">
-          <strong style="color: var(--accent);">Key Commands:</strong><br/>
-          <code style="background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 11px;">npm run dev</code> — Start dev server (port 5173)<br/>
-          <code style="background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 11px;">npm test</code> — Run unit tests (118 tests)<br/>
-          <code style="background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 11px;">npm run test:e2e</code> — Run E2E smoke tests<br/>
-          <code style="background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 11px;">npm run build</code> — Build for production<br/>
-          <code style="background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 11px;">npm run lint</code> — Lint all files<br/><br/>
-
-          <strong style="color: var(--accent);">Credentials:</strong><br/>
-          Store in <code style="background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 11px;">.env.local</code> (gitignored):<br/>
-          VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_SENTRY_DSN, VITE_POSTHOG_KEY
-        </div>
-      </div>
+    <nav class="top-links" aria-label="Primary sections">
+      <a href="#build">Build</a>
+      <a href="#services">Services</a>
+      <a href="#quality">Quality</a>
+      <a href="#shipping">Shipping</a>
+      <a href="#ops">Ops</a>
+      <a href="#content">Content</a>
+    </nav>
+    <div class="actions">
+      <div class="status-pill">Repo scanned</div>
+      <button class="theme-toggle" type="button" onclick="toggleTheme()">Light</button>
     </div>
-  </div>
+  </header>
+
+  <nav class="mobile-nav" aria-label="Mobile sections">
+    <a href="#build">Build</a>
+    <a href="#services">Services</a>
+    <a href="#quality">Quality</a>
+    <a href="#shipping">Shipping</a>
+    <a href="#ops">Ops</a>
+    <a href="#content">Content</a>
+    <a href="#commands">Commands</a>
+  </nav>
+
+  <aside class="sidebar" aria-label="Section navigation">
+    <div class="side-title">Stack</div>
+    <a class="side-link active" href="#build"><span class="num">01</span>Build stack</a>
+    <a class="side-link" href="#services"><span class="num">02</span>Services</a>
+    <a class="side-link" href="#quality"><span class="num">03</span>Quality gates</a>
+    <a class="side-link" href="#shipping"><span class="num">04</span>Shipping</a>
+    <div class="side-title">Project</div>
+    <a class="side-link" href="#ops"><span class="num">05</span>Project ops</a>
+    <a class="side-link" href="#content"><span class="num">06</span>Game content</a>
+    <a class="side-link" href="#commands"><span class="num">07</span>Commands</a>
+    <a class="side-link" href="#notes"><span class="num">08</span>Notes</a>
+  </aside>
+
+  <main class="content">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">C:\Projects\Solo Leveling</div>
+        <h1>Every tool used to build, test, ship, and operate this project.</h1>
+        <p class="lede">This page is a living inventory pulled from the repo: dependencies, config files, workflows, local docs, static dashboards, and game-data modules. It is meant to answer “what did I use?” at a glance.</p>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Source of truth</div>
+        <div class="summary-value">Repo</div>
+        <div class="summary-note">package.json, Vite config, Playwright config, GitHub workflows, docs, scripts, and source files.</div>
+      </div>
+    </section>
+
+    <section class="quick-grid" aria-label="Tool counts">
+      <div class="metric"><strong>5</strong><span>runtime dependencies</span></div>
+      <div class="metric"><strong>11</strong><span>dev dependencies</span></div>
+      <div class="metric"><strong>8</strong><span>npm scripts</span></div>
+      <div class="metric"><strong>2</strong><span>CI/CD workflows</span></div>
+    </section>
+
+    <section id="build" class="section">
+      <div class="section-head">
+        <h2>Build Stack</h2>
+        <p class="section-note">The browser app is a Vite-powered React project written in JavaScript/JSX.</p>
+      </div>
+      <div class="tool-grid">
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">R</div><div><div class="tool-name">React 19</div><div class="tool-role">UI runtime</div></div></div>
+          <p class="tool-desc">Main component model for the app. React and React DOM are the core runtime dependencies.</p>
+          <div class="tags"><span class="tag">components</span><span class="tag">hooks</span><span class="tag">jsx</span></div>
+          <a class="source-link" href="https://react.dev" target="_blank" rel="noreferrer">react.dev</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">V</div><div><div class="tool-name">Vite 8</div><div class="tool-role">dev server and bundler</div></div></div>
+          <p class="tool-desc">Runs local development, production builds, preview builds, and Vitest integration.</p>
+          <div class="tags"><span class="tag">npm run dev</span><span class="tag">build</span><span class="tag">hmr</span></div>
+          <a class="source-link" href="vite.config.js">vite.config.js</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">PWA</div><div><div class="tool-name">vite-plugin-pwa</div><div class="tool-role">offline app shell</div></div></div>
+          <p class="tool-desc">Registers an auto-updating service worker and configures icons, manifest metadata, and Workbox caching.</p>
+          <div class="tags"><span class="tag">manifest</span><span class="tag">workbox</span><span class="tag">offline</span></div>
+          <a class="source-link" href="vite.config.js">Vite PWA config</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">NPM</div><div><div class="tool-name">npm</div><div class="tool-role">package manager</div></div></div>
+          <p class="tool-desc">Manages dependencies through package-lock.json. CI uses npm ci for repeatable installs.</p>
+          <div class="tags"><span class="tag">package-lock</span><span class="tag">scripts</span><span class="tag">ci install</span></div>
+          <a class="source-link" href="package.json">package.json</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">JS</div><div><div class="tool-name">JavaScript / JSX</div><div class="tool-role">source language</div></div></div>
+          <p class="tool-desc">The current source uses .js and .jsx files. There is no active TypeScript config in this repo.</p>
+          <div class="tags"><span class="tag">src</span><span class="tag">jsx</span><span class="tag">esm</span></div>
+          <a class="source-link" href="src/main.jsx">src/main.jsx</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">SVG</div><div><div class="tool-name">@resvg/resvg-js</div><div class="tool-role">asset rendering utility</div></div></div>
+          <p class="tool-desc">Available as a dev dependency for SVG/image rendering workflows and asset generation.</p>
+          <div class="tags"><span class="tag">assets</span><span class="tag">icons</span><span class="tag">rendering</span></div>
+          <a class="source-link" href="package.json">devDependencies</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="services" class="section">
+      <div class="section-head">
+        <h2>Cloud, Auth, Analytics, and Monitoring</h2>
+        <p class="section-note">These integrations activate when their Vite environment variables are configured.</p>
+      </div>
+      <div class="tool-grid">
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">SB</div><div><div class="tool-name">Supabase</div><div class="tool-role">auth and cloud sync</div></div></div>
+          <p class="tool-desc">Used through @supabase/supabase-js for auth/session-aware cloud state features.</p>
+          <div class="tags"><span class="tag">auth</span><span class="tag">postgres</span><span class="tag">sync</span></div>
+          <a class="source-link" href="src/lib/supabase.js">src/lib/supabase.js</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">SE</div><div><div class="tool-name">Sentry</div><div class="tool-role">error monitoring</div></div></div>
+          <p class="tool-desc">Initializes in main.jsx, wraps the app with an ErrorBoundary, and can attach user context.</p>
+          <div class="tags"><span class="tag">errors</span><span class="tag">boundary</span><span class="tag">dsn</span></div>
+          <a class="source-link" href="src/lib/sentry.js">src/lib/sentry.js</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">PH</div><div><div class="tool-name">PostHog</div><div class="tool-role">product analytics</div></div></div>
+          <p class="tool-desc">Captures product events, identifies users, resets identity, and persists analytics locally.</p>
+          <div class="tags"><span class="tag">events</span><span class="tag">funnels</span><span class="tag">localStorage</span></div>
+          <a class="source-link" href="src/lib/analytics.js">src/lib/analytics.js</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">LS</div><div><div class="tool-name">Browser localStorage</div><div class="tool-role">local persistence</div></div></div>
+          <p class="tool-desc">Persists training state, theme, layout preference, font size, onboarding, tooltip state, and QA dashboard state.</p>
+          <div class="tags"><span class="tag">state</span><span class="tag">preferences</span><span class="tag">offline</span></div>
+          <a class="source-link" href="src/store/useStore.js">src/store/useStore.js</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">ENV</div><div><div class="tool-name">Vite env vars</div><div class="tool-role">secrets and service config</div></div></div>
+          <p class="tool-desc">Uses VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_SENTRY_DSN, VITE_POSTHOG_KEY, and VITE_POSTHOG_HOST.</p>
+          <div class="tags"><span class="tag">.env.local</span><span class="tag">gitignored</span><span class="tag">ci secrets</span></div>
+          <a class="source-link" href=".env.example">.env.example</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="quality" class="section">
+      <div class="section-head">
+        <h2>Testing and Code Quality</h2>
+        <p class="section-note">The project has unit tests, e2e smoke tests, linting, and a custom content/connective audit.</p>
+      </div>
+      <div class="tool-grid">
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">VT</div><div><div class="tool-name">Vitest</div><div class="tool-role">unit test runner</div></div></div>
+          <p class="tool-desc">Runs tests under src with a Node environment and globals enabled through Vite config.</p>
+          <div class="tags"><span class="tag">npm test</span><span class="tag">unit</span><span class="tag">src tests</span></div>
+          <a class="source-link" href="vite.config.js">test config</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">PW</div><div><div class="tool-name">Playwright</div><div class="tool-role">e2e browser tests</div></div></div>
+          <p class="tool-desc">Runs smoke tests against Vite in Desktop Chrome and iPhone 14 mobile projects.</p>
+          <div class="tags"><span class="tag">chromium</span><span class="tag">mobile</span><span class="tag">trace</span></div>
+          <a class="source-link" href="playwright.config.js">playwright.config.js</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">ES</div><div><div class="tool-name">ESLint</div><div class="tool-role">linting</div></div></div>
+          <p class="tool-desc">Checks JavaScript/React source with @eslint/js plus React Hooks and React Refresh plugins.</p>
+          <div class="tags"><span class="tag">lint</span><span class="tag">hooks</span><span class="tag">refresh</span></div>
+          <a class="source-link" href="eslint.config.js">eslint.config.js</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">AUD</div><div><div class="tool-name">Connective audit</div><div class="tool-role">custom data QA</div></div></div>
+          <p class="tool-desc">Custom Node script for connective/content integrity checks across the project data model.</p>
+          <div class="tags"><span class="tag">npm run audit</span><span class="tag">data integrity</span><span class="tag">script</span></div>
+          <a class="source-link" href="scripts/connective-audit.mjs">connective-audit.mjs</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">QA</div><div><div class="tool-name">qa.html</div><div class="tool-role">manual QA checklist</div></div></div>
+          <p class="tool-desc">Static checklist surface for visual, interaction, mobile, accessibility, performance, and error-state review.</p>
+          <div class="tags"><span class="tag">manual qa</span><span class="tag">checklist</span><span class="tag">browser</span></div>
+          <a class="source-link" href="qa.html">qa.html</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="shipping" class="section">
+      <div class="section-head">
+        <h2>Shipping and CI/CD</h2>
+        <p class="section-note">GitHub Actions run the gates. Deployment can go to Vercel or Netlify depending on configured secrets.</p>
+      </div>
+      <div class="tool-grid">
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">GH</div><div><div class="tool-name">GitHub Actions</div><div class="tool-role">ci automation</div></div></div>
+          <p class="tool-desc">Installs with npm ci, lints, tests, audits connective data, builds, and uploads dist artifacts.</p>
+          <div class="tags"><span class="tag">ci.yml</span><span class="tag">node 20</span><span class="tag">artifact</span></div>
+          <a class="source-link" href=".github/workflows/ci.yml">.github/workflows/ci.yml</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">VC</div><div><div class="tool-name">Vercel</div><div class="tool-role">production deploy option</div></div></div>
+          <p class="tool-desc">Deploy workflow can pull project settings, build prebuilt output, and deploy production when Vercel secrets exist.</p>
+          <div class="tags"><span class="tag">vercel.json</span><span class="tag">prod</span><span class="tag">prebuilt</span></div>
+          <a class="source-link" href="vercel.json">vercel.json</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">NF</div><div><div class="tool-name">Netlify</div><div class="tool-role">production deploy option</div></div></div>
+          <p class="tool-desc">Deploy workflow can publish dist through netlify-cli when Netlify token and site ID are present.</p>
+          <div class="tags"><span class="tag">netlify.toml</span><span class="tag">dist</span><span class="tag">prod</span></div>
+          <a class="source-link" href="netlify.toml">netlify.toml</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">DIST</div><div><div class="tool-name">dist output</div><div class="tool-role">production artifact</div></div></div>
+          <p class="tool-desc">Generated build output used by preview servers and static hosting targets.</p>
+          <div class="tags"><span class="tag">vite build</span><span class="tag">static</span><span class="tag">artifact</span></div>
+          <a class="source-link" href="dist/">dist/</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="ops" class="section">
+      <div class="section-head">
+        <h2>Project Operations and AI Workflow</h2>
+        <p class="section-note">These are the planning, review, and learning surfaces that guided the build.</p>
+      </div>
+      <div class="tool-grid">
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">LIN</div><div><div class="tool-name">Linear</div><div class="tool-role">ticketing plan</div></div></div>
+          <p class="tool-desc">The repo includes a setup guide that defines Linear as the project work tracker and ticket source of truth.</p>
+          <div class="tags"><span class="tag">tickets</span><span class="tag">roadmap</span><span class="tag">priorities</span></div>
+          <a class="source-link" href="LINEAR_SETUP.md">LINEAR_SETUP.md</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">AI</div><div><div class="tool-name">Claude / OpenAI workflow</div><div class="tool-role">implementation partner</div></div></div>
+          <p class="tool-desc">The handbook documents when to use Claude models and OpenAI for architecture, coding, data work, and second opinions.</p>
+          <div class="tags"><span class="tag">prompts</span><span class="tag">review</span><span class="tag">implementation</span></div>
+          <a class="source-link" href="handbook.html">handbook.html</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">DOC</div><div><div class="tool-name">Docs folder</div><div class="tool-role">developer memory</div></div></div>
+          <p class="tool-desc">Developer handbook, e2e phase notes, remaining tickets, and Mestre/Orisha profile references live in docs.</p>
+          <div class="tags"><span class="tag">developer</span><span class="tag">handbook</span><span class="tag">reference</span></div>
+          <a class="source-link" href="docs/">docs/</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">HUB</div><div><div class="tool-name">Static project hub</div><div class="tool-role">local navigation</div></div></div>
+          <p class="tool-desc">hub.html, tickets.html, handbook.html, qa.html, and this page form the local project dashboard suite.</p>
+          <div class="tags"><span class="tag">hub</span><span class="tag">tickets</span><span class="tag">qa</span></div>
+          <a class="source-link" href="hub.html">hub.html</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">SCR</div><div><div class="tool-name">Utility scripts</div><div class="tool-role">content maintenance</div></div></div>
+          <p class="tool-desc">Scripts support video-link enrichment, movement dedupe, and connective audit maintenance.</p>
+          <div class="tags"><span class="tag">add video links</span><span class="tag">dedupe</span><span class="tag">audit</span></div>
+          <a class="source-link" href="scripts/">scripts/</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="content" class="section">
+      <div class="section-head">
+        <h2>Game Data and Content Systems</h2>
+        <p class="section-note">The product is powered by structured content modules in src/data plus store/game logic.</p>
+      </div>
+      <div class="tool-grid">
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">MOV</div><div><div class="tool-name">Movement library</div><div class="tool-role">training content</div></div></div>
+          <p class="tool-desc">Movement, phase, muscle, video, and requirement-plan data drive the daily training experience.</p>
+          <div class="tags"><span class="tag">movements</span><span class="tag">phases</span><span class="tag">videos</span></div>
+          <a class="source-link" href="src/data/movements.js">src/data/movements.js</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">RPG</div><div><div class="tool-name">Progression systems</div><div class="tool-role">game layer</div></div></div>
+          <p class="tool-desc">Achievements, boss tests, prestige trials, Mestre lineages, Orishas, trees, and sequences support the RPG progression loop.</p>
+          <div class="tags"><span class="tag">achievements</span><span class="tag">bosses</span><span class="tag">orishas</span></div>
+          <a class="source-link" href="src/data/achievements.js">src/data/achievements.js</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">PLAN</div><div><div class="tool-name">Program planning data</div><div class="tool-role">weekly structure</div></div></div>
+          <p class="tool-desc">Sprint, annual program, monthly challenge, bonus quest, and nutrition modules shape the training calendar.</p>
+          <div class="tags"><span class="tag">sprints</span><span class="tag">calendar</span><span class="tag">quests</span></div>
+          <a class="source-link" href="src/data/sprint.js">src/data/sprint.js</a>
+        </article>
+        <article class="tool-card">
+          <div class="tool-top"><div class="tool-mark">GL</div><div><div class="tool-name">Game logic and store</div><div class="tool-role">state engine</div></div></div>
+          <p class="tool-desc">Central logic and persistence helpers calculate state, protect storage, update Sentry user context, and manage progression.</p>
+          <div class="tags"><span class="tag">state</span><span class="tag">progression</span><span class="tag">persistence</span></div>
+          <a class="source-link" href="src/store/useStore.js">src/store/useStore.js</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="commands" class="section">
+      <div class="section-head">
+        <h2>Command Reference</h2>
+        <p class="section-note">Commands defined in package.json and used by local development or CI.</p>
+      </div>
+      <div class="command-panel">
+        <div class="cmd-row"><code>npm run dev</code><div class="cmd-desc">Start the Vite dev server.</div><div class="cmd-source">local dev</div></div>
+        <div class="cmd-row"><code>npm run build</code><div class="cmd-desc">Create the production build in dist.</div><div class="cmd-source">ci / deploy</div></div>
+        <div class="cmd-row"><code>npm run preview</code><div class="cmd-desc">Preview the production build locally.</div><div class="cmd-source">verification</div></div>
+        <div class="cmd-row"><code>npm run lint</code><div class="cmd-desc">Run ESLint across the repo.</div><div class="cmd-source">quality</div></div>
+        <div class="cmd-row"><code>npm test</code><div class="cmd-desc">Run Vitest unit tests once.</div><div class="cmd-source">quality</div></div>
+        <div class="cmd-row"><code>npm run test:watch</code><div class="cmd-desc">Run Vitest in watch mode during development.</div><div class="cmd-source">local dev</div></div>
+        <div class="cmd-row"><code>npm run test:e2e</code><div class="cmd-desc">Run Playwright end-to-end smoke tests.</div><div class="cmd-source">browser qa</div></div>
+        <div class="cmd-row"><code>npm run audit:connective</code><div class="cmd-desc">Run the custom connective/content integrity audit.</div><div class="cmd-source">data qa</div></div>
+      </div>
+    </section>
+
+    <section id="notes" class="section">
+      <div class="section-head">
+        <h2>Important Notes</h2>
+        <p class="section-note">Small but important truth-in-advertising details.</p>
+      </div>
+      <div class="note-panel">
+        <div class="note">
+          <div class="note-title">This is not a TypeScript app yet.</div>
+          <p>The current source and test files are JavaScript/JSX. The older tools page mentioned TypeScript, but this repo does not include an active tsconfig.</p>
+        </div>
+        <div class="note">
+          <div class="note-title">Secrets stay outside the repo.</div>
+          <p>Use .env.local locally and GitHub Actions secrets in CI. The service cards show what keys are expected without exposing values.</p>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <script>
-    function scrollTo(id) {
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
-        event.target.classList.add('active');
-      }
-    }
+    const navLinks = document.querySelectorAll('.side-link, .mobile-nav a, .top-links a');
+    const sections = [...document.querySelectorAll('main section[id]')];
 
     function toggleTheme() {
       const html = document.documentElement;
-      const isLight = html.getAttribute('data-theme') === 'light';
-      html.setAttribute('data-theme', isLight ? 'dark' : 'light');
-      document.querySelector('.theme-toggle').textContent = isLight ? '🌙 Dark' : '☀️ Light';
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('sl-tools-theme', next);
+      updateThemeButton(next);
     }
 
-    // Set initial theme
-    document.querySelector('.sidebar-link').classList.add('active');
+    function updateThemeButton(theme) {
+      const button = document.querySelector('.theme-toggle');
+      if (button) button.textContent = theme === 'dark' ? 'Light' : 'Dark';
+    }
+
+    function setActiveSection() {
+      let current = sections[0]?.id || '';
+      for (const section of sections) {
+        if (window.scrollY >= section.offsetTop - 130) current = section.id;
+      }
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href') || '';
+        link.classList.toggle('active', href === '#' + current);
+      });
+    }
+
+    const storedTheme = localStorage.getItem('sl-tools-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', storedTheme);
+    updateThemeButton(storedTheme);
+    window.addEventListener('scroll', setActiveSection, { passive: true });
+    setActiveSection();
   </script>
 </body>
 </html>

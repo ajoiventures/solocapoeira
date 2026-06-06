@@ -1,795 +1,582 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>QA / QC — UI + UX Audit</title>
+<title>Solo Leveling - Zero to Ship QA Platform</title>
 <style>
   :root {
-    --bg:#0B111C; --surface:#111A26; --surface2:#151F2E; --surface3:#1A2636;
-    --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.13);
-    --text:#EDE8DE; --text2:#AAB3C2; --text3:#6F7A8A;
-    --accent:#D9A441; --green:#2E8C78; --blue:#4F7CFF; --red:#C95252;
-    --orange:#D4854A; --purple:#7C3AED;
-    --r:10px; --r-sm:6px;
+    --bg:#0b111c; --panel:#111a26; --panel2:#151f2e; --panel3:#1a2636;
+    --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+    --text:#ede8de; --muted:#aab3c2; --quiet:#6f7a8a;
+    --gold:#d9a441; --green:#2e8c78; --blue:#4f7cff; --red:#c95252;
+    --orange:#d4854a; --purple:#7c3aed; --r:8px;
   }
   :root[data-theme="light"] {
-    --bg:#f6f5f1; --surface:#fffdf8; --surface2:#f9f8f5; --surface3:#f0ede8;
-    --border:#d7dcd7; --border2:#c5cbbf;
-    --text:#1c2430; --text2:#5a6370; --text3:#8b94a3;
-    --accent:#8f4a2a; --green:#1f5d57; --blue:#265f86; --red:#9f3a32;
+    --bg:#f6f5f1; --panel:#fffdf8; --panel2:#f9f8f5; --panel3:#f0ede8;
+    --line:#d7dcd7; --line2:#c5cbbf;
+    --text:#1c2430; --muted:#5a6370; --quiet:#8b94a3;
+    --gold:#8f4a2a; --green:#1f5d57; --blue:#265f86; --red:#9f3a32;
     --orange:#c4893a; --purple:#5b3f8a;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.6}
+  html{scroll-behavior:smooth;scroll-padding-top:124px}
+  body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.55;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  button,input,textarea,select{font:inherit}
+  code{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;color:var(--gold);background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;overflow-wrap:anywhere}
 
-  /* ── Header ── */
-  header{background:var(--surface);border-bottom:1px solid var(--border);
-    padding:0 28px;height:56px;display:flex;align-items:center;gap:14px;
-    position:sticky;top:0;z-index:100}
-  .hmark{width:30px;height:30px;border-radius:7px;
-    background:linear-gradient(135deg,var(--green),var(--blue));
-    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff}
-  .htitle{font-size:14px;font-weight:700;color:var(--text)}
-  .hsub{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
-  .hright{margin-left:auto;display:flex;gap:12px;align-items:center}
-  .theme-btn{background:none;border:1px solid var(--border2);border-radius:6px;
-    padding:3px 9px;color:var(--text3);font-size:11px;cursor:pointer}
-  .theme-btn:hover{color:var(--text)}
+  .topbar{position:sticky;top:0;z-index:120;height:58px;display:flex;align-items:center;gap:14px;padding:0 26px;background:var(--panel);border-bottom:1px solid var(--line)}
+  .mark{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;background:linear-gradient(135deg,var(--green),var(--blue));font-weight:900;color:#fff}
+  .brand{min-width:260px}
+  .brand-title{font-size:14px;font-weight:900;line-height:1.1}
+  .brand-sub{font-size:9px;color:var(--quiet);letter-spacing:1.8px;text-transform:uppercase}
+  .topnav{display:flex;gap:4px;min-width:0;overflow-x:auto;scrollbar-width:none}
+  .topnav::-webkit-scrollbar{display:none}
+  .topnav a{white-space:nowrap;border-radius:6px;padding:5px 9px;color:var(--quiet);font-size:11px;font-weight:800}
+  .topnav a:hover,.topnav a.active{background:rgba(255,255,255,.05);color:var(--text)}
+  .actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .btn{cursor:pointer;border:1px solid var(--line2);border-radius:6px;background:transparent;color:var(--muted);padding:5px 10px;font-size:11px;font-weight:800}
+  .btn:hover{color:var(--text);border-color:var(--gold)}
+  .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  .btn.danger:hover{border-color:var(--red);color:var(--red)}
 
-  /* ── Score bar ── */
-  .score-bar{background:var(--surface);border-bottom:1px solid var(--border);
-    padding:12px 28px;display:flex;align-items:center;gap:20px;position:sticky;top:56px;z-index:99}
-  .score-total{font-size:22px;font-weight:900;color:var(--green);line-height:1;min-width:60px}
-  .score-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
-  .score-track{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
-  .score-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .3s}
-  .grade-pill{font-size:13px;font-weight:800;padding:4px 14px;border-radius:20px;min-width:44px;text-align:center}
-  .reset-btn{font-size:10px;font-weight:600;color:var(--text3);background:none;border:1px solid var(--border);
-    border-radius:6px;padding:4px 10px;cursor:pointer}
-  .reset-btn:hover{color:var(--text)}
+  .scorebar{position:sticky;top:58px;z-index:110;display:grid;grid-template-columns:90px minmax(0,1fr) 72px 150px;gap:16px;align-items:center;padding:12px 26px;background:var(--panel);border-bottom:1px solid var(--line)}
+  .score-big{font-size:24px;font-weight:900;line-height:1;color:var(--green)}
+  .score-label{font-size:9px;color:var(--quiet);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+  .track{height:7px;background:var(--panel3);border-radius:99px;overflow:hidden}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--orange),var(--green));transition:width .25s}
+  .grade{border-radius:999px;padding:4px 10px;text-align:center;font-size:13px;font-weight:900;background:rgba(201,82,82,.18);color:var(--red)}
+  .count{color:var(--quiet);font-size:11px;text-align:right}
 
-  /* ── Category tabs ── */
-  .tabs{display:flex;gap:6px;padding:14px 28px;border-bottom:1px solid var(--border);
-    overflow-x:auto;background:var(--bg)}
-  .tabs::-webkit-scrollbar{display:none}
-  .tab{font-size:10px;font-weight:700;padding:5px 14px;border-radius:20px;cursor:pointer;
-    border:1px solid var(--border);background:var(--surface2);color:var(--text3);
-    white-space:nowrap;transition:all .15s;display:flex;gap:6px;align-items:center}
-  .tab:hover{border-color:var(--border2);color:var(--text)}
-  .tab.active{background:var(--blue);border-color:var(--blue);color:#fff}
-  .tab-count{font-size:9px;font-weight:800;padding:0 5px;border-radius:10px;
-    background:rgba(255,255,255,.15)}
+  .filters{position:sticky;top:112px;z-index:100;display:flex;gap:6px;padding:10px 26px;background:var(--bg);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+  .chip{white-space:nowrap;cursor:pointer;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--quiet);padding:5px 10px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.5px}
+  .chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
+  .chip .n{opacity:.75;margin-left:4px}
 
-  /* ── Main layout ── */
-  .main{max-width:1000px;margin:0 auto;padding:28px 28px 100px}
+  .layout{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:calc(100vh - 58px)}
+  .sidebar{position:sticky;top:154px;height:calc(100vh - 154px);overflow:auto;background:var(--panel);border-right:1px solid var(--line);padding:20px 14px}
+  .side-title{font-size:8px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--quiet);margin:18px 8px 8px}
+  .side-title:first-child{margin-top:0}
+  .side-link{display:flex;align-items:center;gap:8px;border-radius:6px;padding:7px 8px;color:var(--muted);font-size:11px;font-weight:800;line-height:1.2}
+  .side-link .num{width:20px;text-align:right;color:var(--quiet);font-size:9px;flex:0 0 auto}
+  .side-link:hover,.side-link.active{background:rgba(255,255,255,.05);color:var(--text)}
+  .side-link.active .num{color:var(--gold)}
 
-  /* ── Category ── */
-  .category{display:none;flex-direction:column;gap:10px}
-  .category.visible{display:flex}
+  main{min-width:0;padding:34px 46px 100px;max-width:1360px}
+  .hero{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:28px;align-items:end;margin-bottom:26px}
+  .eyebrow{font-size:10px;font-weight:900;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  h1{font-size:40px;line-height:1.06;font-weight:900;letter-spacing:0;max-width:850px}
+  .lede{margin-top:14px;color:var(--muted);font-size:15px;max-width:780px}
+  .hero-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .hero-card .label{font-size:9px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--quiet)}
+  .hero-card .value{font-size:28px;font-weight:900;color:var(--gold);line-height:1;margin-top:9px}
+  .hero-card p{font-size:12px;color:var(--muted);margin-top:8px}
 
-  /* ── Section ── */
-  .cat-hd{margin-bottom:4px}
-  .cat-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px}
-  .cat-sub{font-size:12px;color:var(--text3);margin-bottom:20px}
+  .metric-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:22px 0 32px}
+  .metric{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:13px}
+  .metric strong{display:block;font-size:20px;line-height:1;color:var(--text)}
+  .metric span{display:block;margin-top:5px;font-size:10px;color:var(--quiet);font-weight:900;text-transform:uppercase;letter-spacing:.8px}
 
-  /* ── Check item ── */
-  .check-group{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:6px}
-  .group-hd{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-  .group-name{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3)}
-  .group-score{font-size:9px;font-weight:700;margin-left:auto;color:var(--text3)}
+  section{scroll-margin-top:168px;margin-bottom:42px}
+  .section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  h2{font-size:20px;line-height:1.2}
+  .section-note{max-width:520px;text-align:right;color:var(--quiet);font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:15px;min-width:0}
+  .card:hover{border-color:var(--line2)}
+  .card-title{font-size:14px;font-weight:900;margin-bottom:4px}
+  .card-desc{font-size:12px;color:var(--muted)}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:11px}
+  .tag{font-size:9px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;color:var(--quiet);background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px 7px}
+  .tag.green{color:var(--green);border-color:rgba(46,140,120,.35)}
+  .tag.blue{color:var(--blue);border-color:rgba(79,124,255,.35)}
+  .tag.red{color:var(--red);border-color:rgba(201,82,82,.35)}
 
-  .check-item{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;
-    border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;
-    position:relative}
-  .check-item:last-child{border-bottom:none}
-  .check-item:hover{background:rgba(255,255,255,.02)}
-  .check-item.checked{background:rgba(46,140,120,.04)}
+  .phase{display:none}
+  .phase.visible{display:block}
+  .group{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+  .group-head{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.015)}
+  .group-name{font-size:11px;font-weight:900;letter-spacing:1.3px;text-transform:uppercase;color:var(--quiet)}
+  .group-meta{margin-left:auto;font-size:10px;color:var(--quiet);font-weight:900}
+  .check{display:grid;grid-template-columns:24px minmax(0,1fr) 54px;gap:11px;align-items:start;padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+  .check:last-child{border-bottom:none}
+  .check:hover{background:rgba(255,255,255,.025)}
+  .box{width:19px;height:19px;border:2px solid var(--line2);border-radius:5px;background:var(--panel2);display:grid;place-items:center;color:#fff;font-size:12px;font-weight:900;margin-top:2px}
+  .check.done{background:rgba(46,140,120,.045)}
+  .check.done .box{background:var(--green);border-color:var(--green)}
+  .check.done .check-title{color:var(--quiet);text-decoration:line-through}
+  .check-title{font-size:12px;font-weight:900;color:var(--text);line-height:1.35}
+  .check-desc{font-size:11px;color:var(--quiet);line-height:1.45;margin-top:3px}
+  .check-foot{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+  .sev{font-size:9px;font-weight:900;text-align:center;border-radius:4px;padding:2px 6px;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
+  .p0{background:rgba(201,82,82,.18);color:var(--red)}
+  .p1{background:rgba(212,133,74,.18);color:var(--orange)}
+  .p2{background:rgba(79,124,255,.18);color:var(--blue)}
+  .p3{background:rgba(255,255,255,.08);color:var(--quiet)}
+  .evidence{display:none;padding:0 14px 12px 49px;background:rgba(0,0,0,.12);border-bottom:1px solid var(--line)}
+  .evidence.open{display:block}
+  .evidence textarea{width:100%;min-height:54px;resize:vertical;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--muted);padding:8px 10px;outline:none}
+  .evidence textarea:focus{border-color:var(--line2)}
 
-  .check-box{width:18px;height:18px;border-radius:5px;border:2px solid var(--border2);
-    flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;
-    transition:all .15s;background:var(--surface2)}
-  .check-item.checked .check-box{background:var(--green);border-color:var(--green)}
-  .check-tick{color:#fff;font-size:11px;display:none}
-  .check-item.checked .check-tick{display:block}
+  .command-list{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .cmd{display:grid;grid-template-columns:190px minmax(0,1fr) 120px;gap:14px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line)}
+  .cmd:last-child{border-bottom:none}
+  .cmd div{font-size:12px;color:var(--muted)}
+  .cmd span{font-size:10px;text-transform:uppercase;letter-spacing:.7px;font-weight:900;color:var(--quiet);text-align:right}
+  .report-box{width:100%;min-height:180px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);color:var(--muted);padding:14px;font-family:"Cascadia Code",Consolas,monospace;font-size:12px;resize:vertical}
 
-  .check-body{flex:1;min-width:0}
-  .check-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;line-height:1.4}
-  .check-item.checked .check-title{color:var(--text3);text-decoration:line-through}
-  .check-desc{font-size:11px;color:var(--text3);line-height:1.5}
-
-  .sev{font-size:8px;font-weight:800;padding:1px 6px;border-radius:3px;
-    text-transform:uppercase;letter-spacing:.5px;flex-shrink:0;margin-top:2px}
-  .sev-p0{background:rgba(201,82,82,.2);color:var(--red)}
-  .sev-p1{background:rgba(212,133,74,.2);color:var(--orange)}
-  .sev-p2{background:rgba(79,124,255,.2);color:var(--blue)}
-  .sev-p3{background:rgba(255,255,255,.08);color:var(--text3)}
-
-  /* ── Notes field ── */
-  .check-note{display:none;padding:8px 16px 12px 46px;background:rgba(0,0,0,.15)}
-  .check-item.checked + .check-note,
-  .check-note.open{display:block}
-  .note-input{width:100%;background:var(--surface2);border:1px solid var(--border);
-    border-radius:6px;padding:6px 10px;color:var(--text2);font-size:11px;resize:none;
-    font-family:inherit;outline:none}
-  .note-input:focus{border-color:var(--border2)}
-
-  /* ── Overview cards ── */
-  .overview{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:24px}
-  @media(max-width:800px){.overview{grid-template-columns:repeat(4,1fr)}}
-  @media(max-width:480px){.overview{grid-template-columns:repeat(2,1fr)}}
-  .ov-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);
-    padding:10px 12px;cursor:pointer;transition:border-color .15s;text-align:center}
-  .ov-card:hover{border-color:var(--border2)}
-  .ov-card.failing{border-color:rgba(201,82,82,.4);background:rgba(201,82,82,.05)}
-  .ov-card.passing{border-color:rgba(46,140,120,.3)}
-  .ov-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
-    color:var(--text3);margin-bottom:4px}
-  .ov-pct{font-size:18px;font-weight:800;line-height:1}
-  .ov-bar{height:3px;border-radius:2px;background:var(--surface3);overflow:hidden;margin-top:6px}
-  .ov-fill{height:100%;border-radius:2px;transition:width .3s}
-
-  a{color:var(--blue)}
-  code{font-family:'Cascadia Code','Consolas',monospace;font-size:11px;
-    background:var(--surface2);padding:1px 5px;border-radius:3px;color:var(--accent)}
+  @media(max-width:1180px){.brand{min-width:220px}main{padding:30px 30px 90px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{grid-template-columns:1fr}}
+  @media(max-width:900px){
+    html{scroll-padding-top:156px}.topbar{padding:0 16px}.brand{min-width:0;flex:1}.brand-sub,.topnav,.sidebar{display:none}
+    .scorebar{grid-template-columns:74px minmax(0,1fr) 52px;top:58px;padding:10px 16px}.count{display:none}.score-big{font-size:21px}
+    .filters{top:112px;padding:8px 16px}.layout{display:block}main{padding:26px 18px 80px;max-width:760px;margin:0 auto}
+    h1{font-size:31px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.section-head{flex-direction:column;align-items:flex-start;gap:6px}.section-note{text-align:left}.grid{grid-template-columns:1fr}.cmd{grid-template-columns:1fr;gap:5px}.cmd span{text-align:left}.check{grid-template-columns:24px minmax(0,1fr) 46px}
+  }
+  @media(max-width:560px){body{font-size:12px}.actions{gap:5px}.btn{padding:5px 7px}.metric-grid{grid-template-columns:1fr}.hero-card{display:none}h1{font-size:28px}.filters{top:112px}.check{padding:11px 12px}.evidence{padding-left:43px}}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="hmark">QA</div>
-  <div>
-    <div class="htitle">UI / UX Audit</div>
-    <div class="hsub">Quality checklist — run before every ship</div>
+<header class="topbar">
+  <div class="mark">QA</div>
+  <div class="brand">
+    <div class="brand-title">Zero to Ship QA Platform</div>
+    <div class="brand-sub">Solo Leveling project quality command center</div>
   </div>
-  <div class="hright">
-    <button class="reset-btn" onclick="resetAll()">Reset all</button>
-    <button class="theme-btn" onclick="toggleTheme()">☀ Light</button>
+  <nav class="topnav" aria-label="Page sections">
+    <a href="#platform">Platform</a>
+    <a href="#toolchain">Tools</a>
+    <a href="#checklists">Checks</a>
+    <a href="#commands">Commands</a>
+    <a href="#report">Report</a>
+  </nav>
+  <div class="actions">
+    <button class="btn" onclick="generateReport()">Report</button>
+    <button class="btn danger" onclick="resetAll()">Reset</button>
+    <button class="btn" onclick="toggleTheme()">Light</button>
   </div>
 </header>
 
-<!-- Score bar -->
-<div class="score-bar">
-  <div>
-    <div class="score-total" id="pct-display">0%</div>
-    <div class="score-label">Checks passed</div>
-  </div>
-  <div class="score-track"><div class="score-fill" id="score-fill" style="width:0%"></div></div>
-  <div class="grade-pill" id="grade-pill" style="background:rgba(201,82,82,.2);color:var(--red)">F</div>
-  <div style="font-size:10px;color:var(--text3)" id="check-count">0 / 0 checks</div>
+<div class="scorebar">
+  <div><div class="score-big" id="pct">0%</div><div class="score-label">Passed</div></div>
+  <div class="track"><div class="fill" id="fill"></div></div>
+  <div class="grade" id="grade">F</div>
+  <div class="count" id="count">0 / 0 checks</div>
 </div>
 
-<!-- Category tabs -->
-<div class="tabs">
-  <div class="tab active" onclick="showCat('all',this)">All <span class="tab-count" id="tc-all">0</span></div>
-  <div class="tab" onclick="showCat('visual',this)">Visual <span class="tab-count" id="tc-visual">0</span></div>
-  <div class="tab" onclick="showCat('interaction',this)">Interaction <span class="tab-count" id="tc-interaction">0</span></div>
-  <div class="tab" onclick="showCat('content',this)">Content <span class="tab-count" id="tc-content">0</span></div>
-  <div class="tab" onclick="showCat('mobile',this)">Mobile <span class="tab-count" id="tc-mobile">0</span></div>
-  <div class="tab" onclick="showCat('accessibility',this)">Accessibility <span class="tab-count" id="tc-accessibility">0</span></div>
-  <div class="tab" onclick="showCat('performance',this)">Performance <span class="tab-count" id="tc-performance">0</span></div>
-  <div class="tab" onclick="showCat('errors',this)">Error States <span class="tab-count" id="tc-errors">0</span></div>
+<div class="filters" id="filters"></div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-title">Navigate</div>
+    <a class="side-link" href="#platform"><span class="num">01</span>Platform</a>
+    <a class="side-link" href="#toolchain"><span class="num">02</span>Tools out there</a>
+    <a class="side-link" href="#checklists"><span class="num">03</span>QA checks</a>
+    <a class="side-link" href="#commands"><span class="num">04</span>Commands</a>
+    <a class="side-link" href="#report"><span class="num">05</span>Ship report</a>
+    <div class="side-title">Project Gates</div>
+    <a class="side-link" href="#phase-foundation"><span class="num">A</span>Foundation</a>
+    <a class="side-link" href="#phase-product"><span class="num">B</span>Product UX</a>
+    <a class="side-link" href="#phase-content"><span class="num">C</span>Content/data</a>
+    <a class="side-link" href="#phase-mobile"><span class="num">D</span>Mobile/a11y</a>
+    <a class="side-link" href="#phase-ship"><span class="num">E</span>Ship</a>
+  </aside>
+
+  <main>
+    <section id="platform" class="hero">
+      <div>
+        <div class="eyebrow">C:\Projects\Solo Leveling</div>
+        <h1>A full-scale QA platform from first idea to production release.</h1>
+        <p class="lede">Use this page as your internal quality operating system: plan what must be tested, run automated gates, record evidence, verify the experience on desktop and mobile, and produce a final ship/no-ship report.</p>
+      </div>
+      <div class="hero-card">
+        <div class="label">Ship rule</div>
+        <div class="value">No P0 open</div>
+        <p>P0 checks are launch blockers. P1 checks should be closed before public release. P2/P3 can become follow-up tickets.</p>
+      </div>
+    </section>
+
+    <div class="metric-grid">
+      <div class="metric"><strong id="m-total">0</strong><span>Total checks</span></div>
+      <div class="metric"><strong id="m-p0">0</strong><span>P0 launch blockers</span></div>
+      <div class="metric"><strong id="m-auto">0</strong><span>Automation-backed</span></div>
+      <div class="metric"><strong>8</strong><span>Repo commands</span></div>
+      <div class="metric"><strong>5</strong><span>Release phases</span></div>
+    </div>
+
+    <section id="toolchain">
+      <div class="section-head">
+        <h2>Tools Out There for This</h2>
+        <p class="section-note">No single tool replaces a launch QA platform. The real setup is a stack: automation, accessibility, performance, observability, analytics, and manual evidence.</p>
+      </div>
+      <div class="grid">
+        <div class="card"><div class="card-title">Playwright</div><p class="card-desc">Best fit for your repo today. Use it for browser flows, mobile viewports, navigation, settings, persistence, and smoke tests.</p><div class="tags"><span class="tag green">Already installed</span><span class="tag">E2E</span><span class="tag">Mobile</span></div></div>
+        <div class="card"><div class="card-title">Lighthouse CI</div><p class="card-desc">Adds repeatable performance, accessibility, best-practice, SEO, and PWA audits to CI against a production-like build.</p><div class="tags"><span class="tag blue">Add next</span><span class="tag">Performance</span><span class="tag">PWA</span></div></div>
+        <div class="card"><div class="card-title">axe-core / axe DevTools</div><p class="card-desc">Use axe in Playwright for automated accessibility scans, then use the browser extension for guided manual WCAG review.</p><div class="tags"><span class="tag blue">Add next</span><span class="tag">A11y</span><span class="tag">WCAG</span></div></div>
+        <div class="card"><div class="card-title">Sentry</div><p class="card-desc">Runtime error reporting and release health. Your repo already has Sentry wiring that activates when the DSN is configured.</p><div class="tags"><span class="tag green">Already installed</span><span class="tag">Errors</span><span class="tag">Release health</span></div></div>
+        <div class="card"><div class="card-title">PostHog</div><p class="card-desc">Product analytics for event correctness, funnels, retention, and whether core loops are being used after launch.</p><div class="tags"><span class="tag green">Already installed</span><span class="tag">Events</span><span class="tag">Funnels</span></div></div>
+        <div class="card"><div class="card-title">BrowserStack or Sauce Labs</div><p class="card-desc">Useful when you need real-device browser coverage beyond Playwright's local Chromium/mobile emulation.</p><div class="tags"><span class="tag">Optional</span><span class="tag">Devices</span><span class="tag">Cross-browser</span></div></div>
+      </div>
+    </section>
+
+    <section id="checklists">
+      <div class="section-head">
+        <h2>Zero to Ship Checklists</h2>
+        <p class="section-note">Click checks as they pass. Click the evidence area below a check to leave notes, links, screenshots, command output, or ticket IDs.</p>
+      </div>
+      <div id="phase-root"></div>
+    </section>
+
+    <section id="commands">
+      <div class="section-head">
+        <h2>Command Gates</h2>
+        <p class="section-note">These are the commands currently defined in package.json and GitHub Actions.</p>
+      </div>
+      <div class="command-list">
+        <div class="cmd"><code>npm run dev</code><div>Start the Vite development server for local QA.</div><span>Develop</span></div>
+        <div class="cmd"><code>npm run build</code><div>Build production assets and validate the app compiles.</div><span>P0 gate</span></div>
+        <div class="cmd"><code>npm run preview</code><div>Serve the production build for realistic smoke testing.</div><span>Release</span></div>
+        <div class="cmd"><code>npm run lint</code><div>Run ESLint across source and config files.</div><span>P1 gate</span></div>
+        <div class="cmd"><code>npm test</code><div>Run Vitest unit/integrity tests once.</div><span>P0 gate</span></div>
+        <div class="cmd"><code>npm run test:e2e</code><div>Run Playwright smoke tests across desktop and mobile projects.</div><span>P0 gate</span></div>
+        <div class="cmd"><code>npm run audit:connective</code><div>Run the custom connective/content integrity audit.</div><span>P0 gate</span></div>
+        <div class="cmd"><code>npm run test:ui</code><div>Open the Vitest UI for debugging individual tests.</div><span>Debug</span></div>
+      </div>
+    </section>
+
+    <section id="report">
+      <div class="section-head">
+        <h2>Ship Report</h2>
+        <p class="section-note">Generate a report after a QA pass. It includes score, blockers, phase status, and all evidence notes.</p>
+      </div>
+      <textarea class="report-box" id="reportBox" spellcheck="false" placeholder="Click Report to generate a ship readiness summary."></textarea>
+    </section>
+  </main>
 </div>
-
-<div class="main">
-  <!-- Overview -->
-  <div class="overview" id="overview-grid"></div>
-
-  <!-- ── VISUAL ── -->
-  <div class="category visible" id="cat-all">
-
-    <!-- VISUAL -->
-    <div class="check-group" data-cat="visual">
-      <div class="group-hd">
-        <div class="group-name">Visual Consistency</div>
-        <div class="group-score" id="gs-visual-consistency">0/0</div>
-      </div>
-      <div class="check-item" data-id="v1" data-cat="visual" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Spacing follows an 8px grid</div>
-          <div class="check-desc">All padding and margin values are multiples of 4px or 8px. No arbitrary values like 11px or 17px.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="v2" data-cat="visual" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Type hierarchy is clear (max 3 sizes per screen)</div>
-          <div class="check-desc">Heading, body, caption. More than 3 type sizes on one screen = visual noise. Check font-size values across each page.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="v3" data-cat="visual" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Color usage is intentional — every color has a meaning</div>
-          <div class="check-desc">Red = danger/error. Green = success/progress. Gold = achievement/XP. Blue = info/navigation. Orange = warning/secondary. No decorative color that contradicts these.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="v4" data-cat="visual" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Light mode and dark mode both look intentional</div>
-          <div class="check-desc">Toggle both themes on every major screen. Shadows may need inverting. Border colors need adjusting. Images need dark/light variants if they use transparency.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="v5" data-cat="visual" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Border radius is consistent across component types</div>
-          <div class="check-desc">Cards all use the same radius. Buttons all use the same radius. Chips all use the same radius. Mixing 6px / 8px / 10px randomly feels broken.</div>
-        </div>
-        <span class="sev sev-p2">P2</span>
-      </div>
-      <div class="check-item" data-id="v6" data-cat="visual" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Icon sizes are consistent within context</div>
-          <div class="check-desc">Navigation icons all the same size. In-line icons match the line-height. Action icons (buttons) all the same size. No random 14px / 18px / 22px mix.</div>
-        </div>
-        <span class="sev sev-p2">P2</span>
-      </div>
-      <div class="check-item" data-id="v7" data-cat="visual" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Loading states exist for every async operation</div>
-          <div class="check-desc">Skeleton screens, spinners, or disabled states on every button/card that triggers async work. Never leave the user staring at a frozen screen.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-    </div>
-
-    <!-- INTERACTION -->
-    <div class="check-group" data-cat="interaction">
-      <div class="group-hd">
-        <div class="group-name">Interaction Quality</div>
-        <div class="group-score" id="gs-interaction-quality">0/0</div>
-      </div>
-      <div class="check-item" data-id="i1" data-cat="interaction" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Every interactive element has a hover state</div>
-          <div class="check-desc">Buttons, links, cards with onclick, list items. If it does something, it must look different on hover. Users scan for affordance.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="i2" data-cat="interaction" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Every button shows feedback within 100ms of tap</div>
-          <div class="check-desc">Visual press state (scale, darken, or ripple). No "dead" tap — user must know the system received their input immediately. 100ms is the threshold for feeling instant.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="i3" data-cat="interaction" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Destructive actions require confirmation</div>
-          <div class="check-desc">Delete, reset, log out. Two-step: tap → confirm → execute. No single-tap irreversible actions. The confirmation must name what will be lost.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="i4" data-cat="interaction" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Animations serve purpose — not decoration</div>
-          <div class="check-desc">Page transitions orient the user (forward/back). Progress animations show real state. Celebration animations are earned. Nothing animates just because it can.</div>
-        </div>
-        <span class="sev sev-p2">P2</span>
-      </div>
-      <div class="check-item" data-id="i5" data-cat="interaction" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">All animations respect prefers-reduced-motion</div>
-          <div class="check-desc"><code>@media (prefers-reduced-motion: reduce)</code> disables or reduces all CSS animations and transitions. Check in DevTools → Rendering → Emulate prefers-reduced-motion.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="i6" data-cat="interaction" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Toast / notification dismissal works correctly</div>
-          <div class="check-desc">Auto-dismiss after set time. Manual dismiss always available (× button). New toast doesn't stack infinitely. Queue clears properly when navigating away.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="i7" data-cat="interaction" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Navigation back always works and goes to the right place</div>
-          <div class="check-desc">Back button/gesture returns to the logical previous screen. Tap-to-detail → back → same scroll position in list. No "back" that dumps user at root.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="i8" data-cat="interaction" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Swipe gestures (if any) have visible affordance</div>
-          <div class="check-desc">Users don't discover swipe gestures unless hinted. Show a peek of the next item, a drag handle, or an onboarding hint on first use.</div>
-        </div>
-        <span class="sev sev-p2">P2</span>
-      </div>
-    </div>
-
-    <!-- CONTENT -->
-    <div class="check-group" data-cat="content">
-      <div class="group-hd">
-        <div class="group-name">Content & Copy</div>
-        <div class="group-score" id="gs-content-copy">0/0</div>
-      </div>
-      <div class="check-item" data-id="c1" data-cat="content" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">No placeholder text in production ("Lorem ipsum", "TODO", "TBD")</div>
-          <div class="check-desc">Search the codebase: <code>grep -r "lorem\|TODO\|TBD\|placeholder" src/</code>. Every screen must have real content or a designed empty state.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="c2" data-cat="content" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Every empty state has a clear call to action</div>
-          <div class="check-desc">"No movements trained yet" → "Start your first session →". Empty states must answer: why is this empty? What should I do next? Never just "No data found."</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="c3" data-cat="content" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Numbers are formatted correctly for their context</div>
-          <div class="check-desc">Large numbers use <code>.toLocaleString()</code> (10,000 not 10000). Percentages rounded to 0–1 decimal. Dates in user-friendly format, not ISO. Currency shows symbol.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="c4" data-cat="content" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Long text truncates gracefully — no overflow</div>
-          <div class="check-desc">Test with a 100-character movement name, a very long username, a 500-word note. Text must truncate with ellipsis or wrap within its container. Never bleeds outside bounds.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="c5" data-cat="content" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Tone of copy is consistent with brand voice</div>
-          <div class="check-desc">Solo Leveling: direct, respectful, RPG-flavored but not corny. Check all button labels, error messages, empty states, celebration text. One inconsistent button label breaks immersion.</div>
-        </div>
-        <span class="sev sev-p2">P2</span>
-      </div>
-      <div class="check-item" data-id="c6" data-cat="content" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Special characters and emoji render correctly</div>
-          <div class="check-desc">Test on Android (different emoji set). Test on older Windows (some emoji unsupported). Special chars: ✓ ✗ → ← • — ° (degrees) must all display correctly.</div>
-        </div>
-        <span class="sev sev-p2">P2</span>
-      </div>
-    </div>
-
-    <!-- MOBILE -->
-    <div class="check-group" data-cat="mobile">
-      <div class="group-hd">
-        <div class="group-name">Mobile & Responsive</div>
-        <div class="group-score" id="gs-mobile-responsive">0/0</div>
-      </div>
-      <div class="check-item" data-id="m1" data-cat="mobile" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">All tap targets are minimum 44×44px</div>
-          <div class="check-desc">Apple HIG minimum. Use DevTools → Inspect to check computed size. Tiny close buttons, small checkboxes, and icon-only links are common failures. Add padding, not size.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="m2" data-cat="mobile" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Nothing overflows horizontally on 375px width (iPhone SE)</div>
-          <div class="check-desc">The minimum viable mobile viewport. DevTools → Dimensions → 375×667. Horizontal scrollbar = fail. Check all pages. Long strings, wide tables, and inline-flex rows are common culprits.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="m3" data-cat="mobile" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Bottom navigation is above the iOS home indicator</div>
-          <div class="check-desc">iPhone X and later: add <code>padding-bottom: env(safe-area-inset-bottom)</code> to fixed bottom bars. Otherwise elements are hidden behind the home indicator swipe zone.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="m4" data-cat="mobile" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Keyboard doesn't obscure focused inputs</div>
-          <div class="check-desc">On mobile, the virtual keyboard covers ~40% of screen. Test every input field: when keyboard opens, the focused field must scroll into view. Use <code>scrollIntoView()</code> if needed.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="m5" data-cat="mobile" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Correct input types trigger the right keyboard</div>
-          <div class="check-desc"><code>type="number"</code> → numeric keyboard. <code>type="email"</code> → @ keyboard. <code>type="tel"</code> → phone keyboard. <code>inputmode="decimal"</code> for decimals. Wrong keyboard = massive UX friction.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="m6" data-cat="mobile" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">App works in landscape orientation</div>
-          <div class="check-desc">Rotate to landscape. No broken layouts, hidden navigation, or unscrollable content. Modals and fixed elements must adapt. Particularly important for timer and video screens.</div>
-        </div>
-        <span class="sev sev-p2">P2</span>
-      </div>
-      <div class="check-item" data-id="m7" data-cat="mobile" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">PWA install prompt and icon are configured</div>
-          <div class="check-desc">manifest.json: name, short_name, icons (192px + 512px), theme_color, background_color, display: standalone. Test "Add to Home Screen" on both iOS and Android.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-    </div>
-
-    <!-- ACCESSIBILITY -->
-    <div class="check-group" data-cat="accessibility">
-      <div class="group-hd">
-        <div class="group-name">Accessibility</div>
-        <div class="group-score" id="gs-accessibility">0/0</div>
-      </div>
-      <div class="check-item" data-id="a1" data-cat="accessibility" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Text contrast meets WCAG AA (4.5:1 for body text)</div>
-          <div class="check-desc">Use Chrome DevTools → Inspect element → Color swatch shows contrast ratio. All body text must pass 4.5:1. Large text (18px+) must pass 3:1. Most common failure: grey text on white/light background.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="a2" data-cat="accessibility" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">All images have descriptive alt text</div>
-          <div class="check-desc">Decorative images: <code>alt=""</code>. Informative images: describe what the image shows. Icon buttons: <code>aria-label="Close"</code>. Never <code>alt="image"</code> or missing alt.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="a3" data-cat="accessibility" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">All interactive elements are keyboard reachable</div>
-          <div class="check-desc">Tab through the entire page. Every button, link, input must be reachable and operable with keyboard only. Custom interactive elements need <code>tabindex="0"</code> and keydown handlers.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="a4" data-cat="accessibility" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Focus indicator is visible on all interactive elements</div>
-          <div class="check-desc">Never <code>outline: none</code> without a custom focus style. The focus ring must be clearly visible. Test with Tab key — can you tell where focus is at all times?</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="a5" data-cat="accessibility" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Color is never the only way information is conveyed</div>
-          <div class="check-desc">Red error state must also have an icon or text label. Green success must also have a checkmark or "Success" text. ~8% of men have color vision deficiency.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="a6" data-cat="accessibility" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Form inputs have associated labels (not just placeholders)</div>
-          <div class="check-desc">Placeholder disappears when user types. Labels must persist. Use <code>&lt;label for="id"&gt;</code> or <code>aria-label</code>. Screen readers and autofill both depend on proper labels.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="a7" data-cat="accessibility" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">axe DevTools scan returns zero critical violations</div>
-          <div class="check-desc">Install axe DevTools browser extension. Run on every major page. Fix all Critical and Serious violations before shipping. Best automated check available.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-    </div>
-
-    <!-- PERFORMANCE -->
-    <div class="check-group" data-cat="performance">
-      <div class="group-hd">
-        <div class="group-name">Performance</div>
-        <div class="group-score" id="gs-performance">0/0</div>
-      </div>
-      <div class="check-item" data-id="p1" data-cat="performance" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">LCP (Largest Contentful Paint) under 2.5s on mobile</div>
-          <div class="check-desc">Run Lighthouse in Chrome DevTools → Mobile preset. LCP &lt;2.5s = Good. 2.5–4s = Needs improvement. &gt;4s = Poor. Main causes: large images, render-blocking JS, slow server.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="p2" data-cat="performance" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">JS bundle under 200KB gzipped</div>
-          <div class="check-desc">Run <code>npm run build</code> and check dist/ file sizes. Or use <code>npx vite-bundle-visualizer</code>. Over 200KB = audit imports. Common offenders: moment.js, lodash (use tree-shakeable alternatives).</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="p3" data-cat="performance" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Heavy list views use windowing / virtual scroll</div>
-          <div class="check-desc">Any list over 50 items should render only visible items. 249 movement cards rendering fully = 249 DOM nodes, 249 event listeners. Use <code>react-window</code> or custom offsetTop calculation.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="p4" data-cat="performance" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Images are correctly sized and use modern formats</div>
-          <div class="check-desc">WebP or AVIF over PNG/JPEG. Serve at display size (no 2000px image in a 200px slot). Use <code>loading="lazy"</code> on below-fold images. Use <code>width</code> and <code>height</code> attributes to prevent layout shift.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="p5" data-cat="performance" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">No unnecessary re-renders on state changes</div>
-          <div class="check-desc">React DevTools → Profiler → record a rep log action. Only the changed component and its direct children should re-render. Add <code>React.memo</code>, <code>useMemo</code>, <code>useCallback</code> where profiler shows excess renders.</div>
-        </div>
-        <span class="sev sev-p2">P2</span>
-      </div>
-      <div class="check-item" data-id="p6" data-cat="performance" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">App works fully offline (PWA / service worker)</div>
-          <div class="check-desc">DevTools → Network → Offline. Core features must work. Training logging, viewing movements, checking progress — all must work without connection. Only sync operations should fail gracefully.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-    </div>
-
-    <!-- ERROR STATES -->
-    <div class="check-group" data-cat="errors">
-      <div class="group-hd">
-        <div class="group-name">Error States & Edge Cases</div>
-        <div class="group-score" id="gs-error-states">0/0</div>
-      </div>
-      <div class="check-item" data-id="e1" data-cat="errors" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Error messages tell the user what to do — not what went wrong</div>
-          <div class="check-desc">"Error 403" → bad. "You don't have permission to do this. Contact support at help@app.com" → good. Every error message answers: what happened? what can I do now?</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="e2" data-cat="errors" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">App doesn't crash on corrupted localStorage data</div>
-          <div class="check-desc">Open DevTools → Application → Local Storage → manually corrupt a value (set a number field to "hello"). Reload. The app must recover gracefully, not white-screen. Test with JSON.parse try/catch.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="e3" data-cat="errors" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Network failures show a useful message (not a spinner forever)</div>
-          <div class="check-desc">DevTools → Network → Offline → trigger any fetch. After 5s of no response, show "Check your connection and try again" with a Retry button. Never spin forever.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="e4" data-cat="errors" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">localStorage quota exceeded is handled gracefully</div>
-          <div class="check-desc">Browsers limit localStorage to 5–10MB. When full, <code>setItem</code> throws a <code>QuotaExceededError</code>. Wrap all writes in try/catch. Show "Storage full — export your data" message, not a silent crash.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="e5" data-cat="errors" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">404 / unknown route has a designed page</div>
-          <div class="check-desc">Navigate to a nonexistent route. Must show a helpful page: "This page doesn't exist" + a link back to home. Not a blank screen or React error boundary dump.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-      <div class="check-item" data-id="e6" data-cat="errors" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Brand new user (zero data) sees a useful first screen</div>
-          <div class="check-desc">Clear localStorage entirely. Reload. Every page must have a designed Day 0 state. No "undefined" values, no empty arrays crashing .map(), no NaN/0% stats without context.</div>
-        </div>
-        <span class="sev sev-p0">P0</span>
-      </div>
-      <div class="check-item" data-id="e7" data-cat="errors" onclick="toggle(this)">
-        <div class="check-box"><span class="check-tick">✓</span></div>
-        <div class="check-body">
-          <div class="check-title">Power user (max data) sees no performance or layout issues</div>
-          <div class="check-desc">Seed 10,000 rep entries, 200 session logs, all movements at Instinct. Reload. Check: page load time, scroll performance, layout integrity. High data = stress test for every list, chart, and stat.</div>
-        </div>
-        <span class="sev sev-p1">P1</span>
-      </div>
-    </div>
-
-  </div><!-- /cat-all -->
-</div><!-- /main -->
 
 <script>
-  // ── Data ──────────────────────────────────────────────────────────
-  const STORAGE_KEY = 'qa-checklist-v1';
-  let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+const STORE_KEY = "sl-qa-platform-v2";
+const THEME_KEY = "sl-qa-theme";
 
-  const CATEGORIES = {
-    visual:       'Visual Consistency',
-    interaction:  'Interaction Quality',
-    content:      'Content & Copy',
-    mobile:       'Mobile & Responsive',
-    accessibility:'Accessibility',
-    performance:  'Performance',
-    errors:       'Error States',
-  };
-
-  const CAT_COLORS = {
-    visual:        '#4F7CFF',
-    interaction:   '#D4854A',
-    content:       '#D9A441',
-    mobile:        '#2E8C78',
-    accessibility: '#7C3AED',
-    performance:   '#C95252',
-    errors:        '#D9A441',
-  };
-
-  // ── Toggle check ──────────────────────────────────────────────────
-  function toggle(el) {
-    const id = el.dataset.id;
-    el.classList.toggle('checked');
-    state[id] = el.classList.contains('checked');
-    save();
-    updateScores();
+const phases = [
+  {
+    id:"foundation", label:"Foundation", short:"Foundation",
+    groups:[
+      {name:"Scope and product definition", checks:[
+        ["f-scope-1","P0","manual","Primary user, core promise, and target launch surface are written down.","A release cannot be tested if nobody can say what successful use looks like."],
+        ["f-scope-2","P0","manual","Critical user journeys are listed before implementation QA starts.","For this app: onboarding, daily quest, rep logging, mastery progress, settings, reset/export, offline reload."],
+        ["f-scope-3","P1","manual","Non-goals and deferred features are named.","Prevents QA from treating future ideas as failed release requirements."],
+        ["f-scope-4","P1","manual","Acceptance criteria exist for each P0 ticket.","Every launch blocker needs a done condition that can be tested."],
+        ["f-scope-5","P2","manual","A known-issues list exists with owner, severity, and release decision.","Known issues are fine; unknown issues are where launches get sloppy."]
+      ]},
+      {name:"Environment and configuration", checks:[
+        ["f-env-1","P0","auto","Production build works with required Vite env vars present.","Run npm run build with Supabase, Sentry, and PostHog values configured in CI or local env."],
+        ["f-env-2","P0","manual","Missing optional service keys fail gracefully.","No blank app or crash if Sentry/PostHog/Supabase keys are absent."],
+        ["f-env-3","P1","manual","Secrets are not committed to the repo.","Check .env.local is gitignored and .env.example only contains names/placeholders."],
+        ["f-env-4","P1","manual","CI uses Node 20 and npm ci consistently.","Matches .github/workflows/ci.yml and deploy.yml."],
+        ["f-env-5","P2","manual","Local QA URL and production preview URL are documented.","Makes bug reproduction deterministic."]
+      ]},
+      {name:"Architecture and maintainability", checks:[
+        ["f-arch-1","P1","manual","State mutations are centralized and testable.","Core progression changes should flow through store/actions, not scattered UI handlers."],
+        ["f-arch-2","P1","manual","Large files have a split plan or are already split.","Avoid future feature work becoming impossible to review."],
+        ["f-arch-3","P1","manual","Error boundaries protect the React tree.","Sentry ErrorBoundary is wired in main.jsx."],
+        ["f-arch-4","P2","manual","Developer docs describe the data model and persistence keys.","Docs should help a future contributor understand the app without archaeology."],
+        ["f-arch-5","P2","manual","Static project pages link to each other cleanly.","hub.html, tickets.html, tools.html, handbook.html, and qa.html should feel like one ops suite."]
+      ]}
+    ]
+  },
+  {
+    id:"product", label:"Product UX", short:"Product",
+    groups:[
+      {name:"Core flow correctness", checks:[
+        ["p-flow-1","P0","e2e","App loads to a meaningful first screen without crashing.","Run Playwright smoke test and manual first-load check."],
+        ["p-flow-2","P0","e2e","Onboarding can be completed or dismissed intentionally.","No user should be trapped before using the product."],
+        ["p-flow-3","P0","e2e","Daily quest flow works from start to completion.","The primary loop must be usable before any release."],
+        ["p-flow-4","P0","e2e","Rep logging updates visible progress immediately.","User action should create visible feedback and persisted state."],
+        ["p-flow-5","P0","e2e","Navigation between major pages works from desktop and mobile.","No route, tab, or layout trap."],
+        ["p-flow-6","P1","manual","Settings changes apply immediately and persist after reload.","Theme, layout, and font-size preferences should survive refresh."],
+        ["p-flow-7","P1","manual","Reset/delete action has a clear confirmation and recovery path.","Destructive actions must name what will be deleted."],
+        ["p-flow-8","P2","manual","Empty states tell the user what to do next.","Day 0, no achievements, no sessions, and no search results need designed states."]
+      ]},
+      {name:"Visual and interaction polish", checks:[
+        ["p-ui-1","P1","manual","Spacing follows a consistent rhythm on every primary screen.","Cards, panels, buttons, and lists should align to predictable rails."],
+        ["p-ui-2","P1","manual","Typography hierarchy is clear and restrained.","Avoid five different sizes competing on the same screen."],
+        ["p-ui-3","P1","manual","Color semantics are consistent.","Red means danger, green progress/success, gold achievement, blue info/navigation."],
+        ["p-ui-4","P1","manual","All clickable controls have hover, focus, pressed, and disabled states.","Affordance matters for both mouse and keyboard users."],
+        ["p-ui-5","P1","manual","No text overlaps, clips, or escapes cards at 320px, 390px, 768px, and desktop.","Especially check long movement names and settings labels."],
+        ["p-ui-6","P2","manual","Light and dark themes both look designed.","Borders, contrast, shadows, and muted text must work in both modes."],
+        ["p-ui-7","P2","manual","Animations are purposeful and do not block interaction.","Motion should support feedback, not become decoration."],
+        ["p-ui-8","P2","manual","Loading states exist for every async or delayed action.","No frozen buttons or silent waits."]
+      ]},
+      {name:"User feedback and trust", checks:[
+        ["p-trust-1","P1","manual","Every successful action has feedback.","Toast, count update, progress animation, saved state, or visible row update."],
+        ["p-trust-2","P1","manual","Every failed action has actionable error text.","Tell the user what happened and what to do next."],
+        ["p-trust-3","P1","manual","Data save status is understandable.","User should know if progress is local-only, synced, or failed to sync."],
+        ["p-trust-4","P2","manual","Achievement and reward language feels earned, not spammy.","Rewards should be celebratory but not noisy."],
+        ["p-trust-5","P2","manual","First-use tooltips can be dismissed and do not repeat forever.","Persist tooltip dismissal and keep the flow moving."]
+      ]}
+    ]
+  },
+  {
+    id:"content", label:"Content and Data", short:"Content",
+    groups:[
+      {name:"Data integrity", checks:[
+        ["c-data-1","P0","auto","npm run audit:connective passes.","Custom connective audit must be green before release."],
+        ["c-data-2","P0","auto","npm test passes data integrity tests.","Movement, progression, and persistence tests should be green."],
+        ["c-data-3","P0","manual","No required movement fields are missing for launch-critical flows.","Names, tiers, trees, prerequisites, drills, and display fields must exist where UI expects them."],
+        ["c-data-4","P1","manual","No duplicate movement names or conflicting IDs appear in user-facing lists.","Duplicates destroy trust in progression systems."],
+        ["c-data-5","P1","manual","Mestre, Orisha, achievement, and prestige data can be rendered without undefined values.","Every content type needs a real display path."],
+        ["c-data-6","P1","manual","Program schedule data maps cleanly to calendar/week UI.","Sprint and annual plan modules should not leave orphan weeks."],
+        ["c-data-7","P2","manual","Video/tutorial links open and match the movement they describe.","Bad references are content bugs, not nice-to-haves."],
+        ["c-data-8","P2","manual","Nutrition and bonus quest content is copy-reviewed.","No placeholder language, internal notes, or inconsistent terminology."]
+      ]},
+      {name:"Game balance and progression", checks:[
+        ["c-balance-1","P1","manual","XP progression is understandable and does not create a grind wall.","Users should know how actions map to progress."],
+        ["c-balance-2","P1","manual","Daily requirements are achievable for the target user.","A loop that takes too long will not become a habit."],
+        ["c-balance-3","P1","manual","Boss tests and mastery gates have visible prerequisites.","Users should see what is blocking progress."],
+        ["c-balance-4","P2","manual","Achievement cadence has early wins and long-term goals.","Avoid front-loading all rewards or leaving dead zones."],
+        ["c-balance-5","P2","manual","Streak and reset mechanics are fair.","Punishment mechanics need grace and clarity."],
+        ["c-balance-6","P2","manual","Endgame content has a clear next target.","Mestres, Orishas, prestige, and monthly challenges should point forward."]
+      ]},
+      {name:"Copy and terminology", checks:[
+        ["c-copy-1","P1","manual","Primary labels are consistent across app, tickets, handbook, and QA.","Do not call the same thing three names."],
+        ["c-copy-2","P1","manual","Error copy is human and specific.","Avoid generic 'something went wrong' when context is known."],
+        ["c-copy-3","P2","manual","Tutorial copy explains why the user is doing an action.","Instruction without motivation is easy to ignore."],
+        ["c-copy-4","P2","manual","No internal implementation terms leak into the UI.","Users should not see storage keys, object names, or debug labels."],
+        ["c-copy-5","P2","manual","Capoeira terms are spelled consistently.","Cultural/discipline-specific language needs care."]
+      ]}
+    ]
+  },
+  {
+    id:"mobile", label:"Mobile, A11y, Performance", short:"Mobile/A11y",
+    groups:[
+      {name:"Mobile and responsive", checks:[
+        ["m-resp-1","P0","e2e","No horizontal page overflow at 320px, 390px, 768px, and desktop.","Measure document scrollWidth against viewport width."],
+        ["m-resp-2","P0","manual","Primary nav works on mobile without hiding core flows.","Mobile users must reach training, progress, settings, and recovery paths."],
+        ["m-resp-3","P1","manual","Touch targets are large enough and spaced apart.","Important buttons should be comfortable with thumbs."],
+        ["m-resp-4","P1","manual","Sticky headers do not cover anchor targets or important content.","Check scroll-margin and sticky offsets."],
+        ["m-resp-5","P1","manual","Long cards, tables, charts, and timelines have internal scrolling or responsive wrapping.","No layout explosion from data-heavy UI."],
+        ["m-resp-6","P2","manual","Landscape mobile and tablet layouts remain usable.","Especially check dense dashboards and settings."],
+        ["m-resp-7","P2","manual","Keyboard overlays do not trap input fields.","Forms/settings should remain visible while typing."]
+      ]},
+      {name:"Accessibility", checks:[
+        ["m-a11y-1","P0","auto","Run axe-core or axe DevTools scan on primary screens.","Automated a11y will not catch everything, but it should catch obvious violations."],
+        ["m-a11y-2","P0","manual","All core flows work with keyboard only.","Tab, Shift+Tab, Enter, Space, Escape, arrow keys where expected."],
+        ["m-a11y-3","P0","manual","Focus states are visible and never hidden behind sticky UI.","Keyboard users need to see where they are."],
+        ["m-a11y-4","P1","manual","Color contrast passes for text, labels, chips, and disabled states.","Check both dark and light themes."],
+        ["m-a11y-5","P1","manual","Buttons and controls have accessible names.","Icon-only buttons need labels or visible text."],
+        ["m-a11y-6","P1","manual","Modals and drawers manage focus correctly.","Focus enters, stays inside, and returns to trigger on close."],
+        ["m-a11y-7","P2","manual","Reduced-motion preference is respected where motion is non-essential.","Avoid forcing animation on sensitive users."],
+        ["m-a11y-8","P2","manual","Screen-reader landmarks and headings create a logical page outline.","Main, nav, headings, section names, and labels should make sense."]
+      ]},
+      {name:"Performance and PWA", checks:[
+        ["m-perf-1","P0","auto","Production build completes without errors.","npm run build is a launch gate."],
+        ["m-perf-2","P1","auto","Lighthouse performance is measured on production preview.","Track score and biggest bottlenecks; do not rely on dev server performance."],
+        ["m-perf-3","P1","manual","Initial route feels fast on average hardware.","Large bundles or heavy data parsing should not stall first use."],
+        ["m-perf-4","P1","manual","Large lists do not lag while scrolling or filtering.","Movement and content-heavy screens need special attention."],
+        ["m-perf-5","P1","manual","PWA install/offline behavior is tested after build.","Service worker and cached assets should not serve stale broken UI."],
+        ["m-perf-6","P2","manual","Images and icons are optimized and correctly sized.","Avoid massive assets for tiny UI elements."],
+        ["m-perf-7","P2","manual","Bundle-size warning has an owner and mitigation plan.","Vite currently warns about a large JS chunk."]
+      ]}
+    ]
+  },
+  {
+    id:"ship", label:"Ship and Post-Ship", short:"Ship",
+    groups:[
+      {name:"CI/CD and release gates", checks:[
+        ["s-ci-1","P0","auto","GitHub CI passes lint, tests, connective audit, and build.","No production release while CI is red."],
+        ["s-ci-2","P0","manual","Deployment secrets are configured for the intended host.","Vercel or Netlify deploy should not silently skip because secrets are missing."],
+        ["s-ci-3","P0","manual","Production URL is smoke-tested after deploy.","Do not treat local success as production success."],
+        ["s-ci-4","P1","manual","Rollback path is known and documented.","Know how to return to last good deploy."],
+        ["s-ci-5","P1","manual","Release notes list user-facing changes and known issues.","Future you deserves a readable launch history."],
+        ["s-ci-6","P2","manual","Preview deploys are used for stakeholder QA when possible.","Catches environment differences before production."]
+      ]},
+      {name:"Observability and analytics", checks:[
+        ["s-obs-1","P0","manual","Sentry receives a controlled test error in the right project/environment.","Do this before trusting production error monitoring."],
+        ["s-obs-2","P0","manual","PostHog receives core events for the primary loop.","At minimum: app opened, reps logged, quest completed, setting changed, reset/export if applicable."],
+        ["s-obs-3","P1","manual","User identity is set and cleared correctly on auth changes.","Avoid mixing analytics or Sentry state across users."],
+        ["s-obs-4","P1","manual","Privacy-sensitive values are not sent to analytics or error logs.","No secrets, tokens, private notes, or unnecessary personal data."],
+        ["s-obs-5","P2","manual","Launch dashboard or saved view exists for first 24 hours.","Know where to look after shipping."]
+      ]},
+      {name:"Post-ship monitoring", checks:[
+        ["s-post-1","P0","manual","First-hour smoke check completed after production deploy.","Open app, run primary flow, verify settings, verify reload."],
+        ["s-post-2","P1","manual","Sentry is checked for new production errors after launch.","Look for error spikes and high-impact stack traces."],
+        ["s-post-3","P1","manual","Analytics confirms users can reach the core action.","If nobody completes the loop, launch is not healthy."],
+        ["s-post-4","P1","manual","Support/feedback capture path exists.","Users need a way to tell you where it hurts."],
+        ["s-post-5","P2","manual","Follow-up tickets are created for all waived P1/P2 issues.","Do not let waivers vanish into memory."],
+        ["s-post-6","P2","manual","Retrospective notes are added to handbook or docs.","Capture what broke, what worked, and what the next QA pass should improve."]
+      ]}
+    ]
   }
+];
 
-  // ── Save / restore ────────────────────────────────────────────────
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
+const state = loadState();
 
-  function restore() {
-    document.querySelectorAll('.check-item').forEach(el => {
-      if (state[el.dataset.id]) el.classList.add('checked');
-    });
-    updateScores();
-  }
+function loadState(){
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); }
+  catch { return {}; }
+}
+function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+function allChecks(){
+  return phases.flatMap(p => p.groups.flatMap(g => g.checks.map(c => ({phase:p.id, phaseLabel:p.label, group:g.name, id:c[0], sev:c[1], mode:c[2], title:c[3], desc:c[4]}))));
+}
 
-  function resetAll() {
-    if (!confirm('Reset all checks? Your progress will be lost.')) return;
-    state = {};
-    save();
-    document.querySelectorAll('.check-item.checked').forEach(el => el.classList.remove('checked'));
-    updateScores();
-  }
+function renderFilters(){
+  const filters = document.getElementById("filters");
+  const total = allChecks().length;
+  const buttons = [["all","All",total], ...phases.map(p => [p.id,p.short,countPhase(p.id)]), ["p0","P0",allChecks().filter(c=>c.sev==="P0").length], ["auto","Auto",allChecks().filter(c=>c.mode==="auto"||c.mode==="e2e").length]];
+  filters.innerHTML = buttons.map((b,i)=>`<button class="chip ${i===0?"active":""}" data-filter="${b[0]}" onclick="setFilter('${b[0]}',this)">${b[1]} <span class="n">${b[2]}</span></button>`).join("");
+}
+function renderPhases(){
+  const root = document.getElementById("phase-root");
+  root.innerHTML = phases.map(p => `
+    <div class="phase visible" id="phase-${p.id}" data-phase="${p.id}">
+      ${p.groups.map(g => `
+        <div class="group" data-group="${g.name}">
+          <div class="group-head"><div class="group-name">${g.name}</div><div class="group-meta" id="meta-${slug(p.id + g.name)}">0 / ${g.checks.length}</div></div>
+          ${g.checks.map(c => checkHtml(p,g,c)).join("")}
+        </div>`).join("")}
+    </div>`).join("");
+}
+function checkHtml(p,g,c){
+  const done = !!state[c[0]]?.done;
+  const note = state[c[0]]?.note || "";
+  return `
+    <div class="check ${done?"done":""}" data-id="${c[0]}" data-phase="${p.id}" data-sev="${c[1]}" data-mode="${c[2]}" onclick="toggleCheck('${c[0]}')">
+      <div class="box">${done ? "✓" : ""}</div>
+      <div>
+        <div class="check-title">${c[3]}</div>
+        <div class="check-desc">${c[4]}</div>
+        <div class="check-foot"><span class="tag ${c[2]==="auto"||c[2]==="e2e"?"green":""}">${c[2]}</span><span class="tag">${p.label}</span></div>
+      </div>
+      <div class="sev ${c[1].toLowerCase()}">${c[1]}</div>
+    </div>
+    <div class="evidence ${note ? "open" : ""}" id="ev-${c[0]}">
+      <textarea onclick="event.stopPropagation()" oninput="saveNote('${c[0]}',this.value)" placeholder="Evidence, command output, screenshot link, bug ID, waiver rationale...">${escapeHtml(note)}</textarea>
+    </div>`;
+}
+function toggleCheck(id){
+  state[id] = state[id] || {};
+  state[id].done = !state[id].done;
+  saveState();
+  const row = document.querySelector(`.check[data-id="${id}"]`);
+  row.classList.toggle("done", state[id].done);
+  row.querySelector(".box").textContent = state[id].done ? "✓" : "";
+  document.getElementById(`ev-${id}`).classList.add("open");
+  updateScores();
+}
+function saveNote(id,value){
+  state[id] = state[id] || {};
+  state[id].note = value;
+  saveState();
+}
+function countPhase(id){ return allChecks().filter(c=>c.phase===id).length; }
+function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,"-"); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch])); }
 
-  // ── Score calculation ─────────────────────────────────────────────
-  function updateScores() {
-    const all = document.querySelectorAll('.check-item');
-    const done = document.querySelectorAll('.check-item.checked');
-    const total = all.length;
-    const passed = done.length;
-    const pct = total ? Math.round((passed / total) * 100) : 0;
+function setFilter(filter,btn){
+  document.querySelectorAll(".chip").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".phase").forEach(p => {
+    const id = p.dataset.phase;
+    p.classList.toggle("visible", filter==="all" || filter===id || filter==="p0" || filter==="auto");
+  });
+  document.querySelectorAll(".check").forEach(row => {
+    const show = filter==="all" || row.dataset.phase===filter || (filter==="p0" && row.dataset.sev==="P0") || (filter==="auto" && (row.dataset.mode==="auto" || row.dataset.mode==="e2e"));
+    row.style.display = show ? "grid" : "none";
+    document.getElementById(`ev-${row.dataset.id}`).style.display = show && document.getElementById(`ev-${row.dataset.id}`).classList.contains("open") ? "block" : "none";
+  });
+}
 
-    document.getElementById('pct-display').textContent = pct + '%';
-    document.getElementById('score-fill').style.width = pct + '%';
-    document.getElementById('check-count').textContent = `${passed} / ${total} checks`;
+function updateScores(){
+  const checks = allChecks();
+  const done = checks.filter(c => state[c.id]?.done);
+  const pct = checks.length ? Math.round(done.length / checks.length * 100) : 0;
+  document.getElementById("pct").textContent = pct + "%";
+  document.getElementById("fill").style.width = pct + "%";
+  document.getElementById("count").textContent = `${done.length} / ${checks.length} checks`;
+  document.getElementById("m-total").textContent = checks.length;
+  document.getElementById("m-p0").textContent = checks.filter(c=>c.sev==="P0").length;
+  document.getElementById("m-auto").textContent = checks.filter(c=>c.mode==="auto"||c.mode==="e2e").length;
+  const grade = pct >= 95 ? "A" : pct >= 85 ? "B" : pct >= 75 ? "C" : pct >= 60 ? "D" : "F";
+  const pill = document.getElementById("grade");
+  pill.textContent = grade;
+  pill.style.color = pct >= 85 ? "var(--green)" : pct >= 70 ? "var(--orange)" : "var(--red)";
+  pill.style.background = pct >= 85 ? "rgba(46,140,120,.18)" : pct >= 70 ? "rgba(212,133,74,.18)" : "rgba(201,82,82,.18)";
+  phases.forEach(p => p.groups.forEach(g => {
+    const groupChecks = g.checks.map(c=>c[0]);
+    const groupDone = groupChecks.filter(id=>state[id]?.done).length;
+    const el = document.getElementById(`meta-${slug(p.id + g.name)}`);
+    if (el) el.textContent = `${groupDone} / ${groupChecks.length}`;
+  }));
+}
 
-    // Grade
-    const pill = document.getElementById('grade-pill');
-    let grade, bg, color;
-    if (pct >= 95)      { grade='A+'; bg='rgba(46,140,120,.2)';  color='#2E8C78'; }
-    else if (pct >= 85) { grade='A';  bg='rgba(46,140,120,.2)';  color='#2E8C78'; }
-    else if (pct >= 75) { grade='B+'; bg='rgba(79,124,255,.2)';  color='#4F7CFF'; }
-    else if (pct >= 65) { grade='B';  bg='rgba(79,124,255,.2)';  color='#4F7CFF'; }
-    else if (pct >= 50) { grade='C';  bg='rgba(212,133,74,.2)';  color='#D4854A'; }
-    else if (pct >= 35) { grade='D';  bg='rgba(201,82,82,.2)';   color='#C95252'; }
-    else                { grade='F';  bg='rgba(201,82,82,.2)';   color='#C95252'; }
-    pill.textContent = grade;
-    pill.style.background = bg;
-    pill.style.color = color;
+function generateReport(){
+  const checks = allChecks();
+  const done = checks.filter(c => state[c.id]?.done);
+  const open = checks.filter(c => !state[c.id]?.done);
+  const p0Open = open.filter(c=>c.sev==="P0");
+  const lines = [];
+  lines.push("Solo Leveling QA Ship Report");
+  lines.push("Generated: " + new Date().toLocaleString());
+  lines.push("");
+  lines.push(`Overall: ${done.length}/${checks.length} checks passed (${Math.round(done.length/checks.length*100)}%)`);
+  lines.push(`Launch blockers open: ${p0Open.length}`);
+  lines.push(`Decision: ${p0Open.length ? "NO SHIP - P0 blockers remain" : "SHIP CANDIDATE - no P0 blockers open"}`);
+  lines.push("");
+  lines.push("Phase status:");
+  phases.forEach(p => {
+    const pcs = checks.filter(c=>c.phase===p.id);
+    const pd = pcs.filter(c=>state[c.id]?.done).length;
+    lines.push(`- ${p.label}: ${pd}/${pcs.length}`);
+  });
+  lines.push("");
+  lines.push("Open P0/P1 checks:");
+  open.filter(c=>c.sev==="P0"||c.sev==="P1").forEach(c => lines.push(`- [${c.sev}] ${c.phaseLabel} / ${c.group}: ${c.title}`));
+  lines.push("");
+  lines.push("Evidence notes:");
+  checks.filter(c=>state[c.id]?.note).forEach(c => {
+    lines.push(`- ${c.title}`);
+    lines.push(`  ${state[c.id].note.replace(/\n/g,"\n  ")}`);
+  });
+  document.getElementById("reportBox").value = lines.join("\n");
+}
 
-    // Per-category tab counts and overview cards
-    updateCatScores();
-  }
+function resetAll(){
+  if (!confirm("Reset all QA checks and evidence notes?")) return;
+  localStorage.removeItem(STORE_KEY);
+  Object.keys(state).forEach(k => delete state[k]);
+  renderPhases();
+  updateScores();
+}
+function toggleTheme(){
+  const html = document.documentElement;
+  const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  localStorage.setItem(THEME_KEY, next);
+  document.querySelector(".actions .btn:last-child").textContent = next === "dark" ? "Light" : "Dark";
+}
+function initTheme(){
+  const theme = localStorage.getItem(THEME_KEY) || "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+  document.querySelector(".actions .btn:last-child").textContent = theme === "dark" ? "Light" : "Dark";
+}
+function initSideNav(){
+  const links = document.querySelectorAll(".side-link,.topnav a");
+  const sections = [...document.querySelectorAll("main section[id]")];
+  window.addEventListener("scroll", () => {
+    let cur = sections[0]?.id || "";
+    sections.forEach(s => { if (scrollY >= s.offsetTop - 180) cur = s.id; });
+    links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + cur));
+  }, {passive:true});
+}
 
-  function updateCatScores() {
-    const cats = Object.keys(CATEGORIES);
-    let overviewHtml = '';
-
-    cats.forEach(cat => {
-      const items = document.querySelectorAll(`.check-item[data-cat="${cat}"]`);
-      const passed = document.querySelectorAll(`.check-item[data-cat="${cat}"].checked`);
-      const pct = items.length ? Math.round((passed.length / items.length) * 100) : 0;
-      const color = CAT_COLORS[cat];
-
-      // tab count (remaining)
-      const rem = items.length - passed.length;
-      const tc = document.getElementById('tc-' + cat);
-      if (tc) { tc.textContent = rem; tc.style.background = rem === 0 ? 'rgba(46,140,120,.3)' : 'rgba(255,255,255,.15)'; }
-
-      // Overview cards
-      const passing = pct === 100;
-      const failing = pct < 50;
-      overviewHtml += `
-        <div class="ov-card ${failing ? 'failing' : passing ? 'passing' : ''}" onclick="showCatByName('${cat}')">
-          <div class="ov-name">${CATEGORIES[cat].split(' ')[0]}</div>
-          <div class="ov-pct" style="color:${color}">${pct}%</div>
-          <div class="ov-bar"><div class="ov-fill" style="width:${pct}%;background:${color}"></div></div>
-        </div>`;
-    });
-
-    document.getElementById('overview-grid').innerHTML = overviewHtml;
-
-    // All tab count
-    const totalRem = document.querySelectorAll('.check-item:not(.checked)').length;
-    const tcAll = document.getElementById('tc-all');
-    if (tcAll) tcAll.textContent = totalRem;
-
-    // Group scores
-    document.querySelectorAll('.check-group').forEach(g => {
-      const cat = g.dataset.cat;
-      const items = g.querySelectorAll('.check-item');
-      const passed = g.querySelectorAll('.check-item.checked');
-      const gsId = 'gs-' + g.querySelector('.group-name').textContent.toLowerCase().replace(/[^a-z]+/g, '-').replace(/-$/, '');
-      const el = document.getElementById(gsId);
-      if (el) el.textContent = `${passed.length}/${items.length}`;
-    });
-  }
-
-  // ── Category filter ───────────────────────────────────────────────
-  function showCat(cat, tabEl) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    if (tabEl) tabEl.classList.add('active');
-
-    const groups = document.querySelectorAll('.check-group');
-    if (cat === 'all') {
-      groups.forEach(g => g.style.display = '');
-    } else {
-      groups.forEach(g => g.style.display = g.dataset.cat === cat ? '' : 'none');
-    }
-  }
-
-  function showCatByName(cat) {
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(t => {
-      if (t.textContent.trim().toLowerCase().startsWith(CATEGORIES[cat].split(' ')[0].toLowerCase())) {
-        showCat(cat, t);
-      }
-    });
-  }
-
-  // ── Theme ─────────────────────────────────────────────────────────
-  function toggleTheme() {
-    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
-    const next = cur === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('sl-qa-theme', next);
-    document.querySelector('.theme-btn').textContent = next === 'dark' ? '☀ Light' : '◐ Dark';
-  }
-
-  function initTheme() {
-    const stored = localStorage.getItem('sl-qa-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', stored);
-    document.querySelector('.theme-btn').textContent = stored === 'dark' ? '☀ Light' : '◐ Dark';
-  }
-
-  // ── Init ──────────────────────────────────────────────────────────
-  initTheme();
-  restore();
+initTheme();
+renderFilters();
+renderPhases();
+updateScores();
+initSideNav();
 </script>
 </body>
 </html>
