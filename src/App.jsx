@@ -32,7 +32,7 @@ class ErrorBoundary extends Component {
   }
 }
 
-import { getRank, getLevelFromXP } from "./data/bonusQuests.js";
+import { getRank, getLevelFromXP } from "./data/rankUtils.js";
 import MasteryToast from "./components/MasteryToast.jsx";
 import AchievementToast from "./components/AchievementToast.jsx";
 import "./App.css";

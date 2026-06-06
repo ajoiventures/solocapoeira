@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { getPhaseById } from "../data/trainingPhases.js";
-import { getRank, getNextRank, getLevelFromXP, getLevelProgress } from "../data/bonusQuests.js";
+import { getRank, getNextRank, getLevelFromXP, getLevelProgress } from "../data/rankUtils.js";
 import { SPRINT_1 } from "../data/sprint.js";
 
 export default function ProgressionDetail({ store, navigate, onBack, backContext }) {

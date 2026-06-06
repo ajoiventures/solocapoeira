@@ -224,9 +224,9 @@
     <a href="#backlog">Backlog</a>
   </nav>
   <div class="hright">
-    <div class="hstat"><div class="hstat-v">118</div><div class="hstat-l">Done</div></div>
+    <div class="hstat"><div class="hstat-v">119</div><div class="hstat-l">Done</div></div>
     <div class="hstat"><div class="hstat-v">213</div><div class="hstat-l">Total</div></div>
-    <div class="hstat"><div class="hstat-v">55%</div><div class="hstat-l">Complete</div></div>
+    <div class="hstat"><div class="hstat-v">56%</div><div class="hstat-l">Complete</div></div>
     <div class="hpill">B+ → A target</div>
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">◐ Dark</button>
   </div>
@@ -277,7 +277,7 @@
       <div class="pipe-col pipe-ready">
         <div class="pipe-hd">
           <span class="pipe-title">Ready to Build</span>
-          <span class="pipe-count">10</span>
+          <span class="pipe-count">9</span>
         </div>
         <div class="pipe-body">
           <div class="tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js into slices</div><div class="tk-desc">1400 lines. Split: usePlayerStore, useMovementStore, useBossStore, useRecoveryStore, useSessionStore.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
@@ -287,7 +287,6 @@
           <div class="tk"><div class="tk-id">A-ENG-03 · P1</div><div class="tk-title">Fix hydrationMl naming</div><div class="tk-desc">Store hydration in ml but field name lies. Add getHydrationOz() / setHydrationOz() helpers at boundary.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">bug</span></div></div>
           <div class="tk"><div class="tk-id">A-ENG-04 · P1</div><div class="tk-title">Remove !important from CSS</div><div class="tk-desc">8 occurrences. Fix via higher-specificity selectors.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">css</span></div></div>
           <div class="tk"><div class="tk-id">C-ENG-01 · P1</div><div class="tk-title">Virtual scroll — movement list</div><div class="tk-desc">Search is capped at 40 now. Finish true visible-window rendering with keyboard and scroll-position coverage.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">perf</span></div></div>
-          <div class="tk"><div class="tk-id">C-ENG-04 · P1</div><div class="tk-title">Split shared store/data bundle</div><div class="tk-desc">Route splitting cut main gzip to ~302KB. Next: lazy-load heavy data/store sections so initial bundle drops below budget.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">perf</span></div></div>
           <div class="tk"><div class="tk-id">B-UX-03 · P1</div><div class="tk-title">Contextual tooltips — first interaction</div><div class="tk-desc">First tap on concept tree strip → tooltip explaining the system. One-shot, seenTooltips[].</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-ux">ux</span></div></div>
           <div class="tk"><div class="tk-id">C-UX-09 · P2</div><div class="tk-title">Landscape orientation layout</div><div class="tk-desc">@media (orientation: landscape) and (max-height: 500px): two-column layout.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-ux">ux</span></div></div>
           <div class="tk"><div class="tk-id">C-UX-10 · P2</div><div class="tk-title">Color blind mode</div><div class="tk-desc">Deuteranopia/protanopia safe palette. Replace red/green pairs with blue/orange.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-ux">accessibility</span></div></div>
@@ -304,7 +303,7 @@
         <div class="pipe-body">
           <div class="tk doing-tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js — domain slices</div><div class="tk-desc">Next: extract useMovementStore as first slice to validate the pattern.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
           <div class="tk doing-tk"><div class="tk-id">A-ENG-02 · P0</div><div class="tk-title">Split DailyQuest.jsx</div><div class="tk-desc">Extract FlowSessionCard, DailyBonusChallenge, SessionLogBlock as standalone components.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
-          <div class="tk doing-tk"><div class="tk-id">C-ENG-04 · P1</div><div class="tk-title">Split shared store/data bundle</div><div class="tk-desc">Identify the largest eager imports after route splitting and move heavy data behind route or action boundaries.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">perf</span></div></div>
+          <div class="tk doing-tk"><div class="tk-id">C-ENG-01 · P1</div><div class="tk-title">Virtual scroll — movement list</div><div class="tk-desc">Finish true visible-window rendering beyond the current 40-result cap.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">perf</span></div></div>
         </div>
       </div>
 
@@ -312,12 +311,13 @@
       <div class="pipe-col pipe-done-col">
         <div class="pipe-hd">
           <span class="pipe-title">Recently Done</span>
-          <span class="pipe-count">118</span>
-          <span style="font-size:9px;color:var(--green);margin-left:auto">55% total</span>
+          <span class="pipe-count">119</span>
+          <span style="font-size:9px;color:var(--green);margin-left:auto">56% total</span>
         </div>
         <div class="pipe-body">
           <div class="tk done-tk"><div class="tk-id">A-INF-01/02</div><div class="tk-title">Supabase sync + magic link auth live</div></div>
           <div class="tk done-tk"><div class="tk-id">A-INF-03/04</div><div class="tk-title">Sentry + PostHog production keys verified</div></div>
+          <div class="tk done-tk"><div class="tk-id">C-ENG-04</div><div class="tk-title">Startup bundle cut to 151.74 kB gzip</div></div>
           <div class="tk done-tk"><div class="tk-id">A-INF-06</div><div class="tk-title">Route code splitting + lazy Sentry loading</div></div>
           <div class="tk done-tk"><div class="tk-id">C-ENG-03</div><div class="tk-title">MovementCard React.memo comparator</div></div>
           <div class="tk done-tk"><div class="tk-id">B-ENG-09/10/11</div><div class="tk-title">Page boundaries, quota protection, migrations</div></div>
@@ -432,10 +432,10 @@
           <div class="rm-hd">
             <span class="rm-tag partial">In Progress</span>
             <span class="rm-name">Phase C — Score Maximizers</span>
-            <span class="rm-date">19/58 done · 33%</span>
+            <span class="rm-date">20/58 done · 34%</span>
           </div>
           <div class="rm-desc">Push each department from good to great. Heavy on engineering performance, QA automation, deep gamification, and content expansion.</div>
-          <div class="rm-progress"><div class="rm-progress-bar" style="width:33%;background:var(--accent)"></div></div>
+          <div class="rm-progress"><div class="rm-progress-bar" style="width:34%;background:var(--accent)"></div></div>
           <div class="rm-items">
             <span class="rm-item done">C-CS-01 Achievement badges ✓</span>
             <span class="rm-item done">C-CS-03 Grace tokens ✓</span>
@@ -448,7 +448,7 @@
             <span class="rm-item done">C-CNT-01 Mestre quotes ✓</span>
             <span class="rm-item done">C-MKT-02 Podcast tour (planned)</span>
             <span class="rm-item partial">C-ENG-01 Virtual scroll partial</span>
-            <span class="rm-item">C-ENG-04 Store/data split</span>
+            <span class="rm-item done">C-ENG-04 Store/data split ✓</span>
             <span class="rm-item done">C-ENG-03 React.memo ✓</span>
             <span class="rm-item">C-UX-09 Landscape layout</span>
             <span class="rm-item">C-QA-01 Visual regression</span>
@@ -695,9 +695,9 @@
     <div class="backlog-section open">
       <div class="backlog-hd" onclick="this.parentElement.classList.toggle('open')">
         <span class="backlog-name">Phase C — Score Maximizers (B+ → A)</span>
-        <span class="backlog-count">19/58</span>
-        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:33%;background:var(--accent)"></div></div>
-        <span class="backlog-pct" style="color:var(--accent)">33%</span>
+        <span class="backlog-count">20/58</span>
+        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:34%;background:var(--accent)"></div></div>
+        <span class="backlog-pct" style="color:var(--accent)">34%</span>
         <span class="backlog-chevron">›</span>
       </div>
       <div class="backlog-items">
@@ -716,7 +716,7 @@
         <div class="bl-item"><span class="bl-id">C-QA-06</span><span class="bl-title">Data integrity tests — movement IDs</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">C-ENG-01</span><span class="bl-title">Virtual scroll — 249-movement list</span><span class="bl-status bl-partial">Partial</span></div>
         <div class="bl-item"><span class="bl-id">C-ENG-03</span><span class="bl-title">React.memo on MovementCard</span><span class="bl-status bl-done">Done ✓</span></div>
-        <div class="bl-item"><span class="bl-id">C-ENG-04</span><span class="bl-title">Split shared store/data bundle after route code splitting</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">C-ENG-04</span><span class="bl-title">Split shared store/data bundle after route code splitting</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">C-OPS-01</span><span class="bl-title">Staging environment</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">C-QA-01</span><span class="bl-title">Visual regression — Chromatic/Percy</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">C-QA-02</span><span class="bl-title">Automated accessibility — axe-core in CI</span><span class="bl-status bl-todo">Todo</span></div>
@@ -760,9 +760,9 @@
     <div style="margin-top:24px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:flex;gap:24px;flex-wrap:wrap;align-items:center">
       <div style="font-size:22px;font-weight:800;color:var(--accent)">213 total tickets</div>
       <div style="color:var(--text3);font-size:12px;flex:1">
-        <span style="color:var(--green);font-weight:700">118 done</span> ·
+        <span style="color:var(--green);font-weight:700">119 done</span> ·
         <span style="color:var(--red);font-weight:700">1 blocked</span> (GitHub Actions runner) ·
-        <span style="color:var(--blue);font-weight:700">94 remaining</span> ·
+        <span style="color:var(--blue);font-weight:700">93 remaining</span> ·
         <span style="color:var(--text3)">118 tests · live env audit ✓ · build ✓</span>
       </div>
     </div>

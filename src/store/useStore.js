@@ -1,17 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { track } from "../lib/analytics.js";
-import { pushState, pullState, onAuthChange } from "../lib/cloudSync.js";
 import { identifyUser, resetAnalyticsUser } from "../lib/analytics.js";
-import { MOVEMENTS } from "../data/movements.js";
+import { getMovementMetaById, getUnlockedMovementIdsFromProgress } from "../data/movementIndex.js";
 import { QUEST_PILLAR_MAP, TREE_PILLAR_MAP, BOSS_PILLAR_GAINS, applyGains, DEFAULT_PILLARS } from "../data/apf.js";
-import { WEEKLY_NUTRITION_HABITS } from "../data/nutritionPlan.js";
+import { isNutritionHabitId } from "../data/nutritionHabitIds.js";
 import { XP_PER_LEVEL } from "../data/constants.js";
-import { getMestreLineage, getLineageProgress } from "../data/mestreLineage.js";
+import { getStoreMestreLineage, getStoreLineageProgress } from "../data/storeMestreLineage.js";
 import { canAdvancePhase, getPhaseProgress } from "../data/trainingPhases.js";
-import { getMestreSequences } from "../data/mestreSequences.js";
-import { getOrishaById, getAllCoreOrishas } from "../data/orishas.js";
+import { getMestreSequenceIds } from "../data/mestreSequenceUnlocks.js";
+import { getCoreOrishaCount, getOrishaMetaById } from "../data/orishaIndex.js";
 import { checkAchievements, getAchievementById } from "../data/achievements.js";
-import { RANKS } from "../data/bonusQuests.js";
+import { RANKS } from "../data/rankUtils.js";
 
 const STORAGE_KEY = "solo_leveling_state_v1";
 const STATE_VERSION = 2; // bump this when schema changes require migration
@@ -253,9 +252,16 @@ function debounce(fn, delay) {
   return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
 }
 
+async function pushCloudState(state) {
+  const { pushState } = await import("../lib/cloudSync.js");
+  return pushState(state);
+}
+
 export function useStore() {
   const [state, setState] = useState(load);
-  const pushDebounced = useRef(debounce((s) => pushState(s), 3000)).current;
+  const pushDebounced = useRef(debounce((s) => {
+    void pushCloudState(s);
+  }, 3000)).current;
 
   // Persist to localStorage on every state change
   useEffect(() => {
@@ -266,24 +272,34 @@ export function useStore() {
 
   // Auth change listener — pull cloud state on sign-in, push immediately, clear on sign-out
   useEffect(() => {
-    const unsub = onAuthChange(async (user) => {
-      if (user) {
-        identifyUser(user.id, { email: user.email });
-        import("../lib/sentry.js").then(({ setSentryUser }) => setSentryUser(user.id));
-        const cloud = await pullState();
-        if (cloud) {
-          // Cloud has data — merge it in (cloud wins)
-          setState((local) => runMigrations({ ...local, ...cloud, achievementQueue: [] }));
+    let unsubscribe = () => {};
+    let isActive = true;
+
+    import("../lib/cloudSync.js").then(({ onAuthChange, pullState }) => {
+      if (!isActive) return;
+      unsubscribe = onAuthChange(async (user) => {
+        if (user) {
+          identifyUser(user.id, { email: user.email });
+          import("../lib/sentry.js").then(({ setSentryUser }) => setSentryUser(user.id));
+          const cloud = await pullState();
+          if (cloud) {
+            // Cloud has data — merge it in (cloud wins)
+            setState((local) => runMigrations({ ...local, ...cloud, achievementQueue: [] }));
+          } else {
+            // First sign-in — push local state to cloud immediately
+            setState((local) => { void pushCloudState(local); return local; });
+          }
         } else {
-          // First sign-in — push local state to cloud immediately
-          setState((local) => { pushState(local); return local; });
+          resetAnalyticsUser();
+          import("../lib/sentry.js").then(({ setSentryUser }) => setSentryUser(null));
         }
-      } else {
-        resetAnalyticsUser();
-        import("../lib/sentry.js").then(({ setSentryUser }) => setSentryUser(null));
-      }
+      });
     });
-    return unsub;
+
+    return () => {
+      isActive = false;
+      unsubscribe();
+    };
   }, []);
 
   // ── Core updater — runs achievement + rank-up checks after every mutation ──
@@ -346,9 +362,9 @@ export function useStore() {
     update((s) => {
       const prevLevel = s.movementProgress[movementId]?.masteryLevel || 0;
       const isIncrease = level > prevLevel;
+      const movement = getMovementMetaById(movementId);
       let newPillars = s.apf?.pillars || DEFAULT_PILLARS;
       if (isIncrease) {
-        const movement = MOVEMENTS.find((m) => m.id === movementId);
         const treeGains = movement && TREE_PILLAR_MAP[movement.tree];
         if (treeGains && movement) {
           const scaled = Object.fromEntries(
@@ -359,7 +375,7 @@ export function useStore() {
       }
       // Award XP on advancement: 50 × tier × new mastery level × prestige multiplier
       const baseXp = isIncrease
-        ? 50 * (MOVEMENTS.find((m) => m.id === movementId)?.tier || 1) * level
+        ? 50 * (movement?.tier || 1) * level
         : 0;
       const xpGain = baseXp > 0 ? Math.round(baseXp * getPrestigeMultiplier(s)) : 0;
       const newXP = s.player.totalXP + xpGain;
@@ -414,7 +430,7 @@ export function useStore() {
         else break;
       }
       const masteryAdvanced = newMastery > prevMastery;
-      const movement = MOVEMENTS.find((m) => m.id === movementId);
+      const movement = getMovementMetaById(movementId);
       // XP for mastery advance (only if auto-advanced)
       const masteryXp = masteryAdvanced
         ? Math.round(50 * (movement?.tier || 1) * newMastery * getPrestigeMultiplier(s))
@@ -637,7 +653,7 @@ export function useStore() {
         : [...(quest.bonusItems || []), exerciseId];
       const xpDelta = already ? -xp : xp;
       const newXP = Math.max(0, s.player.totalXP + xpDelta);
-      const isNutritionHabit = WEEKLY_NUTRITION_HABITS.some((h) => h.id === exerciseId);
+      const isNutritionHabit = isNutritionHabitId(exerciseId);
       const currentPillars = s.apf?.pillars || DEFAULT_PILLARS;
       const newPillars = (!already && isNutritionHabit)
         ? applyGains(currentPillars, { nut: 0.1 })
@@ -778,11 +794,7 @@ export function useStore() {
 
   // ── Derived State ────────────────────────────────────────────────
   const getUnlockedMovementIds = useCallback(() => {
-    const completed = Object.entries(state.movementProgress)
-      .filter(([, v]) => v.masteryLevel >= 2)
-      .map(([k]) => k);
-
-    return MOVEMENTS.filter((m) => m.prerequisites.every((p) => completed.includes(p))).map((m) => m.id);
+    return getUnlockedMovementIdsFromProgress(state.movementProgress);
   }, [state.movementProgress]);
 
   const getMasteryLevel = useCallback(
@@ -1077,7 +1089,7 @@ export function useStore() {
       }
 
       // Check lineage completion and unlock lineage rewards
-      const lineage = getMestreLineage(mestreId);
+      const lineage = getStoreMestreLineage(mestreId);
       const newLineageRewards = { ...s.lineageRewards };
 
       if (lineage && !s.lineageRewards[lineage.key]?.unlocked) {
@@ -1086,7 +1098,7 @@ export function useStore() {
           .filter((mid) => s.mestreProgress[mid]?.defeated)
           .concat([mestreId]); // Include the one just defeated
 
-        const progress = getLineageProgress(lineage.key, defeatedMestres);
+        const progress = getStoreLineageProgress(lineage.key, defeatedMestres);
         // Unlock reward if all Mestres in lineage are defeated
         if (progress.completed) {
           newLineageRewards[lineage.key] = {
@@ -1098,11 +1110,11 @@ export function useStore() {
       }
 
       // Unlock 5 signature sequences for this Mestre
-      const mestreSequences = getMestreSequences(mestreId);
+      const mestreSequenceIds = getMestreSequenceIds(mestreId);
       const newUnlockedSequences = [...s.unlockedSequences];
-      mestreSequences.forEach((seq) => {
-        if (!newUnlockedSequences.includes(seq.id)) {
-          newUnlockedSequences.push(seq.id);
+      mestreSequenceIds.forEach((sequenceId) => {
+        if (!newUnlockedSequences.includes(sequenceId)) {
+          newUnlockedSequences.push(sequenceId);
         }
       });
 
@@ -1147,7 +1159,7 @@ export function useStore() {
       const newIntegrated = alreadyIntegrated
         ? s.orishasIntegrated
         : [...s.orishasIntegrated, orishaId];
-      const totalOrishas = getAllCoreOrishas().length;
+      const totalOrishas = getCoreOrishaCount();
 
       // Check if all core Orishas are now integrated
       const allIntegrated = newIntegrated.length >= totalOrishas;
@@ -1204,7 +1216,7 @@ export function useStore() {
 
   const getEhiReadiness = useCallback(() => {
     const integrated = state.orishasIntegrated.length;
-    const total = getAllCoreOrishas().length;
+    const total = getCoreOrishaCount();
     return {
       integrated,
       total,
@@ -1220,7 +1232,7 @@ export function useStore() {
     if (state.orishasIntegrated.length === 0) {
       return "Ogun (Core)";
     }
-    return `Ogun (Core) + ${state.orishasIntegrated.length}/${getAllCoreOrishas().length} Orishas`;
+    return `Ogun (Core) + ${state.orishasIntegrated.length}/${getCoreOrishaCount()} Orishas`;
   }, [state.orishasIntegrated, state.ehiStatus.isAscended]);
 
   const isEhiAscended = useCallback(
@@ -1234,7 +1246,7 @@ export function useStore() {
       return { canIntegrate: true, reason: "already_integrated" };
     }
 
-    const orisha = getOrishaById(orishaId);
+    const orisha = getOrishaMetaById(orishaId);
     if (!orisha) {
       return { canIntegrate: false, reason: "orisha_not_found" };
     }
@@ -1307,7 +1319,7 @@ export function useStore() {
   }, [canIntegrateOrisha]);
 
   const getCurrentOrishas = useCallback(() => {
-    return state.orishasIntegrated.map((orishaId) => getOrishaById(orishaId)).filter(Boolean);
+    return state.orishasIntegrated.map((orishaId) => getOrishaMetaById(orishaId)).filter(Boolean);
   }, [state.orishasIntegrated]);
 
   const getPrestigeXPMultiplier = useCallback(() => {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getRank } from "../data/bonusQuests.js";
+import { getRank } from "../data/rankUtils.js";
 import { getAllCoreOrishas, getOrishaById } from "../data/orishas.js";
 import { calculateIntegrationBonuses, getBonusDescriptions } from "../data/orishaStatSystem.js";
 
