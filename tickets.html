@@ -224,9 +224,9 @@
     <a href="#backlog">Backlog</a>
   </nav>
   <div class="hright">
-    <div class="hstat"><div class="hstat-v">108</div><div class="hstat-l">Done</div></div>
-    <div class="hstat"><div class="hstat-v">212</div><div class="hstat-l">Total</div></div>
-    <div class="hstat"><div class="hstat-v">51%</div><div class="hstat-l">Complete</div></div>
+    <div class="hstat"><div class="hstat-v">118</div><div class="hstat-l">Done</div></div>
+    <div class="hstat"><div class="hstat-v">213</div><div class="hstat-l">Total</div></div>
+    <div class="hstat"><div class="hstat-v">55%</div><div class="hstat-l">Complete</div></div>
     <div class="hpill">B+ → A target</div>
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">◐ Dark</button>
   </div>
@@ -265,16 +265,11 @@
       <div class="pipe-col pipe-blocked">
         <div class="pipe-hd">
           <span class="pipe-title">Blocked</span>
-          <span class="pipe-count">6</span>
-          <span style="font-size:9px;color:var(--red);margin-left:auto">needs accounts</span>
+          <span class="pipe-count">1</span>
+          <span style="font-size:9px;color:var(--red);margin-left:auto">platform follow-up</span>
         </div>
         <div class="pipe-body">
-          <div class="tk blocked-tk"><div class="tk-id">A-INF-01 · P0</div><div class="tk-title">Cloud sync — Supabase</div><div class="tk-desc">Needs: Supabase project URL + anon key. 30-min setup. Highest churn risk.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-infra">infra</span></div></div>
-          <div class="tk blocked-tk"><div class="tk-id">A-INF-02 · P0</div><div class="tk-title">Auth — email magic link</div><div class="tk-desc">Depends on A-INF-01. Same Supabase project.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-infra">infra</span></div></div>
-          <div class="tk blocked-tk"><div class="tk-id">A-INF-03 · P0</div><div class="tk-title">Sentry error monitoring</div><div class="tk-desc">Needs: Sentry DSN. sentry.io free tier. ErrorBoundary already wired — just needs DSN.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-infra">infra</span></div></div>
-          <div class="tk blocked-tk"><div class="tk-id">A-INF-04 · P1</div><div class="tk-title">Analytics — PostHog</div><div class="tk-desc">Needs: PostHog API key. posthog.com free tier (1M events/mo).</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-infra">infra</span></div></div>
-          <div class="tk blocked-tk"><div class="tk-id">A-INF-05 · P1</div><div class="tk-title">CI/CD — GitHub Actions</div><div class="tk-desc">Needs: GitHub repo. npm run build → deploy to Vercel/Netlify via CLI.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-infra">infra</span></div></div>
-          <div class="tk blocked-tk"><div class="tk-id">B-CS-02 · P0</div><div class="tk-title">Cross-device restore</div><div class="tk-desc">Depends on A-INF-01 (cloud sync). Cannot build without auth.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-infra">infra</span></div></div>
+          <div class="tk blocked-tk"><div class="tk-id">A-INF-05 · P1</div><div class="tk-title">CI/CD — GitHub Actions runner follow-up</div><div class="tk-desc">Netlify deploy is green from GitHub. GitHub Actions still fails before steps on the runner/platform path, so keep this as the only platform blocker.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-infra">infra</span></div></div>
         </div>
       </div>
 
@@ -282,7 +277,7 @@
       <div class="pipe-col pipe-ready">
         <div class="pipe-hd">
           <span class="pipe-title">Ready to Build</span>
-          <span class="pipe-count">12</span>
+          <span class="pipe-count">10</span>
         </div>
         <div class="pipe-body">
           <div class="tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js into slices</div><div class="tk-desc">1400 lines. Split: usePlayerStore, useMovementStore, useBossStore, useRecoveryStore, useSessionStore.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
@@ -291,9 +286,8 @@
           <div class="tk"><div class="tk-id">A-QA-06 · P2</div><div class="tk-title">Snapshot tests — Daily page</div><div class="tk-desc">React Testing Library snapshots: Day 1, mid-sprint, rest day, all quests done.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-qa">testing</span></div></div>
           <div class="tk"><div class="tk-id">A-ENG-03 · P1</div><div class="tk-title">Fix hydrationMl naming</div><div class="tk-desc">Store hydration in ml but field name lies. Add getHydrationOz() / setHydrationOz() helpers at boundary.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">bug</span></div></div>
           <div class="tk"><div class="tk-id">A-ENG-04 · P1</div><div class="tk-title">Remove !important from CSS</div><div class="tk-desc">8 occurrences. Fix via higher-specificity selectors.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">css</span></div></div>
-          <div class="tk"><div class="tk-id">A-INF-06 · P2</div><div class="tk-title">Code splitting — lazy load Library</div><div class="tk-desc">Lazy import: MovementsLibrary, SequencesLibrary, BossTests, Glossary. ~40% bundle reduction.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-infra">perf</span></div></div>
-          <div class="tk"><div class="tk-id">C-ENG-01 · P1</div><div class="tk-title">Virtual scroll — 249-movement list</div><div class="tk-desc">SkillTrees renders all 249 cards. Windowing: render only visible + 5 buffer.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">perf</span></div></div>
-          <div class="tk"><div class="tk-id">C-ENG-03 · P1</div><div class="tk-title">React.memo on MovementCard</div><div class="tk-desc">Cuts re-renders 95% during rep logging. Custom comparator on masteryLevel + reps.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">perf</span></div></div>
+          <div class="tk"><div class="tk-id">C-ENG-01 · P1</div><div class="tk-title">Virtual scroll — movement list</div><div class="tk-desc">Search is capped at 40 now. Finish true visible-window rendering with keyboard and scroll-position coverage.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">perf</span></div></div>
+          <div class="tk"><div class="tk-id">C-ENG-04 · P1</div><div class="tk-title">Split shared store/data bundle</div><div class="tk-desc">Route splitting cut main gzip to ~302KB. Next: lazy-load heavy data/store sections so initial bundle drops below budget.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">perf</span></div></div>
           <div class="tk"><div class="tk-id">B-UX-03 · P1</div><div class="tk-title">Contextual tooltips — first interaction</div><div class="tk-desc">First tap on concept tree strip → tooltip explaining the system. One-shot, seenTooltips[].</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-ux">ux</span></div></div>
           <div class="tk"><div class="tk-id">C-UX-09 · P2</div><div class="tk-title">Landscape orientation layout</div><div class="tk-desc">@media (orientation: landscape) and (max-height: 500px): two-column layout.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-ux">ux</span></div></div>
           <div class="tk"><div class="tk-id">C-UX-10 · P2</div><div class="tk-title">Color blind mode</div><div class="tk-desc">Deuteranopia/protanopia safe palette. Replace red/green pairs with blue/orange.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-ux">accessibility</span></div></div>
@@ -310,7 +304,7 @@
         <div class="pipe-body">
           <div class="tk doing-tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js — domain slices</div><div class="tk-desc">Next: extract useMovementStore as first slice to validate the pattern.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
           <div class="tk doing-tk"><div class="tk-id">A-ENG-02 · P0</div><div class="tk-title">Split DailyQuest.jsx</div><div class="tk-desc">Extract FlowSessionCard, DailyBonusChallenge, SessionLogBlock as standalone components.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
-          <div class="tk doing-tk"><div class="tk-id">D-CNT-06 · P2</div><div class="tk-title">Drill card AI generation</div><div class="tk-desc">Claude API batch-generate drillCards[] for 240+ movements missing them. Human review pass.</div><div class="tk-tags"><span class="tag tag-p2">P2</span><span class="tag tag-data">content</span></div></div>
+          <div class="tk doing-tk"><div class="tk-id">C-ENG-04 · P1</div><div class="tk-title">Split shared store/data bundle</div><div class="tk-desc">Identify the largest eager imports after route splitting and move heavy data behind route or action boundaries.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-eng">perf</span></div></div>
         </div>
       </div>
 
@@ -318,10 +312,16 @@
       <div class="pipe-col pipe-done-col">
         <div class="pipe-hd">
           <span class="pipe-title">Recently Done</span>
-          <span class="pipe-count">108</span>
-          <span style="font-size:9px;color:var(--green);margin-left:auto">51% total</span>
+          <span class="pipe-count">118</span>
+          <span style="font-size:9px;color:var(--green);margin-left:auto">55% total</span>
         </div>
         <div class="pipe-body">
+          <div class="tk done-tk"><div class="tk-id">A-INF-01/02</div><div class="tk-title">Supabase sync + magic link auth live</div></div>
+          <div class="tk done-tk"><div class="tk-id">A-INF-03/04</div><div class="tk-title">Sentry + PostHog production keys verified</div></div>
+          <div class="tk done-tk"><div class="tk-id">A-INF-06</div><div class="tk-title">Route code splitting + lazy Sentry loading</div></div>
+          <div class="tk done-tk"><div class="tk-id">C-ENG-03</div><div class="tk-title">MovementCard React.memo comparator</div></div>
+          <div class="tk done-tk"><div class="tk-id">B-ENG-09/10/11</div><div class="tk-title">Page boundaries, quota protection, migrations</div></div>
+          <div class="tk done-tk"><div class="tk-id">A-QA-DOCS</div><div class="tk-title">QA and tools static pages refreshed</div></div>
           <div class="tk done-tk"><div class="tk-id">D-GAM-03</div><div class="tk-title">Monthly community challenge</div></div>
           <div class="tk done-tk"><div class="tk-id">C-UX-07</div><div class="tk-title">Font size preference (Small/Default/Large)</div></div>
           <div class="tk done-tk"><div class="tk-id">D-CNT-05</div><div class="tk-title">YouTube embed on MovementDetail</div></div>
@@ -373,19 +373,21 @@
           <div class="rm-hd">
             <span class="rm-tag partial">In Progress</span>
             <span class="rm-name">Phase A — Baseline</span>
-            <span class="rm-date">5/19 done · 26%</span>
+            <span class="rm-date">10/19 done · 53%</span>
           </div>
-          <div class="rm-desc">Things that should have existed from Day 1. The most impactful are blocked on external accounts (Supabase, Sentry, PostHog). Engineering debt (useStore split, file splits) can start now.</div>
-          <div class="rm-progress"><div class="rm-progress-bar" style="width:26%;background:var(--blue)"></div></div>
+          <div class="rm-desc">Things that should have existed from Day 1. Infra is now live on Netlify/Supabase/Sentry/PostHog. Engineering debt (useStore split, file splits) can start now.</div>
+          <div class="rm-progress"><div class="rm-progress-bar" style="width:53%;background:var(--blue)"></div></div>
           <div class="rm-items">
             <span class="rm-item done">A-QA-01 Unit tests ✓</span>
             <span class="rm-item done">A-QA-02 XP chain tests ✓</span>
             <span class="rm-item done">A-QA-03 Integration tests ✓</span>
             <span class="rm-item done">A-QA-04 Persistence tests ✓</span>
             <span class="rm-item done">A-ENG-07 Video URLs ✓</span>
-            <span class="rm-item" style="background:rgba(201,82,82,.08);border-color:rgba(201,82,82,.2);color:var(--red)">A-INF-01 Cloud sync ⛔</span>
-            <span class="rm-item" style="background:rgba(201,82,82,.08);border-color:rgba(201,82,82,.2);color:var(--red)">A-INF-02 Auth ⛔</span>
-            <span class="rm-item" style="background:rgba(201,82,82,.08);border-color:rgba(201,82,82,.2);color:var(--red)">A-INF-03 Sentry ⛔</span>
+            <span class="rm-item done">A-INF-01 Cloud sync ✓</span>
+            <span class="rm-item done">A-INF-02 Auth ✓</span>
+            <span class="rm-item done">A-INF-03 Sentry ✓</span>
+            <span class="rm-item done">A-INF-04 PostHog ✓</span>
+            <span class="rm-item done">A-INF-06 Code splitting ✓</span>
             <span class="rm-item">A-ENG-01 useStore split</span>
             <span class="rm-item">A-ENG-02 DailyQuest split</span>
             <span class="rm-item">A-QA-05 E2E Playwright</span>
@@ -401,10 +403,10 @@
           <div class="rm-hd">
             <span class="rm-tag partial">In Progress</span>
             <span class="rm-name">Phase B — Score Improvements</span>
-            <span class="rm-date">22/34 done · 65%</span>
+            <span class="rm-date">25/34 done · 74%</span>
           </div>
           <div class="rm-desc">User-facing features that move each department from current grade to next tier. Onboarding, empty states, Mestre teaser, video links, weekly reports, journal — all shipped.</div>
-          <div class="rm-progress"><div class="rm-progress-bar" style="width:65%;background:var(--orange)"></div></div>
+          <div class="rm-progress"><div class="rm-progress-bar" style="width:74%;background:var(--orange)"></div></div>
           <div class="rm-items">
             <span class="rm-item done">B-UX-01 Onboarding ✓</span>
             <span class="rm-item done">B-UX-02 Empty states ✓</span>
@@ -430,10 +432,10 @@
           <div class="rm-hd">
             <span class="rm-tag partial">In Progress</span>
             <span class="rm-name">Phase C — Score Maximizers</span>
-            <span class="rm-date">18/57 done · 32%</span>
+            <span class="rm-date">19/58 done · 33%</span>
           </div>
           <div class="rm-desc">Push each department from good to great. Heavy on engineering performance, QA automation, deep gamification, and content expansion.</div>
-          <div class="rm-progress"><div class="rm-progress-bar" style="width:32%;background:var(--accent)"></div></div>
+          <div class="rm-progress"><div class="rm-progress-bar" style="width:33%;background:var(--accent)"></div></div>
           <div class="rm-items">
             <span class="rm-item done">C-CS-01 Achievement badges ✓</span>
             <span class="rm-item done">C-CS-03 Grace tokens ✓</span>
@@ -445,8 +447,9 @@
             <span class="rm-item done">C-QA-06 Data integrity ✓</span>
             <span class="rm-item done">C-CNT-01 Mestre quotes ✓</span>
             <span class="rm-item done">C-MKT-02 Podcast tour (planned)</span>
-            <span class="rm-item">C-ENG-01 Virtual scroll</span>
-            <span class="rm-item">C-ENG-03 React.memo</span>
+            <span class="rm-item partial">C-ENG-01 Virtual scroll partial</span>
+            <span class="rm-item">C-ENG-04 Store/data split</span>
+            <span class="rm-item done">C-ENG-03 React.memo ✓</span>
             <span class="rm-item">C-UX-09 Landscape layout</span>
             <span class="rm-item">C-QA-01 Visual regression</span>
           </div>
@@ -609,7 +612,7 @@
   <div class="sec" id="backlog">
     <div class="sec-hd">
       <div class="sec-title">Full Backlog</div>
-      <div class="sec-sub">All 212 tickets by phase</div>
+      <div class="sec-sub">All 213 tickets by phase</div>
       <div class="sec-badge">Click to expand</div>
     </div>
 
@@ -617,18 +620,18 @@
     <div class="backlog-section open">
       <div class="backlog-hd" onclick="this.parentElement.classList.toggle('open')">
         <span class="backlog-name">Phase A — Baseline (Should Have Existed Day 1)</span>
-        <span class="backlog-count">5/19</span>
-        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:26%;background:var(--blue)"></div></div>
-        <span class="backlog-pct" style="color:var(--blue)">26%</span>
+        <span class="backlog-count">10/19</span>
+        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:53%;background:var(--blue)"></div></div>
+        <span class="backlog-pct" style="color:var(--blue)">53%</span>
         <span class="backlog-chevron">›</span>
       </div>
       <div class="backlog-items">
-        <div class="bl-item"><span class="bl-id">A-INF-01</span><span class="bl-title">Cloud sync — Supabase free tier</span><span class="bl-status bl-blocked">Blocked</span></div>
-        <div class="bl-item"><span class="bl-id">A-INF-02</span><span class="bl-title">Auth — email magic link</span><span class="bl-status bl-blocked">Blocked</span></div>
-        <div class="bl-item"><span class="bl-id">A-INF-03</span><span class="bl-title">Sentry error monitoring</span><span class="bl-status bl-blocked">Blocked</span></div>
-        <div class="bl-item"><span class="bl-id">A-INF-04</span><span class="bl-title">Analytics — PostHog</span><span class="bl-status bl-blocked">Blocked</span></div>
-        <div class="bl-item"><span class="bl-id">A-INF-05</span><span class="bl-title">CI/CD — GitHub Actions</span><span class="bl-status bl-blocked">Blocked</span></div>
-        <div class="bl-item"><span class="bl-id">A-INF-06</span><span class="bl-title">Code splitting — lazy load Library</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">A-INF-01</span><span class="bl-title">Cloud sync — Supabase free tier</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">A-INF-02</span><span class="bl-title">Auth — email magic link</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">A-INF-03</span><span class="bl-title">Sentry error monitoring</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">A-INF-04</span><span class="bl-title">Analytics — PostHog</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">A-INF-05</span><span class="bl-title">CI/CD — GitHub Actions</span><span class="bl-status bl-partial">In Review</span></div>
+        <div class="bl-item"><span class="bl-id">A-INF-06</span><span class="bl-title">Code splitting — lazy load Library</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">A-QA-01</span><span class="bl-title">Unit tests — core math functions</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">A-QA-02</span><span class="bl-title">Unit tests — XP grant chain</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">A-QA-03</span><span class="bl-title">Integration tests — Mestre defeat chain</span><span class="bl-status bl-done">Done ✓</span></div>
@@ -649,9 +652,9 @@
     <div class="backlog-section open">
       <div class="backlog-hd" onclick="this.parentElement.classList.toggle('open')">
         <span class="backlog-name">Phase B — Score Improvements</span>
-        <span class="backlog-count">22/34</span>
-        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:65%;background:var(--orange)"></div></div>
-        <span class="backlog-pct" style="color:var(--orange)">65%</span>
+        <span class="backlog-count">25/34</span>
+        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:74%;background:var(--orange)"></div></div>
+        <span class="backlog-pct" style="color:var(--orange)">74%</span>
         <span class="backlog-chevron">›</span>
       </div>
       <div class="backlog-items">
@@ -668,7 +671,7 @@
         <div class="bl-item"><span class="bl-id">B-CNT-03</span><span class="bl-title">Sprint 2 program data</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">B-CNT-04</span><span class="bl-title">Add 60 remaining movements</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">B-CS-01</span><span class="bl-title">Push notifications — streak reminder (PWA)</span><span class="bl-status bl-todo">Todo</span></div>
-        <div class="bl-item"><span class="bl-id">B-CS-02</span><span class="bl-title">Cross-device progress restore</span><span class="bl-status bl-blocked">Blocked</span></div>
+        <div class="bl-item"><span class="bl-id">B-CS-02</span><span class="bl-title">Cross-device progress restore</span><span class="bl-status bl-partial">In Review</span></div>
         <div class="bl-item"><span class="bl-id">B-CS-03</span><span class="bl-title">Weekly training report — Sunday summary</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">B-CS-04</span><span class="bl-title">Milestone celebrations — rank up, first Mestre</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">B-CS-05</span><span class="bl-title">Community Roda — anonymized activity feed</span><span class="bl-status bl-todo">Todo</span></div>
@@ -680,11 +683,11 @@
         <div class="bl-item"><span class="bl-id">B-OPS-01</span><span class="bl-title">PWA push notification service worker</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">B-OPS-02</span><span class="bl-title">Performance budget — LCP &lt;2s mobile</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">B-OPS-03</span><span class="bl-title">Offline-first verification</span><span class="bl-status bl-todo">Todo</span></div>
-        <div class="bl-item"><span class="bl-id">B-OPS-04</span><span class="bl-title">GDPR / privacy — data deletion + export</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-OPS-04</span><span class="bl-title">GDPR / privacy — data deletion + export</span><span class="bl-status bl-partial">Partial</span></div>
         <div class="bl-item"><span class="bl-id">B-ENG-08</span><span class="bl-title">useCallback / useMemo audit — reduce re-renders</span><span class="bl-status bl-todo">Todo</span></div>
-        <div class="bl-item"><span class="bl-id">B-ENG-09</span><span class="bl-title">Error boundary per page</span><span class="bl-status bl-todo">Todo</span></div>
-        <div class="bl-item"><span class="bl-id">B-ENG-10</span><span class="bl-title">localStorage quota protection</span><span class="bl-status bl-todo">Todo</span></div>
-        <div class="bl-item"><span class="bl-id">B-ENG-11</span><span class="bl-title">State migration system v1→v2→v3</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">B-ENG-09</span><span class="bl-title">Error boundary per page</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">B-ENG-10</span><span class="bl-title">localStorage quota protection</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">B-ENG-11</span><span class="bl-title">State migration system v1→v2→v3</span><span class="bl-status bl-done">Done ✓</span></div>
       </div>
     </div>
 
@@ -692,9 +695,9 @@
     <div class="backlog-section open">
       <div class="backlog-hd" onclick="this.parentElement.classList.toggle('open')">
         <span class="backlog-name">Phase C — Score Maximizers (B+ → A)</span>
-        <span class="backlog-count">18/57</span>
-        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:32%;background:var(--accent)"></div></div>
-        <span class="backlog-pct" style="color:var(--accent)">32%</span>
+        <span class="backlog-count">19/58</span>
+        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:33%;background:var(--accent)"></div></div>
+        <span class="backlog-pct" style="color:var(--accent)">33%</span>
         <span class="backlog-chevron">›</span>
       </div>
       <div class="backlog-items">
@@ -711,8 +714,9 @@
         <div class="bl-item"><span class="bl-id">C-CNT-01</span><span class="bl-title">Mestre audio quotes (10 Mestres)</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">C-CNT-05</span><span class="bl-title">YouTube embed on MovementDetail</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">C-QA-06</span><span class="bl-title">Data integrity tests — movement IDs</span><span class="bl-status bl-done">Done ✓</span></div>
-        <div class="bl-item"><span class="bl-id">C-ENG-01</span><span class="bl-title">Virtual scroll — 249-movement list</span><span class="bl-status bl-todo">Todo</span></div>
-        <div class="bl-item"><span class="bl-id">C-ENG-03</span><span class="bl-title">React.memo on MovementCard</span><span class="bl-status bl-todo">Todo</span></div>
+        <div class="bl-item"><span class="bl-id">C-ENG-01</span><span class="bl-title">Virtual scroll — 249-movement list</span><span class="bl-status bl-partial">Partial</span></div>
+        <div class="bl-item"><span class="bl-id">C-ENG-03</span><span class="bl-title">React.memo on MovementCard</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">C-ENG-04</span><span class="bl-title">Split shared store/data bundle after route code splitting</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">C-OPS-01</span><span class="bl-title">Staging environment</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">C-QA-01</span><span class="bl-title">Visual regression — Chromatic/Percy</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">C-QA-02</span><span class="bl-title">Automated accessibility — axe-core in CI</span><span class="bl-status bl-todo">Todo</span></div>
@@ -754,12 +758,12 @@
 
     <!-- Totals -->
     <div style="margin-top:24px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:flex;gap:24px;flex-wrap:wrap;align-items:center">
-      <div style="font-size:22px;font-weight:800;color:var(--accent)">212 total tickets</div>
+      <div style="font-size:22px;font-weight:800;color:var(--accent)">213 total tickets</div>
       <div style="color:var(--text3);font-size:12px;flex:1">
-        <span style="color:var(--green);font-weight:700">108 done</span> ·
-        <span style="color:var(--red);font-weight:700">6 blocked</span> (need accounts) ·
-        <span style="color:var(--blue);font-weight:700">98 remaining</span> ·
-        <span style="color:var(--text3)">3 tests files · 98 tests · build ✓</span>
+        <span style="color:var(--green);font-weight:700">118 done</span> ·
+        <span style="color:var(--red);font-weight:700">1 blocked</span> (GitHub Actions runner) ·
+        <span style="color:var(--blue);font-weight:700">94 remaining</span> ·
+        <span style="color:var(--text3)">118 tests · live env audit ✓ · build ✓</span>
       </div>
     </div>
   </div>
