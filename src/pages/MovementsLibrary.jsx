@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { MOVEMENTS, getMovementById } from "../data/movements.js";
-import { getSequencesForMovement } from "../data/sequences.js";
 import { SKILL_TREES } from "../data/trees.js";
+import LazyMovementCard from "../components/LazyMovementCard.jsx";
 
 export default function MovementsLibrary({ store, navigate }) {
   const [query, setQuery] = useState("");
@@ -63,26 +63,13 @@ export default function MovementsLibrary({ store, navigate }) {
           <div className="section-title">{group} · {movements.length}</div>
           {movements.map((movement) => {
             const level = store.getMasteryLevel?.(movement.id) || 0;
-            const sequences = getSequencesForMovement(movement.id);
             return (
-              <button
+              <LazyMovementCard
                 key={movement.id}
-                className="card"
-                onClick={() => navigate("skill", movement.id, { backTo: "movementsLib", backLabel: "Movements" })}
-                style={{ width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 8, padding: 12 }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text)" }}>{movement.name}</div>
-                    <div style={{ fontSize: 11, color: "var(--text3)" }}>{movement.meaning || movement.tree}</div>
-                  </div>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: level >= 5 ? "var(--accent)" : level > 0 ? "var(--green)" : "var(--text3)" }}>M{level}</div>
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8 }}>
-                  {(movement.category || []).slice(0, 4).map((cat) => <span key={cat} style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "var(--surface2)", color: "var(--text3)" }}>{cat}</span>)}
-                  <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "rgba(79,124,255,0.12)", color: "var(--blue)" }}>{sequences.length} sequence uses</span>
-                </div>
-              </button>
+                movement={movement}
+                level={level}
+                navigate={navigate}
+              />
             );
           })}
         </div>
