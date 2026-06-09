@@ -234,8 +234,9 @@ const SECONDARY_CATEGORIES = [
   {
     label: "Tools",
     items: [
-      { id: "timer",     label: "Timer"    },
-      { id: "generator", label: "Generator"},
+      { id: "timer",        label: "Timer"      },
+      { id: "generator",    label: "Generator"  },
+      { id: "comboBuilder", label: "Combos"     },
     ],
   },
 ];
@@ -621,7 +622,7 @@ export default function App() {
         const rootPages = new Set([
           "daily","movement","training","roda","orishas","body","fuel",
           "axe","profile","leaderboards","concepts","phases","mestres","movementsLib",
-          "sequencesLib","glossary","settings",
+          "sequencesLib","glossary","comboBuilder","settings",
         ]);
         if (rootPages.has(p)) return [];
         // Otherwise push current location onto the stack

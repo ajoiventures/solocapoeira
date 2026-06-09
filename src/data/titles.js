@@ -28,57 +28,32 @@ export const TITLES = [
 ];
 
 /**
- * Check if player has earned a title based on current state
+ * Check if player has earned a title based on current state.
+ * Most titles mirror achievement IDs — check earnedAchievements first.
+ * Streak-milestone titles also check live streak for responsiveness.
  */
 export function checkTitleEarned(titleId, state) {
   if (!state) return false;
 
-  const { player, movementProgress, bossProgress, mestreProgress, orishaProgress, prestige } = state;
-  const level = player?.level || 0;
-  const streak = player?.streakDays || 0;
-  const masteredCount = Object.values(movementProgress || {}).filter(m => m.masteryLevel === 5).length;
-  const bossesDefeated = Object.values(bossProgress || {}).filter(b => b.passed).length;
-  const mestresDefeated = Object.values(mestreProgress || {}).filter(m => m.defeated).length;
-  const orishasIntegrated = Object.keys(orishaProgress || {}).filter(id => orishaProgress[id]?.integrated).length;
-  const prestigeRuns = prestige?.rank || 0;
-  const combosCreated = (state.combos || []).length;
-  const sessionsLogged = (state.sessionLog || []).length;
+  // Achievement-backed titles: earned when the matching achievement is unlocked
+  const achievementBacked = new Set([
+    "first_session", "first_owning", "first_instinct", "five_instinct",
+    "first_boss", "first_mestre", "five_mestres", "all_mestres",
+    "first_orisha", "ehi_ascended", "reps_10000", "rank_S",
+    "concept_tree_maxed",
+  ]);
+  if (achievementBacked.has(titleId)) {
+    return (state.earnedAchievements || []).includes(titleId);
+  }
 
+  // Streak titles: check live streak value (so they light up as streak grows)
+  const streak = state.player?.streakDays || 0;
   switch (titleId) {
-    // Streak
-    case "streak_7": return streak >= 7;
-    case "streak_14": return streak >= 14;
-    case "streak_30": return streak >= 30;
-    case "streak_60": return streak >= 60;
+    case "streak_7":   return streak >= 7;
+    case "streak_30":  return streak >= 30;
+    case "streak_60":  return streak >= 60;
     case "streak_100": return streak >= 100;
-
-    // Level
-    case "level_10": return level >= 10;
-    case "level_25": return level >= 25;
-    case "level_50": return level >= 50;
-    case "level_99": return level >= 99;
-
-    // Mastery
-    case "mastery_50": return masteredCount >= 50;
-    case "mastery_100": return masteredCount >= 100;
-    case "mastery_200": return masteredCount >= 200;
-
-    // Bosses/Mestres
-    case "boss_slayer": return bossesDefeated >= 10; // assume 10 bosses
-    case "mestre_hunter": return mestresDefeated >= 43; // all mestres
-    case "orisha_blessed": return orishasIntegrated >= 16; // all orishas
-
-    // Prestige
-    case "prestige_1": return prestigeRuns >= 1;
-    case "prestige_3": return prestigeRuns >= 3;
-    case "prestige_5": return prestigeRuns >= 5;
-
-    // Special
-    case "first_combo": return combosCreated >= 1;
-    case "trainer": return sessionsLogged >= 50;
-    case "elder": return (state.earnedAchievements?.length || 0) > 0 && level >= 20; // proxy for age
-
-    default: return false;
+    default:           return false;
   }
 }
 
