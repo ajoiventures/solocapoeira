@@ -33,7 +33,7 @@ export default function Leaderboards({ store, onBack }) {
   );
 
   const currentLeaderboard = tab === "xp" ? xpLeaderboard : streakLeaderboard;
-  const playerRank = currentLeaderboard.findIndex(p => p.id === "player_you") + 1 || currentLeaderboard.length + 1;
+  // Player is always below the mock leaderboard until real backend data exists
   const playerPosition = currentLeaderboard.length + 1;
 
   const getRankColor = (rank) => {
