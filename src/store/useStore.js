@@ -164,6 +164,10 @@ const defaultState = () => ({
     painThreshold: 3,
     vestWeight: 0,
   },
+  // Cloud sync status tracking: "idle" | "syncing" | "error"
+  cloudSyncStatus: "idle",
+  // Last successful cloud sync timestamp (ISO string)
+  lastCloudSyncTime: null,
 });
 
 function load() {
@@ -205,6 +209,8 @@ function load() {
       integratedOrishas,
       orishaProgress,
       prestige: { ...def.prestige, ...(saved.prestige || {}) },
+      cloudSyncStatus: saved.cloudSyncStatus || "idle",
+      lastCloudSyncTime: saved.lastCloudSyncTime || null,
     };
   } catch {
     return defaultState();
@@ -253,15 +259,30 @@ function debounce(fn, delay) {
   return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
 }
 
-async function pushCloudState(state) {
-  const { pushState } = await import("../lib/cloudSync.js");
-  return pushState(state);
+async function pushCloudState(state, onStatusChange) {
+  try {
+    onStatusChange?.("syncing");
+    const { pushState } = await import("../lib/cloudSync.js");
+    await pushState(state);
+    onStatusChange?.("idle", new Date().toISOString());
+  } catch (error) {
+    console.error("[store] Cloud sync failed:", error);
+    onStatusChange?.("error");
+    // Reset to idle after 3 seconds
+    setTimeout(() => onStatusChange?.("idle"), 3000);
+  }
 }
 
 export function useStore() {
   const [state, setState] = useState(load);
   const pushDebounced = useRef(debounce((s) => {
-    void pushCloudState(s);
+    void pushCloudState(s, (status, syncTime) => {
+      setState((prev) => ({
+        ...prev,
+        cloudSyncStatus: status,
+        lastCloudSyncTime: syncTime || prev.lastCloudSyncTime,
+      }));
+    });
   }, 3000)).current;
 
   // Persist to localStorage on every state change
@@ -288,11 +309,22 @@ export function useStore() {
             setState((local) => runMigrations({ ...local, ...cloud, achievementQueue: [] }));
           } else {
             // First sign-in — push local state to cloud immediately
-            setState((local) => { void pushCloudState(local); return local; });
+            setState((local) => {
+              void pushCloudState(local, (status, syncTime) => {
+                setState((prev) => ({
+                  ...prev,
+                  cloudSyncStatus: status,
+                  lastCloudSyncTime: syncTime || prev.lastCloudSyncTime,
+                }));
+              });
+              return local;
+            });
           }
         } else {
           resetAnalyticsUser();
           import("../lib/sentry.js").then(({ setSentryUser }) => setSentryUser(null));
+          // Reset cloud sync status on sign-out
+          setState((prev) => ({ ...prev, cloudSyncStatus: "idle", lastCloudSyncTime: null }));
         }
       });
     });

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { SPRINT_1 } from "../data/sprint.js";
 import { signInWithEmail, signOut, getCurrentUser, onAuthChange } from "../lib/cloudSync.js";
 import { isSupabaseEnabled } from "../lib/supabase.js";
+import CloudSyncStatus from "../components/CloudSyncStatus.jsx";
 
 function exportData(state) {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
@@ -240,71 +241,12 @@ export default function Settings({ store, theme, setTheme, navigate }) {
 
       {/* Cloud Sync / Auth */}
       {isSupabaseEnabled && (
-        <div className="card">
-          <div className="card-title" style={{ marginBottom: 12 }}>Cloud Sync</div>
-          {authUser ? (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(46,140,120,.2)",
-                  border: "1px solid rgba(46,140,120,.35)", display: "flex", alignItems: "center",
-                  justifyContent: "center", fontSize: 14 }}>✓</div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)" }}>Synced</div>
-                  <div style={{ fontSize: 10, color: "var(--text3)" }}>{authUser.email}</div>
-                </div>
-              </div>
-                <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 12 }}>
-                  Cloud backup is active for this signed-in session.
-                </div>
-              <button
-                onClick={handleSignOut}
-                style={{ fontSize: 11, fontWeight: 600, padding: "6px 14px", borderRadius: 6,
-                  background: "none", border: "1px solid var(--border)", color: "var(--text3)", cursor: "pointer" }}
-              >
-                Sign out
-              </button>
-            </div>
-          ) : (
-            <div>
-              <div style={{ fontSize: 12, color: "var(--text2)", marginBottom: 12 }}>
-                Sign in to sync your progress across devices. We'll email you a magic link — no password needed.
-              </div>
-              {authStatus === "sent" ? (
-                <div style={{ background: "rgba(46,140,120,.1)", border: "1px solid rgba(46,140,120,.3)",
-                  borderRadius: 8, padding: "12px 14px", fontSize: 12, color: "var(--green)" }}>
-                  ✓ Check your email — tap the link to sign in.
-                </div>
-              ) : (
-                <form onSubmit={handleSignIn} style={{ display: "flex", gap: 8 }}>
-                  <input
-                    type="email"
-                    value={authEmail}
-                    onChange={e => setAuthEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    required
-                    style={{ flex: 1, padding: "8px 12px", borderRadius: 8, fontSize: 12,
-                      background: "var(--surface2)", border: "1px solid var(--border)",
-                      color: "var(--text)", outline: "none" }}
-                  />
-                  <button
-                    type="submit"
-                    disabled={authStatus === "sending"}
-                    style={{ padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700,
-                      background: "var(--accent)", border: "none", color: "#0A1018", cursor: "pointer",
-                      opacity: authStatus === "sending" ? 0.6 : 1 }}
-                  >
-                    {authStatus === "sending" ? "Sending…" : "Send link"}
-                  </button>
-                </form>
-              )}
-              {authStatus === "error" && (
-                <div style={{ fontSize: 11, color: "var(--red)", marginTop: 8 }}>
-                  Something went wrong. Check your email address and try again.
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        <CloudSyncStatus
+          syncStatus={store.state.cloudSyncStatus}
+          lastSyncTime={store.state.lastCloudSyncTime}
+          onSignIn={() => setAuthEmail("")}
+          onSignOut={() => setAuthUser(null)}
+        />
       )}
       {!isSupabaseEnabled && (
         <div className="card" style={{ borderColor: "rgba(201,82,82,.3)" }}>
