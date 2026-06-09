@@ -1,9 +1,16 @@
 import PlayerProfile from "../components/PlayerProfile.jsx";
+import TitlesPanel from "../components/TitlesPanel.jsx";
 
 /**
  * Player Profile Page — Shows Spiritual Path, Stat Bonuses, and Integration Progress
  */
 export default function Profile({ store, navigate }) {
+  const activeTitle = store.state?.activeTitle || null;
+
+  const handleSelectTitle = (titleId) => {
+    store.update((s) => ({ ...s, activeTitle: titleId === s.activeTitle ? null : titleId }));
+  };
+
   return (
     <div className="page">
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
@@ -30,6 +37,15 @@ export default function Profile({ store, navigate }) {
       </div>
 
       <PlayerProfile store={store} />
+
+      <div style={{ marginTop: 24 }}>
+        <div className="section-title" style={{ marginBottom: 12 }}>Titles &amp; Prestige</div>
+        <TitlesPanel
+          state={store.state}
+          activeTitle={activeTitle}
+          onSelectTitle={handleSelectTitle}
+        />
+      </div>
     </div>
   );
 }

@@ -64,6 +64,7 @@ const MovementsLibrary = lazy(() => import("./pages/MovementsLibrary.jsx"));
 const PracticePlanDetail = lazy(() => import("./pages/PracticePlanDetail.jsx"));
 const OrishaDetail = lazy(() => import("./pages/OrishaDetail.jsx"));
 const ProgressionDetail = lazy(() => import("./pages/ProgressionDetail.jsx"));
+const Leaderboards = lazy(() => import("./pages/Leaderboards.jsx"));
 
 function RouteLoader() {
   return (
@@ -208,8 +209,9 @@ const SECONDARY_CATEGORIES = [
   {
     label: "Progress",
     items: [
-      { id: "axe",     label: "Axé"     },
-      { id: "profile", label: "Profile" },
+      { id: "axe",          label: "Axé"          },
+      { id: "profile",      label: "Profile"      },
+      { id: "leaderboards", label: "Leaderboards" },
     ],
   },
   {
@@ -253,8 +255,9 @@ const SIDEBAR_SECONDARY = [
   {
     label: "Progress",
     items: [
-      { id: "axe",     label: "Axé"     },
-      { id: "profile", label: "Profile" },
+      { id: "axe",          label: "Axé"          },
+      { id: "profile",      label: "Profile"      },
+      { id: "leaderboards", label: "Leaderboards" },
     ],
   },
   {
@@ -577,7 +580,7 @@ export default function App() {
   const PAGE_LABELS = {
     daily: "Daily", progression: "Progression", movement: "Movement", training: "Training",
     roda: "Boss Roda", orishas: "Orishas", body: "Body", fuel: "Fuel",
-    axe: "Axé", profile: "Profile", concepts: "Concepts", phases: "Phases",
+    axe: "Axé", profile: "Profile", leaderboards: "Leaderboards", concepts: "Concepts", phases: "Phases",
     mestres: "Mestres", movementsLib: "Moves", sequencesLib: "Sequences",
     glossary: "Glossary", timer: "Timer", berimbau: "Berimbau",
     workout: "Workout", exercise: "Exercise", skill: "Movement",
@@ -617,7 +620,7 @@ export default function App() {
         // clear the stack — these are "root" pages
         const rootPages = new Set([
           "daily","movement","training","roda","orishas","body","fuel",
-          "axe","profile","concepts","phases","mestres","movementsLib",
+          "axe","profile","leaderboards","concepts","phases","mestres","movementsLib",
           "sequencesLib","glossary","settings",
         ]);
         if (rootPages.has(p)) return [];
@@ -778,7 +781,8 @@ export default function App() {
             {page === "fuel"     && <Nutrition store={store} />}
             {page === "axe"      && <Stats store={store} onNavigate={navigate} />}
             {page === "settings" && <Settings store={store} theme={theme} setTheme={setTheme} navigate={navigate} />}
-            {page === "profile"   && <Profile store={store} navigate={navigate} />}
+            {page === "profile"       && <Profile store={store} navigate={navigate} />}
+            {page === "leaderboards"  && <Leaderboards store={store} onBack={goBack} />}
             {page === "mestre"    && selectedMestre && <MestreDetail mestreId={selectedMestre} store={store} navigate={navigate} onBack={goBack} backContext={backContext} />}
             {page === "orisha"    && selectedOrisha  && <OrishaDetail orishaId={selectedOrisha} store={store} navigate={navigate} onBack={goBack} backContext={backContext} />}
             {page === "concepts"  && <ConceptTrees store={store} navigate={navigate} />}
