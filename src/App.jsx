@@ -783,7 +783,6 @@ export default function App() {
             {page === "orisha"    && selectedOrisha  && <OrishaDetail orishaId={selectedOrisha} store={store} navigate={navigate} onBack={goBack} backContext={backContext} />}
             {page === "concepts"  && <ConceptTrees store={store} navigate={navigate} />}
             {page === "phases"    && <PhaseProgress store={store} navigate={navigate} />}
-            {page === "mestres"   && <MestresLibrary store={store} navigate={navigate} />}
             {page === "movementsLib" && <MovementsLibrary store={store} navigate={navigate} />}
             {page === "sequencesLib" && <SequencesLibrary store={store} navigate={navigate} />}
             {page === "glossary"    && <Glossary navigate={navigate} />}
