@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, memo } from "react";
 import { haptics } from "../utils/haptics.js";
 import { BOSS_TESTS } from "../data/bossTests.js";
 import { SKILL_TREES } from "../data/trees.js";
@@ -13,7 +13,7 @@ import MestreLineageVisualization from "../components/MestreLineageVisualization
 // ═══════════════════════════════════════════════════════════════════════════════════
 // ORIGINAL BOSS CARD (for legacy BossTests)
 // ═══════════════════════════════════════════════════════════════════════════════════
-function BossCard({ boss, passed, store, navigate }) {
+const BossCard = memo(function BossCard({ boss, passed, store, navigate }) {
   const [checkedReqs, setCheckedReqs] = useState(new Set());
   const tree = SKILL_TREES.find((t) => t.id === boss.tree);
   const attempts = store.state.bossProgress[boss.id]?.attempts || 0;
@@ -268,7 +268,15 @@ function BossCard({ boss, passed, store, navigate }) {
       )}
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Return true if props are equal (don't re-render), false to re-render
+  return (
+    prevProps.boss?.id === nextProps.boss?.id &&
+    prevProps.passed === nextProps.passed &&
+    prevProps.store === nextProps.store &&
+    prevProps.navigate === nextProps.navigate
+  );
+});
 
 // ═══════════════════════════════════════════════════════════════════════════════════
 // MESTRE CARD
