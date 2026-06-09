@@ -200,6 +200,8 @@ function load() {
       earnedTitles: saved.earnedTitles || [], // prestige cosmetic title IDs
       activeTitle: saved.activeTitle || null,
       combos: saved.combos || [],
+      // Combo statistics: { [comboId]: { timesPracticed: 0, lastPracticed: null, bestTime: null } }
+      comboStats: saved.comboStats || {},
       restDays:   saved.restDays       || [],
       mestreProgress: saved.mestreProgress || {},
       lineageRewards: saved.lineageRewards || {},
@@ -1551,6 +1553,26 @@ export function useStore() {
     return state.trainingPhase.phasesCompleted.includes(phaseId - 1);
   }, [state.trainingPhase.phasesCompleted]);
 
+  // Combo practice logging
+  const logComboPractice = useCallback((comboId, completionTimeMs) => {
+    update((s) => {
+      const stats = s.comboStats?.[comboId] || { timesPracticed: 0, lastPracticed: null, bestTime: null };
+      return {
+        ...s,
+        comboStats: {
+          ...s.comboStats,
+          [comboId]: {
+            timesPracticed: (stats.timesPracticed || 0) + 1,
+            lastPracticed: new Date().toISOString(),
+            bestTime: completionTimeMs && (!stats.bestTime || completionTimeMs < stats.bestTime)
+              ? completionTimeMs
+              : stats.bestTime,
+          },
+        },
+      };
+    });
+  }, [update]);
+
   return {
     state,
     setMasteryLevel,
@@ -1558,6 +1580,7 @@ export function useStore() {
     logPain,
     getTodayPain,
     logSession,
+    logComboPractice,
     logRecovery,
     passBoss,
     unpassBoss,
