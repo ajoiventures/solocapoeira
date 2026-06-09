@@ -72,6 +72,7 @@ export default function ComboBuilder({ store, onBack }) {
   const [adding, setAdding] = useState(false);
   const [practicing, setPracticing] = useState(false);
   const [practiceStep, setPracticeStep] = useState(0);
+  const [practiceStartTime, setPracticeStartTime] = useState(null);
 
   function saveCombo() {
     if (steps.length < MIN_STEPS || !name.trim()) return;
@@ -107,7 +108,7 @@ export default function ComboBuilder({ store, onBack }) {
     return (
       <div className="page">
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          <button onClick={() => { setPracticing(false); setPracticeStep(0); }}
+          <button onClick={() => { setPracticing(false); setPracticeStep(0); setPracticeStartTime(null); }}
             style={{ background: "none", border: "none", color: "var(--text3)", fontSize: 20, cursor: "pointer" }}>
             ←
           </button>
@@ -142,7 +143,13 @@ export default function ComboBuilder({ store, onBack }) {
                 color: "#0A1018", fontWeight: 700, fontSize: 13, cursor: "pointer", marginRight: 8 }}>
               Repeat
             </button>
-            <button onClick={() => { setPracticing(false); setPracticeStep(0); }}
+            <button onClick={() => {
+              const completionTime = practiceStartTime ? Date.now() - practiceStartTime : null;
+              store.logComboPractice?.(selected.id, completionTime);
+              setPracticing(false);
+              setPracticeStep(0);
+              setPracticeStartTime(null);
+            }}
               style={{ padding: "10px 28px", borderRadius: 8, background: "var(--surface2)",
                 border: "1px solid var(--border)", color: "var(--text)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
               Done
@@ -317,6 +324,11 @@ export default function ComboBuilder({ store, onBack }) {
           {combos.map(combo => {
             const t = COMBO_TAGS.find(t => t.id === combo.tag) || COMBO_TAGS[4];
             const resolved = resolveSteps(combo);
+            const avgTier = resolved.length > 0 ? Math.round(resolved.reduce((sum, m) => sum + (m.tier || 1), 0) / resolved.length) : 1;
+            const difficulty = avgTier <= 2 ? "Beginner" : avgTier <= 4 ? "Intermediate" : "Advanced";
+            const stats = store.state.comboStats?.[combo.id] || { timesPracticed: 0, lastPracticed: null };
+            const lastPracticedDate = stats.lastPracticed ? new Date(stats.lastPracticed).toLocaleDateString() : null;
+
             return (
               <div key={combo.id} style={{
                 background: "var(--surface)", border: "1px solid var(--border)",
@@ -328,6 +340,10 @@ export default function ComboBuilder({ store, onBack }) {
                       <span style={{ fontSize: 12, fontWeight: 800, color: "var(--text)" }}>{combo.name}</span>
                       <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 7px", borderRadius: 20,
                         background: `${t.color}18`, color: t.color }}>{t.label}</span>
+                      <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 7px", borderRadius: 20,
+                        background: "rgba(255,215,0,.15)", color: "var(--yellow)" }}>
+                        {difficulty} T{avgTier}
+                      </span>
                     </div>
                     <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 8 }}>
                       {resolved.map((m, i) => (
@@ -336,12 +352,14 @@ export default function ComboBuilder({ store, onBack }) {
                         </span>
                       ))}
                     </div>
-                    <div style={{ fontSize: 10, color: "var(--text3)" }}>
-                      {combo.steps.length} movements
+                    <div style={{ display: "flex", gap: 12, fontSize: 10, color: "var(--text3)" }}>
+                      <span>{combo.steps.length} movements</span>
+                      <span>Practiced {stats.timesPracticed}x</span>
+                      {lastPracticedDate && <span>Last: {lastPracticedDate}</span>}
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 6 }}>
-                    <button onClick={() => { setSelected(combo); setPracticing(true); setPracticeStep(0); }}
+                    <button onClick={() => { setSelected(combo); setPracticing(true); setPracticeStep(0); setPracticeStartTime(Date.now()); }}
                       style={{ padding: "6px 12px", borderRadius: 6, background: "var(--accent)", border: "none",
                         color: "#0A1018", fontWeight: 700, fontSize: 11, cursor: "pointer" }}>
                       Practice
