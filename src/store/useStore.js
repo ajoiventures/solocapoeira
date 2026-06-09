@@ -351,6 +351,10 @@ export function useStore() {
     });
   }, []);
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // DOMAIN 1: PLAYER PROGRESSION (Movements, Mastery, Training Phases)
+  // ═══════════════════════════════════════════════════════════════════════
+
   // ── Prestige XP multiplier helper (used internally) ────────────
   function getPrestigeMultiplier(s) {
     const integratedBonus = 1 + ((s.orishasIntegrated?.length || 0) * 0.02);
@@ -485,6 +489,10 @@ export function useStore() {
     });
   }, [update]);
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // DOMAIN 2: RECOVERY & HEALTH (Pain, VIG, Steps, Rest Days)
+  // ═══════════════════════════════════════════════════════════════════════
+
   // ── Pain Logging ────────────────────────────────────────────────
   const logPain = useCallback((scores) => {
     const date = new Date().toISOString().split("T")[0];
@@ -526,6 +534,10 @@ export function useStore() {
       };
     });
   }, [update]);
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // DOMAIN 3: BOSS & MESTRE BATTLES (Progression, Defeats, Lineage)
+  // ═══════════════════════════════════════════════════════════════════════
 
   // ── Boss Tests ──────────────────────────────────────────────────
   const passBoss = useCallback((bossId, xp = 0) => {
@@ -612,6 +624,10 @@ export function useStore() {
       },
     }));
   }, [update]);
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // DOMAIN 4: SESSIONS & QUESTS (Daily Quests, Logging, Bonuses)
+  // ═══════════════════════════════════════════════════════════════════════
 
   // ── Quest ────────────────────────────────────────────────────────
   const completeQuestItem = useCallback((questId, xp = 0) => {
@@ -841,6 +857,10 @@ export function useStore() {
     [state.movementProgress]
   );
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // DOMAIN 5: SEQUENCES & ACHIEVEMENTS (Practice Log, Unlocks, Progress)
+  // ═══════════════════════════════════════════════════════════════════════
+
   // ── Sequence Practice Log ────────────────────────────────────────
   const markSequencePracticed = useCallback((seqId) => {
     const date = new Date().toISOString().split("T")[0];
@@ -1027,6 +1047,10 @@ export function useStore() {
       player: { ...s.player, totalXP: 0, level: 1 },
     }));
   }, [update]);
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // DOMAIN 6: PRESTIGE & PROGRESSION (Mestre Lineage, Orisha, NG+)
+  // ═══════════════════════════════════════════════════════════════════════
 
   // ── Mestre Progression ──────────────────────────────────────────────
   const defeatMestre = useCallback((mestreId, xp = 0) => {
