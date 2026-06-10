@@ -146,6 +146,8 @@ export default function ComboBuilder({ store, onBack }) {
             <button onClick={() => {
               const completionTime = practiceStartTime ? Date.now() - practiceStartTime : null;
               store.logComboPractice?.(selected.id, completionTime);
+              // Log 1 rep per movement so combo practice advances mastery
+              resolved.forEach((m) => store.incrementReps?.(m.id, 1));
               setPracticing(false);
               setPracticeStep(0);
               setPracticeStartTime(null);

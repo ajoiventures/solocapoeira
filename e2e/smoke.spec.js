@@ -153,3 +153,104 @@ test.describe("Resilience", () => {
     await expect(page.locator(".page")).toBeVisible();
   });
 });
+
+test.describe("Phase B/C pages", () => {
+  test("Leaderboards page renders via drawer nav", async ({ page }) => {
+    await openFreshApp(page);
+
+    // Open the More drawer (mobile) or click sidebar item (desktop)
+    const moreBtn = page.locator(".bottom-nav .nav-btn-more").first();
+    if (await moreBtn.isVisible()) {
+      await moreBtn.click();
+      await page.getByRole("button", { name: "Leaderboards" }).click();
+    } else {
+      await sidebarButton(page, "Leaderboards").click();
+    }
+
+    await expect(page.getByText(/XP Ranking|Streak Ranking/i).first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test("ComboBuilder page renders and search works", async ({ page }) => {
+    await openFreshApp(page);
+
+    const moreBtn = page.locator(".bottom-nav .nav-btn-more").first();
+    if (await moreBtn.isVisible()) {
+      await moreBtn.click();
+      await page.getByRole("button", { name: "Combos" }).click();
+    } else {
+      await sidebarButton(page, "Combos").click();
+    }
+
+    // The page should render the combo list view
+    await expect(page.locator(".page")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/Build New Combo|No combos yet/i).first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test("Profile page renders with Titles & Prestige section", async ({ page }) => {
+    await openFreshApp(page);
+
+    const moreBtn = page.locator(".bottom-nav .nav-btn-more").first();
+    if (await moreBtn.isVisible()) {
+      await moreBtn.click();
+      await page.getByRole("button", { name: "Profile" }).click();
+    } else {
+      await sidebarButton(page, "Profile").click();
+    }
+
+    await expect(page.getByText(/Titles & Prestige/i)).toBeVisible({ timeout: 5000 });
+  });
+
+  test("ComboBuilder: combo practice logs reps to store", async ({ page }) => {
+    // Seed a saved combo directly into localStorage before page load
+    await page.addInitScript((storageKey) => {
+      localStorage.clear();
+      localStorage.setItem("seen_onboarding", "1");
+      const state = {
+        combos: [{
+          id: "test-combo-1",
+          name: "Test Combo",
+          steps: ["ginga", "au"],
+          tag: "flow",
+          createdAt: new Date().toISOString(),
+        }],
+      };
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }, STORAGE_KEY);
+
+    await page.goto("/");
+    await expect(page.locator(".app")).toBeVisible();
+
+    // Navigate to ComboBuilder
+    const moreBtn = page.locator(".bottom-nav .nav-btn-more").first();
+    if (await moreBtn.isVisible()) {
+      await moreBtn.click();
+      await page.getByRole("button", { name: "Combos" }).click();
+    } else {
+      await sidebarButton(page, "Combos").click();
+    }
+
+    // Start practice
+    await page.getByRole("button", { name: /Practise|Practice/i }).first().click({ timeout: 5000 });
+
+    // Step through all movements until done
+    const nextBtn = page.getByRole("button", { name: /Next|Finish Combo/i });
+    while (await nextBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await nextBtn.click();
+    }
+
+    // Hit Done
+    const doneBtn = page.getByRole("button", { name: "Done" });
+    await expect(doneBtn).toBeVisible({ timeout: 3000 });
+    await doneBtn.click();
+
+    // Verify reps were logged in state
+    const state = await page.evaluate((key) => {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    }, STORAGE_KEY);
+
+    const totalReps = Object.values(state?.movementProgress || {})
+      .reduce((sum, p) => sum + (p?.reps || 0), 0);
+    expect(totalReps).toBeGreaterThan(0);
+  });
+});
