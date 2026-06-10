@@ -8,9 +8,7 @@ import { canAdvancePhase, getPhaseProgress } from "../data/trainingPhases.js";
 import { getMestreSequenceIds } from "../data/mestreSequenceUnlocks.js";
 import { getCoreOrishaCount, getOrishaMetaById } from "../data/orishaIndex.js";
 import {
-  buildOrishaProgress,
   debounce,
-  defaultState,
   loadStoreState,
   pushCloudState,
   runMigrations,
@@ -22,6 +20,8 @@ import { useMovementActions } from "./useMovementActions.js";
 import { useBossActions } from "./useBossActions.js";
 import { useRecoveryActions } from "./useRecoveryActions.js";
 import { useQuestActions } from "./useQuestActions.js";
+import { useSettingsActions } from "./useSettingsActions.js";
+import { useSequenceActions } from "./useSequenceActions.js";
 
 export function useStore() {
   const [state, setState] = useState(loadStoreState);
@@ -119,29 +119,16 @@ export function useStore() {
     completeAllQuestsAndLog,
   } = useQuestActions(update);
 
-  // Settings ────────────────────────────────────────────────────
-  const updateSettings = useCallback((newSettings) => {
-    update((s) => ({
-      ...s,
-      settings: { ...s.settings, ...newSettings },
-    }));
-  }, [update]);
+  const {
+    updateSettings,
+    setCurrentWeek,
+    advanceWeek,
+    resetAll,
+    restoreState,
+    resetXP,
+  } = useSettingsActions(update, setState);
 
-  const setCurrentWeek = useCallback((week) => {
-    update((s) => ({
-      ...s,
-      player: { ...s.player, currentWeek: Math.max(1, Math.min(12, week)) },
-    }));
-  }, [update]);
-
-  const advanceWeek = useCallback(() => {
-    update((s) => ({
-      ...s,
-      player: { ...s.player, currentWeek: Math.min(12, (s.player.currentWeek || 1) + 1) },
-    }));
-  }, [update]);
-
-  // ── Derived State ────────────────────────────────────────────────
+  // Derived State ────────────────────────────────────────────────
   const getUnlockedMovementIds = useCallback(() => {
     return getUnlockedMovementIdsFromProgress(state.movementProgress);
   }, [state.movementProgress]);
@@ -158,44 +145,15 @@ export function useStore() {
 
   const isBossPassed = useCallback((bossId) => !!state.bossProgress[bossId]?.passed, [state.bossProgress]);
 
-  // ── Movement Notes ───────────────────────────────────────────────
-  const setMovementNote = useCallback((movementId, note) => {
-    update((s) => ({
-      ...s,
-      movementProgress: {
-        ...s.movementProgress,
-        [movementId]: {
-          ...(s.movementProgress[movementId] || { masteryLevel: 0, reps: 0 }),
-          notes: note,
-        },
-      },
-    }));
-  }, [update]);
+  const {
+    setMovementNote,
+    getMovementNote,
+    markSequencePracticed,
+    getSeqLastPracticed,
+    logComboPractice,
+  } = useSequenceActions(state, update);
 
-  const getMovementNote = useCallback(
-    (movementId) => state.movementProgress[movementId]?.notes || "",
-    [state.movementProgress]
-  );
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // DOMAIN 5: SEQUENCES & ACHIEVEMENTS (Practice Log, Unlocks, Progress)
-  // ═══════════════════════════════════════════════════════════════════════
-
-  // ── Sequence Practice Log ────────────────────────────────────────
-  const markSequencePracticed = useCallback((seqId) => {
-    const date = new Date().toISOString().split("T")[0];
-    update((s) => ({
-      ...s,
-      seqLog: [{ seqId, date }, ...s.seqLog].slice(0, 500),
-    }));
-  }, [update]);
-
-  const getSeqLastPracticed = useCallback((seqId) => {
-    const entry = state.seqLog.find((e) => e.seqId === seqId);
-    return entry ? entry.date : null;
-  }, [state.seqLog]);
-
-  // ── Rep Log helpers ──────────────────────────────────────────────
+  // Rep Log helpers ──────────────────────────────────────────────
   // Returns a Map<dateStr, totalReps> for the last `days` days
   const getRepHeatmapData = useCallback((days = 365) => {
     const map = new Map();
@@ -315,40 +273,6 @@ export function useStore() {
     return dates.map((d) => ({ date: d, ...state.painLog[d] }));
   }, [state.painLog]);
 
-  const resetAll = useCallback(() => {
-    setState(defaultState());
-  }, []);
-
-  const restoreState = useCallback((savedData) => {
-    // Merge with defaults so new keys survive old backups
-    const def = defaultState();
-    const integratedOrishas = savedData.integratedOrishas || savedData.orishasIntegrated || [];
-    setState({
-      ...def,
-      ...savedData,
-      player:     { ...def.player,     ...(savedData.player     || {}) },
-      apf:        { ...def.apf,        ...(savedData.apf        || {}), recoveryLog: savedData.apf?.recoveryLog || {} },
-      todayQuest: { ...def.todayQuest, ...(savedData.todayQuest || {}) },
-      settings:   { ...def.settings,   ...(savedData.settings   || {}) },
-      ehiStatus:  { ...def.ehiStatus,  ...(savedData.ehiStatus  || {}) },
-      repLog:     savedData.repLog         || [],
-      seqLog:     savedData.seqLog         || [],
-      unlockedSequences: savedData.unlockedSequences || [],
-      restDays:   savedData.restDays       || [],
-      mestreProgress: savedData.mestreProgress || {},
-      orishasIntegrated: integratedOrishas,
-      integratedOrishas,
-      orishaProgress: buildOrishaProgress(integratedOrishas, savedData.orishaProgress || {}),
-      prestige: { ...def.prestige, ...(savedData.prestige || {}) },
-    });
-  }, []);
-
-  const resetXP = useCallback(() => {
-    update((s) => ({
-      ...s,
-      player: { ...s.player, totalXP: 0, level: 1 },
-    }));
-  }, [update]);
 
   // ═══════════════════════════════════════════════════════════════════════
   // DOMAIN 6: PRESTIGE & PROGRESSION (Mestre Lineage, Orisha, NG+)
@@ -822,25 +746,6 @@ export function useStore() {
     return state.trainingPhase.phasesCompleted.includes(phaseId - 1);
   }, [state.trainingPhase.phasesCompleted]);
 
-  // Combo practice logging
-  const logComboPractice = useCallback((comboId, completionTimeMs) => {
-    update((s) => {
-      const stats = s.comboStats?.[comboId] || { timesPracticed: 0, lastPracticed: null, bestTime: null };
-      return {
-        ...s,
-        comboStats: {
-          ...s.comboStats,
-          [comboId]: {
-            timesPracticed: (stats.timesPracticed || 0) + 1,
-            lastPracticed: new Date().toISOString(),
-            bestTime: completionTimeMs && (!stats.bestTime || completionTimeMs < stats.bestTime)
-              ? completionTimeMs
-              : stats.bestTime,
-          },
-        },
-      };
-    });
-  }, [update]);
 
   return {
     state,

@@ -1,7 +1,7 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 131 tickets on the public board.
+- **Completed**: 133 tickets on the public board.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: stabilization and ticket reconciliation before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -34,7 +34,9 @@ These tickets prevent the repeated loop where new feature work starts while the 
   - **A-ENG-01d done**: Extracted boss test action callbacks into `src/store/useBossActions.js`.
   - **A-ENG-01e done**: Extracted recovery/session action callbacks into `src/store/useRecoveryActions.js`.
   - **A-ENG-01f done**: Extracted daily quest action callbacks into `src/store/useQuestActions.js`.
-  - Next: sequence, settings/reset, and prestige action slices.
+  - **A-ENG-01g done**: Extracted sequence, movement-note, and combo action callbacks into `src/store/useSequenceActions.js`.
+  - **A-ENG-01h done**: Extracted settings, restore, and reset action callbacks into `src/store/useSettingsActions.js`.
+  - Next: Mestre/Orisha/prestige action slice.
 - **A-ENG-02**: Split `DailyQuest.jsx`; mount or remove retained legacy cards during extraction.
 - **B-ENG-08**: Memo/callback audit after store boundaries are stable.
 
