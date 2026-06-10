@@ -91,9 +91,9 @@ export default function NeedsDrillingCard({ store, navigate }) {
                 <button
                   onClick={() => store.incrementReps(m.id, 5)}
                   style={{
-                    fontSize: 11, padding: "3px 9px", borderRadius: 10, fontWeight: 800,
-                    background: color + "22", border: `1px solid ${color}44`,
-                    color, cursor: "pointer", flexShrink: 0,
+                    fontSize: 12, padding: "8px 12px", borderRadius: 10, fontWeight: 800,
+                    minHeight: 36, background: color + "22", border: `1px solid ${color}44`,
+                    color, cursor: "pointer", flexShrink: 0, touchAction: "manipulation",
                   }}
                 >
                   +5

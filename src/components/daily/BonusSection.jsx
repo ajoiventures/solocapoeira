@@ -141,7 +141,7 @@ function BonusExerciseRow({ exercise, checked, store, navigate }) {
         <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: "var(--green)", textDecoration: "line-through", opacity: 0.75 }}>{exercise.label}</span>
         <span style={{ fontSize: 10, fontWeight: 700, color: "var(--yellow)" }}>+{exercise.xp} XP</span>
         <button onClick={() => store.toggleBonusItem(exercise.id, exercise.xp)}
-          style={{ fontSize: 10, padding: "2px 8px", borderRadius: 6, fontWeight: 700, border: "1px solid var(--green)", background: "rgba(46,140,120,0.15)", color: "var(--green)", cursor: "pointer" }}>Done</button>
+          style={{ fontSize: 10, padding: "6px 10px", borderRadius: 6, fontWeight: 700, border: "1px solid var(--green)", background: "rgba(46,140,120,0.15)", color: "var(--green)", cursor: "pointer", minHeight: 32, touchAction: "manipulation" }}>Done</button>
       </div>
     );
   }
@@ -163,7 +163,7 @@ function BonusExerciseRow({ exercise, checked, store, navigate }) {
                 const movement = getMovementById(id);
                 return movement ? (
                   <button key={id} onClick={(event) => { event.stopPropagation(); navigate("skill", id); }}
-                    style={{ fontSize: 9, padding: "2px 7px", borderRadius: 6, background: "var(--surface3)", border: "1px solid var(--border)", color: "var(--blue)", cursor: "pointer" }}>
+                    style={{ fontSize: 9, padding: "4px 8px", borderRadius: 6, background: "var(--surface3)", border: "1px solid var(--border)", color: "var(--blue)", cursor: "pointer", minHeight: 28, touchAction: "manipulation" }}>
                     {movement.name}
                   </button>
                 ) : null;
@@ -173,7 +173,7 @@ function BonusExerciseRow({ exercise, checked, store, navigate }) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 6 }}>
             <span style={{ fontSize: 10, color: "var(--text3)" }}>Why: {exercise.why}</span>
             <button onClick={() => store.toggleBonusItem(exercise.id, exercise.xp)}
-              style={{ padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid var(--border)", background: "var(--surface3)", color: "var(--text3)", cursor: "pointer" }}>Do it</button>
+              style={{ padding: "6px 12px", borderRadius: 6, fontSize: 11, fontWeight: 600, border: "1px solid var(--border)", background: "var(--surface3)", color: "var(--text3)", cursor: "pointer", minHeight: 36, touchAction: "manipulation" }}>Do it</button>
           </div>
         </div>
       </div>
@@ -258,7 +258,7 @@ function SandSessionPanel({
                           border: `1px solid ${done ? "var(--green)" : "var(--border)"}`,
                         }}>
                           <button onClick={() => store.toggleBonusItem(exercise.id, exercise.xp)}
-                            style={{ fontSize: 13, background: "none", border: "none", cursor: "pointer", color: done ? "var(--green)" : "var(--text3)", padding: 0 }}>
+                            style={{ fontSize: 13, background: "none", border: "none", cursor: "pointer", color: done ? "var(--green)" : "var(--text3)", padding: "6px 8px", minHeight: 36, touchAction: "manipulation" }}>
                             {done ? "Done" : "Open"}
                           </button>
                           <span style={{ flex: 1, fontSize: 11, color: done ? "var(--text3)" : "var(--text)", textDecoration: done ? "line-through" : "none", fontWeight: 600 }}>

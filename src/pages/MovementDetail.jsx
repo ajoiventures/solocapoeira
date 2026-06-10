@@ -297,9 +297,10 @@ export default function MovementDetail({ movementId, store, navigate, onBack, ba
             <button key={n}
               onClick={() => handleAddReps(n)}
               style={{
-                fontSize: 11, padding: "4px 10px", borderRadius: 6,
+                fontSize: 13, padding: "10px 14px", borderRadius: 8, minHeight: 44,
                 background: "var(--surface2)", border: "1px solid var(--border)",
-                color: "var(--text2)", cursor: "pointer", fontWeight: 600,
+                color: "var(--text2)", cursor: "pointer", fontWeight: 700,
+                touchAction: "manipulation",
               }}>
               +{n}
             </button>
@@ -312,7 +313,7 @@ export default function MovementDetail({ movementId, store, navigate, onBack, ba
             onChange={(e) => setRepInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && Number(repInput) > 0) handleAddReps(Number(repInput)); }}
             style={{
-              width: 70, fontSize: 11, padding: "4px 8px", borderRadius: 6,
+              width: 76, fontSize: 13, padding: "10px 8px", borderRadius: 8, minHeight: 44,
               background: "var(--surface2)", border: "1px solid var(--border)",
               color: "var(--text)", outline: "none",
             }}
@@ -321,9 +322,10 @@ export default function MovementDetail({ movementId, store, navigate, onBack, ba
             <button
               onClick={() => handleAddReps(Number(repInput))}
               style={{
-                fontSize: 11, padding: "4px 10px", borderRadius: 6,
+                fontSize: 13, padding: "10px 14px", borderRadius: 8, minHeight: 44,
                 background: tree?.color || "var(--accent)", border: "none",
                 color: "#fff", cursor: "pointer", fontWeight: 700,
+                touchAction: "manipulation",
               }}>
               Log
             </button>
@@ -343,9 +345,9 @@ export default function MovementDetail({ movementId, store, navigate, onBack, ba
               toque: "angola",
             })}
             style={{
-              flex: 1, padding: "8px 0", borderRadius: 8, fontSize: 11, fontWeight: 800,
-              border: "1px solid var(--border)", background: "var(--surface2)",
-              color: "var(--text2)", cursor: "pointer",
+              flex: 1, padding: "10px 0", borderRadius: 8, fontSize: 12, fontWeight: 800,
+              minHeight: 44, border: "1px solid var(--border)", background: "var(--surface2)",
+              color: "var(--text2)", cursor: "pointer", touchAction: "manipulation",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
             }}
           >

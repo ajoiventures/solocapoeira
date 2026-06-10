@@ -310,9 +310,9 @@ export default function DailyQuest({ store, navigate }) {
                 title={`${store.state.graceTokens} Grace Token${store.state.graceTokens > 1 ? "s" : ""} — protect your streak`}
                 onClick={() => store.consumeGraceToken?.()}
                 style={{
-                  fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20,
-                  background: "rgba(212,133,74,0.15)", border: "1px solid rgba(212,133,74,0.35)",
-                  color: "var(--orange)", cursor: "pointer",
+                  fontSize: 11, fontWeight: 700, padding: "6px 10px", borderRadius: 20,
+                  minHeight: 32, background: "rgba(212,133,74,0.15)", border: "1px solid rgba(212,133,74,0.35)",
+                  color: "var(--orange)", cursor: "pointer", touchAction: "manipulation",
                 }}
               >
                 🛡️{store.state.graceTokens}
@@ -322,7 +322,8 @@ export default function DailyQuest({ store, navigate }) {
           <button
             onClick={() => store.markRestDay?.(today)}
             style={{
-              fontSize: 10, padding: "3px 9px", borderRadius: 20, fontWeight: 700, cursor: "pointer",
+              fontSize: 11, padding: "6px 12px", borderRadius: 20, fontWeight: 700, cursor: "pointer",
+              minHeight: 32, touchAction: "manipulation",
               border: `1px solid ${restToday ? "var(--blue)" : "var(--border)"}`,
               background: restToday ? "rgba(79,124,255,0.15)" : "var(--surface2)",
               color: restToday ? "var(--blue)" : "var(--text3)",
