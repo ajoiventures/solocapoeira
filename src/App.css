@@ -777,3 +777,30 @@ input[type="number"]::-webkit-inner-spin-button {
 [data-theme="dark"] .detail-back:hover { color: var(--accent); }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+
+/* ── Landscape orientation (mobile phones rotated) ───────────────── */
+@media (orientation: landscape) and (max-height: 480px) {
+  :root {
+    --header-h: 40px;
+    --nav-h:    46px;
+  }
+
+  .app-subtitle { display: none; }
+
+  .app-header {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .app-title { font-size: 14px; letter-spacing: 2px; }
+
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .nav-btn { padding: 4px 0; }
+  .nav-label { display: none; }
+  .nav-icon { margin-bottom: 0; }
+
+  .page { padding: 8px 12px; gap: 10px; }
+}
