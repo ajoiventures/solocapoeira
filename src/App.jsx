@@ -574,6 +574,8 @@ export default function App() {
     const stored = localStorage.getItem("sl_font_size") || "default";
     const px = { small: "11px", default: "13px", large: "15px" }[stored] || "13px";
     document.documentElement.style.setProperty("--base-font-size", px);
+    const cb = localStorage.getItem("sl_color_blind") === "true";
+    document.documentElement.setAttribute("data-color-blind", cb ? "true" : "false");
   }, []);
 
   function dismissOnboarding() {

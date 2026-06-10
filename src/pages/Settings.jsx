@@ -31,6 +31,16 @@ export default function Settings({ store, theme, setTheme, navigate }) {
     const px = FONT_SIZES.find((f) => f.val === val)?.px || "13px";
     document.documentElement.style.setProperty("--base-font-size", px);
   }
+
+  const [colorBlind, setColorBlindState] = useState(
+    () => localStorage.getItem("sl_color_blind") === "true"
+  );
+
+  function applyColorBlind(enabled) {
+    setColorBlindState(enabled);
+    localStorage.setItem("sl_color_blind", enabled ? "true" : "false");
+    document.documentElement.setAttribute("data-color-blind", enabled ? "true" : "false");
+  }
   const { settings, player, sessionLog } = store.state;
   const [name, setName] = useState(settings.name);
   const importRef = useRef(null);
@@ -261,7 +271,7 @@ export default function Settings({ store, theme, setTheme, navigate }) {
         )}
 
         {/* Font size */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
           <div>
             <div style={{ fontSize: 13, fontWeight: 600 }}>Text Size</div>
             <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 2 }}>
@@ -276,6 +286,23 @@ export default function Settings({ store, theme, setTheme, navigate }) {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Color blind mode */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600 }}>Color Blind Mode</div>
+            <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 2 }}>
+              {colorBlind ? "On — blue/orange palette" : "Off — default palette"}
+            </div>
+          </div>
+          <button
+            className={`btn btn-sm${colorBlind ? " btn-primary" : " btn-secondary"}`}
+            style={{ minWidth: 60 }}
+            onClick={() => applyColorBlind(!colorBlind)}
+          >
+            {colorBlind ? "On" : "Off"}
+          </button>
         </div>
       </div>
 
