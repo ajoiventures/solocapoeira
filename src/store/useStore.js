@@ -2,14 +2,11 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { track } from "../lib/analytics.js";
 import { identifyUser, resetAnalyticsUser } from "../lib/analytics.js";
 import { getUnlockedMovementIdsFromProgress } from "../data/movementIndex.js";
-import { QUEST_PILLAR_MAP, applyGains, DEFAULT_PILLARS } from "../data/apf.js";
-import { isNutritionHabitId } from "../data/nutritionHabitIds.js";
 import { XP_PER_LEVEL } from "../data/constants.js";
 import { getStoreMestreLineage, getStoreLineageProgress } from "../data/storeMestreLineage.js";
 import { canAdvancePhase, getPhaseProgress } from "../data/trainingPhases.js";
 import { getMestreSequenceIds } from "../data/mestreSequenceUnlocks.js";
 import { getCoreOrishaCount, getOrishaMetaById } from "../data/orishaIndex.js";
-import { mlToOz, ozToMl } from "../data/units.js";
 import {
   buildOrishaProgress,
   debounce,
@@ -23,6 +20,8 @@ import { applyPostUpdateEffects } from "./storeUpdatePipeline.js";
 import { getPrestigeMultiplier } from "./storeCalculations.js";
 import { useMovementActions } from "./useMovementActions.js";
 import { useBossActions } from "./useBossActions.js";
+import { useRecoveryActions } from "./useRecoveryActions.js";
+import { useQuestActions } from "./useQuestActions.js";
 
 export function useStore() {
   const [state, setState] = useState(loadStoreState);
@@ -98,231 +97,29 @@ export function useStore() {
   const { setMasteryLevel, incrementReps } = useMovementActions(update);
 
   // ═══════════════════════════════════════════════════════════════════════
-  // DOMAIN 2: RECOVERY & HEALTH (Pain, VIG, Steps, Rest Days)
-  // ═══════════════════════════════════════════════════════════════════════
+  const {
+    logPain,
+    getTodayPain,
+    logSession,
+    logRecovery,
+    logRecoveryOz,
+    getRecoveryForDate,
+    getHydrationOz,
+    logSteps,
+    markRestDay,
+    isRestDay,
+  } = useRecoveryActions(state, update);
 
-  // ── Pain Logging ────────────────────────────────────────────────
-  const logPain = useCallback((scores) => {
-    const date = new Date().toISOString().split("T")[0];
-    update((s) => ({
-      ...s,
-      painLog: {
-        ...s.painLog,
-        [date]: { ...scores, timestamp: new Date().toISOString() },
-      },
-    }));
-  }, [update]);
-
-  const getTodayPain = useCallback(() => {
-    const date = new Date().toISOString().split("T")[0];
-    return state.painLog[date] || null;
-  }, [state.painLog]);
-
-  // ── Session Logging ─────────────────────────────────────────────
-  const logSession = useCallback((sessionData) => {
-    if (sessionData.durationSeconds) {
-      track.flowSessionCompleted(sessionData.durationSeconds);
-    }
-    update((s) => {
-      const today = new Date().toISOString().split("T")[0];
-      const lastDate = s.player.lastTrainingDate;
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-      const streak = lastDate === yesterday ? s.player.streakDays + 1 : 1;
-
-      return {
-        ...s,
-        sessionLog: [
-          { ...sessionData, date: today, id: Date.now() },
-          ...s.sessionLog.slice(0, 199), // Keep last 200
-        ],
-        player: {
-          ...s.player,
-          totalXP: s.player.totalXP + (sessionData.xpEarned || 0),
-          level: Math.floor((s.player.totalXP + (sessionData.xpEarned || 0)) / XP_PER_LEVEL) + 1,
-          streakDays: streak,
-          lastTrainingDate: today,
-        },
-      };
-    });
-  }, [update]);
-
-  // ═══════════════════════════════════════════════════════════════════════
   const { passBoss, unpassBoss, unmarkBoss, recordBossAttempt } = useBossActions(update);
 
-  // DOMAIN 4: SESSIONS & QUESTS (Daily Quests, Logging, Bonuses)
-  // ═══════════════════════════════════════════════════════════════════════
+  const {
+    completeQuestItem,
+    toggleBonusItem,
+    logBonusExercise,
+    completeAllQuestsAndLog,
+  } = useQuestActions(update);
 
-  // ── Quest ────────────────────────────────────────────────────────
-  const completeQuestItem = useCallback((questId, xp = 0) => {
-    const today = new Date().toISOString().split("T")[0];
-    update((s) => {
-      const quest = s.todayQuest.date === today ? s.todayQuest : { date: today, completed: [], skipped: [], bonusItems: [], bonusXP: 0 };
-      const alreadyDone = quest.completed.includes(questId);
-      const scaledXP = !alreadyDone && xp > 0 ? Math.round(xp * getPrestigeMultiplier(s)) : xp;
-      const xpDelta = alreadyDone ? -xp : scaledXP;
-      const newXP = Math.max(0, s.player.totalXP + xpDelta);
-      const currentPillars = s.apf?.pillars || DEFAULT_PILLARS;
-      const newPillars = (!alreadyDone && QUEST_PILLAR_MAP[questId])
-        ? applyGains(currentPillars, QUEST_PILLAR_MAP[questId])
-        : currentPillars;
-      return {
-        ...s,
-        todayQuest: {
-          ...quest,
-          completed: alreadyDone
-            ? quest.completed.filter((id) => id !== questId)
-            : [...quest.completed, questId],
-        },
-        player: xp > 0 ? {
-          ...s.player,
-          totalXP: newXP,
-          level: Math.floor(newXP / XP_PER_LEVEL) + 1,
-        } : s.player,
-        apf: { ...s.apf, pillars: newPillars },
-      };
-    });
-  }, [update]);
-
-  const toggleBonusItem = useCallback((exerciseId, xp) => {
-    const today = new Date().toISOString().split("T")[0];
-    update((s) => {
-      const quest = s.todayQuest.date === today ? s.todayQuest : { date: today, completed: s.todayQuest.completed, skipped: [], bonusItems: [], bonusXP: 0 };
-      const already = quest.bonusItems?.includes(exerciseId);
-      const newItems = already
-        ? (quest.bonusItems || []).filter((id) => id !== exerciseId)
-        : [...(quest.bonusItems || []), exerciseId];
-      const xpDelta = already ? -xp : xp;
-      const newXP = Math.max(0, s.player.totalXP + xpDelta);
-      const isNutritionHabit = isNutritionHabitId(exerciseId);
-      const currentPillars = s.apf?.pillars || DEFAULT_PILLARS;
-      const newPillars = (!already && isNutritionHabit)
-        ? applyGains(currentPillars, { nut: 0.1 })
-        : currentPillars;
-      return {
-        ...s,
-        todayQuest: { ...quest, bonusItems: newItems, bonusXP: (quest.bonusXP || 0) + xpDelta },
-        player: { ...s.player, totalXP: newXP, level: Math.floor(newXP / XP_PER_LEVEL) + 1 },
-        apf: { ...s.apf, pillars: newPillars },
-      };
-    });
-  }, [update]);
-
-  const logBonusExercise = useCallback((exerciseId, value) => {
-    const today = new Date().toISOString().split("T")[0];
-    update((s) => {
-      const prev = s.bonusLogs?.[exerciseId] || [];
-      const filtered = prev.filter((e) => e.date !== today);
-      return {
-        ...s,
-        bonusLogs: {
-          ...s.bonusLogs,
-          [exerciseId]: value.trim() ? [...filtered, { date: today, value: value.trim() }] : filtered,
-        },
-      };
-    });
-  }, [update]);
-
-  const completeAllQuestsAndLog = useCallback((questIds, totalXP = 150) => {
-    const today = new Date().toISOString().split("T")[0];
-    update((s) => {
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-      const lastDate = s.player.lastTrainingDate;
-      const streak = lastDate === yesterday || lastDate === today ? s.player.streakDays + (lastDate === today ? 0 : 1) : 1;
-      const xp = totalXP;
-      return {
-        ...s,
-        todayQuest: { ...s.todayQuest, date: today, completed: questIds, skipped: [] },
-        sessionLog: [
-          { date: today, id: Date.now(), movements: questIds, xpEarned: xp, notes: "Auto-completed at 12h", autoCompleted: true },
-          ...s.sessionLog.slice(0, 199),
-        ],
-        player: {
-          ...s.player,
-          totalXP: s.player.totalXP + xp,
-          level: Math.floor((s.player.totalXP + xp) / XP_PER_LEVEL) + 1,
-          streakDays: streak,
-          lastTrainingDate: today,
-        },
-      };
-    });
-  }, [update]);
-
-  // ── APF Recovery ────────────────────────────────────────────────
-  const logRecovery = useCallback(({ hydrationMl, sleepHours }) => {
-    const date = new Date().toISOString().split("T")[0];
-    update((s) => ({
-      ...s,
-      apf: {
-        ...s.apf,
-        recoveryLog: {
-          ...s.apf.recoveryLog,
-          [date]: { hydrationMl, sleepHours },
-        },
-      },
-    }));
-  }, [update]);
-
-  const logRecoveryOz = useCallback(({ hydrationOz, sleepHours }) => {
-    logRecovery({ hydrationMl: ozToMl(hydrationOz), sleepHours });
-  }, [logRecovery]);
-
-  const getRecoveryForDate = useCallback((date = new Date().toISOString().split("T")[0]) => (
-    state.apf?.recoveryLog?.[date] || { hydrationMl: 0, sleepHours: 0 }
-  ), [state.apf?.recoveryLog]);
-
-  const getHydrationOz = useCallback((date = new Date().toISOString().split("T")[0]) => (
-    mlToOz(getRecoveryForDate(date).hydrationMl)
-  ), [getRecoveryForDate]);
-
-  // ── Steps ────────────────────────────────────────────────────────
-  // logSteps(total, meta?)
-  //   total  — cumulative step count for today
-  //   meta   — { delta, mode: "training"|"walking"|"idle", period: "morning"|"afternoon"|"evening"|"night" }
-  const logSteps = useCallback((total, meta = {}) => {
-    const today = new Date().toISOString().split("T")[0];
-    update((s) => {
-      const prev = s.stepsLog?.[today] || { total: 0, count: 0, xpAwarded: 0, training: 0, normal: 0, periods: {} };
-
-      const newXP = total >= 15000 ? 50 : total >= 10000 ? 30 : total >= 8000 ? 20 : total >= 5000 ? 10 : 0;
-      const xpDelta = newXP - (prev.xpAwarded || 0);
-      const newPlayerXP = Math.max(0, s.player.totalXP + xpDelta);
-
-      // Accumulate training vs normal steps
-      const delta  = meta.delta || 0;
-      const isTraining = meta.mode === "training";
-      const newTraining = (prev.training || 0) + (isTraining ? delta : 0);
-      const newNormal   = (prev.normal   || 0) + (!isTraining && delta > 0 ? delta : 0);
-
-      // Accumulate period counts
-      const prevPeriods = prev.periods || {};
-      const period = meta.period;
-      const newPeriods = period
-        ? { ...prevPeriods, [period]: (prevPeriods[period] || 0) + delta }
-        : prevPeriods;
-
-      return {
-        ...s,
-        stepsLog: {
-          ...s.stepsLog,
-          [today]: {
-            total,
-            count: total,          // keep legacy key in sync
-            xpAwarded: newXP,
-            training: newTraining,
-            normal: newNormal,
-            periods: newPeriods,
-          },
-        },
-        player: xpDelta !== 0 ? {
-          ...s.player,
-          totalXP: newPlayerXP,
-          level: Math.floor(newPlayerXP / XP_PER_LEVEL) + 1,
-        } : s.player,
-      };
-    });
-  }, [update]);
-
-  // ── Settings ────────────────────────────────────────────────────
+  // Settings ────────────────────────────────────────────────────
   const updateSettings = useCallback((newSettings) => {
     update((s) => ({
       ...s,
@@ -412,24 +209,6 @@ export function useStore() {
     });
     return map;
   }, [state.repLog]);
-
-  // ── Rest Days ────────────────────────────────────────────────────
-  const markRestDay = useCallback((date) => {
-    const d = date || new Date().toISOString().split("T")[0];
-    update((s) => {
-      const already = s.restDays.includes(d);
-      return {
-        ...s,
-        restDays: already ? s.restDays.filter((x) => x !== d) : [...s.restDays, d],
-      };
-    });
-  }, [update]);
-
-  const isRestDay = useCallback(
-    (date) => state.restDays.includes(date || new Date().toISOString().split("T")[0]),
-    [state.restDays]
-  );
-
   // All "active" dates = trained days + rest days
   const getActiveDates = useCallback(() => {
     const trained = new Set(state.repLog.map((e) => e.date));
