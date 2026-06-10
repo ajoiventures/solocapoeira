@@ -24,6 +24,10 @@ function getOrishaColor(id) {
   return ORISHA_COLORS[id] || "#D4A017";
 }
 
+function prefersReducedMotion() {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 const SLIDES = [
   {
     phase: "gather",
@@ -61,17 +65,16 @@ const SLIDES = [
 
 export default function EhiAscensionRitual({ integratedOrishas = [], onDismiss }) {
   const [slide, setSlide] = useState(0);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(() => prefersReducedMotion());
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    const reduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) { setVisible(true); return; }
+    if (visible) return undefined;
     const t = setTimeout(() => setVisible(true), 50);
     return () => clearTimeout(t);
-  }, []);
+  }, [visible]);
 
-  const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reducedMotion = prefersReducedMotion();
 
   function advance() {
     if (slide < SLIDES.length - 1) {

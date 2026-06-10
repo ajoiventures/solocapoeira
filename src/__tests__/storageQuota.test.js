@@ -76,8 +76,32 @@ describe("Storage Quota Protection", () => {
     expect(setItemSpy).toHaveBeenCalled();
   });
 
-  it("falls back to minimal state on QuotaExceededError and does not throw", () => {
-    // First setItem throws QuotaExceededError; second (fallback) throws too → logs error
+  it("writes minimal state after an initial QuotaExceededError", () => {
+    const quota = new Error("QuotaExceededError");
+    quota.name = "QuotaExceededError";
+    const originalSetItem = localStorage.setItem.bind(localStorage);
+    const setItemSpy = vi.spyOn(localStorage, "setItem")
+      .mockImplementationOnce(() => { throw quota; })
+      .mockImplementation(originalSetItem);
+
+    const state = {
+      player: { totalXP: 5000, level: 10 },
+      repLog: Array(1000).fill({ movementId: "ginga", count: 5, date: "2026-01-01" }),
+      sessionLog: Array(200).fill({ date: "2026-01-01", xpEarned: 100 }),
+      movementProgress: { ginga: { masteryLevel: 4, reps: 250 } },
+    };
+
+    expect(() => saveStoreState(state)).not.toThrow();
+    expect(setItemSpy).toHaveBeenCalledTimes(2);
+
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    expect(saved.player).toEqual(state.player);
+    expect(saved.movementProgress).toEqual(state.movementProgress);
+    expect(saved.repLog).toHaveLength(200);
+    expect(saved.sessionLog).toHaveLength(50);
+  });
+
+  it("logs an error when the minimal quota retry also fails", () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const quota = new Error("QuotaExceededError");
     quota.name = "QuotaExceededError";
@@ -92,26 +116,6 @@ describe("Storage Quota Protection", () => {
 
     expect(() => saveStoreState(state)).not.toThrow();
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("[store] localStorage full"));
-  });
-
-  it("preserves player data and trims logs during emergency trim", () => {
-    const state = {
-      player: { totalXP: 50000, level: 25, name: "TestHunter", streakDays: 10 },
-      movementProgress: { ginga: { masteryLevel: 5 } },
-      repLog: Array(1000).fill({ movementId: "ginga", count: 5, date: "2025-01-01" }),
-      sessionLog: Array(100).fill({ date: "2025-01-01", xpEarned: 100 }),
-    };
-
-    const trimmed = {
-      ...state,
-      repLog: state.repLog.slice(-200),
-      sessionLog: state.sessionLog.slice(-50),
-    };
-
-    expect(trimmed.player).toEqual(state.player);
-    expect(trimmed.movementProgress).toEqual(state.movementProgress);
-    expect(trimmed.repLog.length).toBe(200);
-    expect(trimmed.sessionLog.length).toBe(50);
   });
 
   it("estimates storage size accurately", () => {

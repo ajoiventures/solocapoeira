@@ -1,9 +1,9 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 140 tickets on the public board.
+- **Completed**: 142 tickets on the public board.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
-- **Current batch**: stabilization and ticket reconciliation before more content expansion.
+- **Current batch**: review-found QA repairs before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
 
 ---
@@ -50,6 +50,14 @@ Findings from the post-refactor review of OpenAI's store extraction + DailyQuest
 
 ### Test Quality
 - **A-QA-17** ✅ done: Fix `storageQuota.test.js` — warn/trim/integrity tests operate on plain JS objects and never call `saveStoreState`. Mock `localStorage.setItem` to throw `QuotaExceededError`, call the real function, assert on spies.
+
+- **A-QA-18** ✅ done: Repair new Ehi ritual lint regression.
+  - Fixed the `react-hooks/set-state-in-effect` violation in `src/components/EhiAscensionRitual.jsx`.
+  - Preserved reduced-motion support by initializing visibility from the media query.
+
+- **A-QA-19** ✅ done: Strengthen storage quota fallback coverage.
+  - Replace the remaining test-local emergency trim assertion with a real `saveStoreState` fallback-write test.
+  - Prove the first quota write can fail, the minimal retry can succeed, and critical player/movement data survives.
 
 ### Infrastructure
 - **A-OPS-05** ✅ done: Playwright webkit binary missing — 15/30 E2E tests fail with "Executable doesn't exist". Either run `npx playwright install webkit` or add `--project=chromium` to the test script so CI doesn't require webkit.
@@ -335,4 +343,3 @@ Everything below was audited and confirmed complete — built by the OpenAI + Cl
 
 ## Next Action
 Start with **Ticket #65: Create Orishas.js data** — foundational for all subsequent Orisha work.
-
