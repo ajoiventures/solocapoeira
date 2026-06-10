@@ -153,7 +153,7 @@ function ActivityHeatmap({ heatmapData, restDays }) {
   );
 }
 
-export default function Stats({ store }) {
+export default function Stats({ store, onNavigate }) {
   const { state } = store;
   const pillars = state.apf?.pillars || { for: 0, vel: 0, res: 0, nut: 0, fnd: 0, fld: 0 };
   const pools = computePools(state);
@@ -585,7 +585,7 @@ export default function Stats({ store }) {
 
       {/* ── Session History ────────────────────────────────────── */}
       {(() => {
-        const sessions = (state.sessionLog || []).slice(0, 14);
+        const sessions = (state.sessionLog || []).slice(0, 7);
         if (sessions.length === 0) return (
           <div className="card" style={{ textAlign: "center", padding: "28px 20px" }}>
             <div style={{ fontSize: 28, marginBottom: 10 }}>📋</div>
@@ -614,9 +614,23 @@ export default function Stats({ store }) {
           }
           currentGroup.sessions.push(s);
         });
+        const total = (state.sessionLog || []).length;
         return (
           <div className="card">
-            <div className="card-title" style={{ marginBottom: 12 }}>Session History</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <div className="card-title" style={{ marginBottom: 0 }}>Session History</div>
+              {onNavigate && total > 7 && (
+                <button
+                  onClick={() => onNavigate("history")}
+                  style={{
+                    background: "none", border: "none", cursor: "pointer",
+                    fontSize: 11, color: "var(--accent)", fontWeight: 700, padding: "2px 0",
+                  }}
+                >
+                  See all {total} →
+                </button>
+              )}
+            </div>
             {grouped.map((g) => (
               <div key={g.label} style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.5, color: "var(--text3)", textTransform: "uppercase", marginBottom: 6 }}>
