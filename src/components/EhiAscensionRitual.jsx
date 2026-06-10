@@ -65,23 +65,28 @@ export default function EhiAscensionRitual({ integratedOrishas = [], onDismiss }
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
+    const reduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) { setVisible(true); return; }
     const t = setTimeout(() => setVisible(true), 50);
     return () => clearTimeout(t);
   }, []);
 
+  const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
   function advance() {
     if (slide < SLIDES.length - 1) {
-      setExiting(true);
-      setTimeout(() => {
+      if (reducedMotion) {
         setSlide((s) => s + 1);
-        setExiting(false);
-      }, 200);
+      } else {
+        setExiting(true);
+        setTimeout(() => { setSlide((s) => s + 1); setExiting(false); }, 200);
+      }
     }
   }
 
   function dismiss() {
     setVisible(false);
-    setTimeout(onDismiss, 300);
+    setTimeout(onDismiss, reducedMotion ? 0 : 300);
   }
 
   const s = SLIDES[slide];
