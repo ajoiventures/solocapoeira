@@ -99,6 +99,15 @@ export default function ComboBuilder({ store, onBack }) {
     return combo.steps.map(id => MOVEMENTS.find(m => m.id === id)).filter(Boolean);
   }
 
+  function finishPractice(resolved, endTime) {
+    const completionTime = practiceStartTime ? Math.max(0, Math.round(endTime - practiceStartTime)) : null;
+    store.logComboPractice?.(selected.id, completionTime);
+    resolved.forEach((m) => store.incrementReps?.(m.id, 1));
+    setPracticing(false);
+    setPracticeStep(0);
+    setPracticeStartTime(null);
+  }
+
   // Practice mode
   if (practicing && selected) {
     const resolved = resolveSteps(selected);
@@ -143,15 +152,7 @@ export default function ComboBuilder({ store, onBack }) {
                 color: "#0A1018", fontWeight: 700, fontSize: 13, cursor: "pointer", marginRight: 8 }}>
               Repeat
             </button>
-            <button onClick={() => {
-              const completionTime = practiceStartTime ? Date.now() - practiceStartTime : null;
-              store.logComboPractice?.(selected.id, completionTime);
-              // Log 1 rep per movement so combo practice advances mastery
-              resolved.forEach((m) => store.incrementReps?.(m.id, 1));
-              setPracticing(false);
-              setPracticeStep(0);
-              setPracticeStartTime(null);
-            }}
+            <button onClick={(event) => finishPractice(resolved, event.timeStamp)}
               style={{ padding: "10px 28px", borderRadius: 8, background: "var(--surface2)",
                 border: "1px solid var(--border)", color: "var(--text)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
               Done
@@ -361,7 +362,7 @@ export default function ComboBuilder({ store, onBack }) {
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 6 }}>
-                    <button onClick={() => { setSelected(combo); setPracticing(true); setPracticeStep(0); setPracticeStartTime(Date.now()); }}
+                    <button onClick={(event) => { setSelected(combo); setPracticing(true); setPracticeStep(0); setPracticeStartTime(event.timeStamp); }}
                       style={{ padding: "6px 12px", borderRadius: 6, background: "var(--accent)", border: "none",
                         color: "#0A1018", fontWeight: 700, fontSize: 11, cursor: "pointer" }}>
                       Practice

@@ -43,6 +43,20 @@ The inspiration is the Solo Leveling universe: a hunter who trains alone, levels
 
 ---
 
+## Builder Operating Rule
+
+When developing the app, stabilize the web/PWA first. Do not start new Orisha, Mestre, mobile-wrapper, or native-app expansion while the local QA gate is red or while the ticket board and roadmap disagree.
+
+Current execution order:
+
+1. Restore clean gates: lint, tests, build, connective audit, and smoke checks.
+2. Reconcile tickets: `tickets.html`, `docs/REMAINING_TICKETS.md`, and this handbook must describe the same next batch.
+3. Pay architecture debt: split `useStore.js`, split `DailyQuest.jsx`, then run the render/memo audit.
+4. Verify production PWA reliability: live env keys, offline behavior, Supabase sync, PostHog events, and Sentry error capture.
+5. Only then continue advanced Orisha/Mestre sequence content and app conversion work.
+
+---
+
 ## 2. Getting Started
 
 ### First Session Checklist

@@ -1,10 +1,46 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 50 tickets (Phase 1-3 infrastructure + UI/UX polish)
-- **In Progress**: 1 ticket (#96 Layout reorganization)
-- **Pending**: 25+ tickets (Orishas, prestige mode, advanced features)
-- **Total Scope**: ~75 major features
+- **Completed**: 126 tickets on the public board.
+- **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
+- **Current batch**: stabilization and ticket reconciliation before more content expansion.
+- **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
+
+---
+
+## Stabilization Batch — Execute First
+
+These tickets prevent the repeated loop where new feature work starts while the gates and project surfaces disagree.
+
+- **A-PM-04**: Reconcile ticket board and execution order.
+  - `tickets.html`, this roadmap, and the handbook must agree on the next sequence.
+  - Web/PWA remains first; app wrapper work comes after production reliability is proven.
+
+- **A-QA-07**: Restore clean local QA gate.
+  - `npm run lint -- --quiet` must pass.
+  - React purity, stale imports, and generated test artifact noise must be fixed before feature batches.
+
+- **A-OPS-04**: Generated artifact hygiene.
+  - Ignore `test-results/` and `playwright-report/`.
+  - Playwright runs must not create commit/deploy loops.
+
+## Next Execution Batches
+
+### Batch 1 — Architecture Debt
+- **A-ENG-01**: Split `useStore.js` into domain slices.
+- **A-ENG-02**: Split `DailyQuest.jsx`; mount or remove retained legacy cards during extraction.
+- **B-ENG-08**: Memo/callback audit after store boundaries are stable.
+
+### Batch 2 — PWA Reliability
+- **B-OPS-03**: Offline-first verification on the production Netlify app.
+- **B-OPS-02**: Lighthouse/performance budget pass.
+- **A-INF-05 / A-QA-05**: Resolve GitHub Actions runner/workflow-scope blockers when the platform token path is available.
+
+### Batch 3 — Mobile and Accessibility Polish
+- **B-UX-04**: Mobile touch targets and one-hand ergonomics.
+- **C-UX-08**: Reduced motion mode.
+- **C-UX-09**: Landscape orientation layout.
+- **C-UX-10**: Color blind mode.
 
 ---
 

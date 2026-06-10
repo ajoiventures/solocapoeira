@@ -1,6 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { SPRINT_1 } from "../data/sprint.js";
-import { signInWithEmail, signOut, getCurrentUser, onAuthChange } from "../lib/cloudSync.js";
 import { isSupabaseEnabled } from "../lib/supabase.js";
 import CloudSyncStatus from "../components/CloudSyncStatus.jsx";
 
@@ -24,29 +23,6 @@ export default function Settings({ store, theme, setTheme, navigate }) {
   const [fontSize, setFontSizeState] = useState(
     () => localStorage.getItem("sl_font_size") || "default"
   );
-
-  // Auth state
-  const [authUser, setAuthUser] = useState(null);
-  const [authEmail, setAuthEmail] = useState("");
-  const [authStatus, setAuthStatus] = useState(null); // null | "sending" | "sent" | "error"
-
-  useEffect(() => {
-    getCurrentUser().then(setAuthUser);
-    return onAuthChange(setAuthUser);
-  }, []);
-
-  async function handleSignIn(e) {
-    e.preventDefault();
-    if (!authEmail.trim()) return;
-    setAuthStatus("sending");
-    const { error } = await signInWithEmail(authEmail.trim());
-    setAuthStatus(error ? "error" : "sent");
-  }
-
-  async function handleSignOut() {
-    await signOut();
-    setAuthUser(null);
-  }
 
   function applyFontSize(val) {
     setFontSizeState(val);
@@ -244,8 +220,6 @@ export default function Settings({ store, theme, setTheme, navigate }) {
         <CloudSyncStatus
           syncStatus={store.state.cloudSyncStatus}
           lastSyncTime={store.state.lastCloudSyncTime}
-          onSignIn={() => setAuthEmail("")}
-          onSignOut={() => setAuthUser(null)}
         />
       )}
       {!isSupabaseEnabled && (

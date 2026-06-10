@@ -55,7 +55,6 @@ const Glossary = lazy(() => import("./pages/Glossary.jsx"));
 const ComboBuilder = lazy(() => import("./pages/ComboBuilder.jsx"));
 const BerimbauTimer = lazy(() => import("./pages/BerimbauTimer.jsx"));
 const MestreDetail = lazy(() => import("./pages/MestreDetail.jsx"));
-const MestresLibrary = lazy(() => import("./pages/MestresLibrary.jsx"));
 const ConceptTrees = lazy(() => import("./pages/ConceptTrees.jsx"));
 const PhaseProgress = lazy(() => import("./pages/PhaseProgress.jsx"));
 const Profile = lazy(() => import("./pages/Profile.jsx"));

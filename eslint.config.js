@@ -8,6 +8,8 @@ export default defineConfig([
   globalIgnores([
     'dist',
     '.vite',
+    'test-results',
+    'playwright-report',
     'assets',
     'sw.js',
     'workbox-*.js',
@@ -30,6 +32,16 @@ export default defineConfig([
     files: ['playwright.config.js'],
     languageOptions: {
       globals: globals.node,
+    },
+  },
+  {
+    files: ['src/**/*.test.js', 'src/**/*.test.jsx'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.vitest,
+      },
     },
   },
 ])

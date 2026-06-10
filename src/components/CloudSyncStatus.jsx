@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { signInWithEmail, signOut, getCurrentUser, onAuthChange } from "../lib/cloudSync.js";
 
-export default function CloudSyncStatus({ syncStatus = "idle", lastSyncTime = null, onSignIn, onSignOut }) {
+export default function CloudSyncStatus({ syncStatus = "idle", lastSyncTime = null, onSignOut }) {
   const [authUser, setAuthUser] = useState(null);
   const [authEmail, setAuthEmail] = useState("");
   const [authStatus, setAuthStatus] = useState("idle");

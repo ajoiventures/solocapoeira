@@ -1,21 +1,18 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { getPhaseById } from "../data/trainingPhases.js";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { getMovementById, MOVEMENTS } from "../data/movements.js";
 import { SKILL_TREES } from "../data/trees.js";
 import { FOUNDATION_ROTATION, SPRINT_1 } from "../data/sprint.js";
-import { buildBonusQuest, getRank, getNextRank, getLevelFromXP, getLevelProgress } from "../data/bonusQuests.js";
+import { buildBonusQuest, getRank, getLevelFromXP, getLevelProgress } from "../data/bonusQuests.js";
 import { getDailyExtras, getSandSession } from "../data/extraWork.js";
 import { computeVIG } from "../data/apf.js";
 import { isMovementAvailableInPhase } from "../data/movementPhases.js";
 import StepsTracker from "../components/StepsTracker.jsx";
-import PhaseIndicator from "../components/PhaseIndicator.jsx";
 import { getAllMestres } from "../data/mestres.js";
-import { getDailyBonusChallenge } from "../data/bonusChallenges.js";
 import { getCurrentMonthChallenge } from "../data/monthlyChallenges.js";
 import { getAllCoreOrishas } from "../data/orishas.js";
-import { BOSS_TESTS } from "../data/bossTests.js"; // used only for WeekContextCard sprint boss field
-import { SEQUENCES, RANK_META, SEQ_TYPES, RANK_ORDER } from "../data/sequences.js";
 import { ozToMl } from "../data/units.js";
+import { BOSS_TESTS } from "../data/bossTests.js";
+import { SEQUENCES, RANK_META, SEQ_TYPES, RANK_ORDER } from "../data/sequences.js";
 import FlowSessionCard from "../components/FlowSessionCard.jsx";
 import DailyBonusChallenge from "../components/DailyBonusChallenge.jsx";
 import SessionLogBlock from "../components/SessionLogBlock.jsx";
@@ -518,11 +515,6 @@ function SandSessionCard({ navigate }) {
 
 const MASTERY_ND_LABELS = ["Locked", "Aware", "Drilling", "Owning", "Flowing", "Instinct"];
 const MASTERY_ND_COLORS = ["var(--text3)", "var(--blue)", "#8b5cf6", "var(--orange)", "var(--green)", "var(--accent)"];
-
-const FLOW_DURATION = 20 * 60; // 20 minutes
-
-
-
 
 function NeedsDrillingCard({ store, navigate }) {
   const [open, setOpen] = useState(false);
@@ -1182,6 +1174,16 @@ function ExtraWorkSection({ allExtras, dailyExtras, checkedBonusItems, store, na
 }
 
 // ── Collapsible section wrapper ────────────────────────────────────────────
+// Kept during the Daily Quest extraction pass; A-ENG-02 will either mount or remove these.
+const LEGACY_DAILY_QUEST_CARDS = [
+  SandSessionCard,
+  WeekContextCard,
+  NewlyAvailableCard,
+  SequenceOfTheDayCard,
+  ExtraWorkSection,
+];
+void LEGACY_DAILY_QUEST_CARDS;
+
 function CollapsibleSection({ label, icon, badge, badgeColor, open, onToggle, children }) {
   return (
     <div style={{ marginBottom: 10 }}>
@@ -1239,9 +1241,7 @@ export default function DailyQuest({ store, navigate }) {
   const week = player.currentWeek || 1;
   const level = getLevelFromXP(player.totalXP);
   const rank = getRank(level);
-  const nextRank = getNextRank(level);
   const { streak = 0, inGrace = false } = store.getStreakDays?.() ?? {};
-  const weeklyConsistency = store.getWeeklyConsistency?.() ?? { trained: 0, total: 1 };
   const todayStr = new Date().toISOString().split("T")[0];
   const restToday = store.isRestDay?.(todayStr) ?? false;
   const { pct: levelPct } = getLevelProgress(player.totalXP);
@@ -1253,13 +1253,9 @@ export default function DailyQuest({ store, navigate }) {
 
   const currentPhase = store.getCurrentPhase?.() ?? 1;
   const phaseCompletion = store.getPhaseCompletionPercent?.() ?? 0;
-  const canAdvancePhase = store.canAdvanceToNextPhase?.() ?? false;
-  const phase = getPhaseById(currentPhase);
 
   const [bonusOpen, setBonusOpen] = useState(false);
-  const [sandOpen, setSandOpen] = useState(false);
   const [timerOpen, setTimerOpen] = useState(false);
-  const [drillingOpen, setDrillingOpen] = useState(false);
 
   return (
     <div className="page">
@@ -1510,7 +1506,6 @@ export default function DailyQuest({ store, navigate }) {
         if (sessions === 0) return null;
 
         // Best movement this week
-        const today = new Date().toISOString().split("T")[0];
         const weekStart = (() => {
           const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().split("T")[0];
         })();
@@ -1519,7 +1514,6 @@ export default function DailyQuest({ store, navigate }) {
           .filter((e) => e.date >= weekStart)
           .forEach((e) => { repsByMovement[e.movementId] = (repsByMovement[e.movementId] || 0) + e.count; });
         const topId = Object.entries(repsByMovement).sort((a, b) => b[1] - a[1])[0]?.[0];
-        const topMv = topId ? store.state.movementProgress?.[topId] : null;
         const topName = topId?.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) || "";
 
         return (
