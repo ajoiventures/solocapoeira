@@ -1,7 +1,7 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 137 tickets on the public board.
+- **Completed**: 138 tickets on the public board.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: stabilization and ticket reconciliation before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -42,7 +42,8 @@ These tickets prevent the repeated loop where new feature work starts while the 
   - **A-ENG-02a done**: Extracted `CheckInCard` and `CollapsibleSection` into `src/components/daily/`.
   - **A-ENG-02b done**: Extracted `BonusSection` into `src/components/daily/BonusSection.jsx`.
   - **A-ENG-02c done**: Extracted `NeedsDrillingCard` into `src/components/daily/NeedsDrillingCard.jsx`.
-  - Next: extract timer/session panels and remove retained legacy cards.
+  - **A-ENG-02d done**: Extracted `FlowTimer` into `src/components/daily/FlowTimer.jsx`.
+  - Next: extract session panels and remove retained legacy cards.
 - **B-ENG-08**: Memo/callback audit after store boundaries are stable.
 
 ### Batch 2 — PWA Reliability
