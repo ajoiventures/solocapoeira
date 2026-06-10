@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { getRank } from "../data/rankUtils.js";
 
 // Mock leaderboard data for demo
 const MOCK_PLAYERS = [
@@ -33,8 +34,34 @@ export default function Leaderboards({ store, onBack }) {
   );
 
   const currentLeaderboard = tab === "xp" ? xpLeaderboard : streakLeaderboard;
-  // Player is always below the mock leaderboard until real backend data exists
-  const playerPosition = currentLeaderboard.length + 1;
+
+  // Build the player entry with their real stats
+  const playerRankObj = getRank(playerLevel);
+  const playerEntry = useMemo(() => ({
+    id: "player_you",
+    name: playerName,
+    level: playerLevel,
+    totalXP: playerXP,
+    streak: playerStreak,
+    rank: playerRankObj?.rank || "U",
+    isPlayer: true,
+  }), [playerName, playerLevel, playerXP, playerStreak, playerRankObj]);
+
+  // Insert player into the correct sorted position
+  const rankedList = useMemo(() => {
+    const sortKey = tab === "xp" ? "totalXP" : "streak";
+    const playerVal = tab === "xp" ? playerXP : playerStreak;
+    const insertAt = currentLeaderboard.findIndex((p) => p[sortKey] <= playerVal);
+    const list = [...currentLeaderboard];
+    if (insertAt === -1) {
+      list.push(playerEntry);
+    } else {
+      list.splice(insertAt, 0, playerEntry);
+    }
+    return list;
+  }, [currentLeaderboard, tab, playerXP, playerStreak, playerEntry]);
+
+  const playerPosition = rankedList.findIndex((p) => p.isPlayer) + 1;
 
   const getRankColor = (rank) => {
     if (rank.startsWith("S+")) return "var(--yellow)";
@@ -141,13 +168,13 @@ export default function Leaderboards({ store, onBack }) {
 
       {/* Leaderboard List */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {currentLeaderboard.map((player, index) => (
+        {rankedList.map((player, index) => (
           <div
             key={player.id}
             style={{
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
-              borderLeft: `3px solid ${getRankColor(player.rank)}`,
+              background: player.isPlayer ? "rgba(79,124,255,0.08)" : "var(--surface)",
+              border: player.isPlayer ? "2px solid rgba(79,124,255,0.4)" : "1px solid var(--border)",
+              borderLeft: `3px solid ${player.isPlayer ? "var(--blue)" : getRankColor(player.rank)}`,
               borderRadius: 10,
               padding: "12px 14px",
               display: "flex",
@@ -162,13 +189,13 @@ export default function Leaderboards({ store, onBack }) {
                 height: 32,
                 borderRadius: "50%",
                 background: index < 3 ? `${getRankColor(player.rank)}22` : "var(--surface2)",
-                border: `2px solid ${getRankColor(player.rank)}`,
+                border: `2px solid ${player.isPlayer ? "var(--blue)" : getRankColor(player.rank)}`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontWeight: 900,
                 fontSize: index < 3 ? 16 : 14,
-                color: getRankColor(player.rank),
+                color: player.isPlayer ? "var(--blue)" : getRankColor(player.rank),
                 flexShrink: 0,
               }}
             >
@@ -177,8 +204,8 @@ export default function Leaderboards({ store, onBack }) {
 
             {/* Player Info */}
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "var(--text)", marginBottom: 2 }}>
-                {player.name}
+              <div style={{ fontSize: 12, fontWeight: 800, color: player.isPlayer ? "var(--blue)" : "var(--text)", marginBottom: 2 }}>
+                {player.name}{player.isPlayer && " (You)"}
               </div>
               <div style={{ fontSize: 10, color: "var(--text3)" }}>
                 {tab === "xp"
@@ -192,8 +219,8 @@ export default function Leaderboards({ store, onBack }) {
               style={{
                 padding: "3px 9px",
                 borderRadius: 6,
-                background: `${getRankColor(player.rank)}18`,
-                color: getRankColor(player.rank),
+                background: player.isPlayer ? "rgba(79,124,255,0.15)" : `${getRankColor(player.rank)}18`,
+                color: player.isPlayer ? "var(--blue)" : getRankColor(player.rank),
                 fontSize: 10,
                 fontWeight: 700,
                 flexShrink: 0,

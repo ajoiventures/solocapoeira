@@ -55,6 +55,22 @@ export const ACHIEVEMENTS = [
     color: "#D9A441",
     category: "streak",
   },
+  {
+    id: "streak_60",
+    title: "Diamond Streak",
+    desc: "Train 60 days in a row — this is rare",
+    icon: "💎",
+    color: "#4F7CFF",
+    category: "streak",
+  },
+  {
+    id: "streak_100",
+    title: "Immortal Warrior",
+    desc: "100 days without breaking. You are the roda.",
+    icon: "👑",
+    color: "#FFD700",
+    category: "streak",
+  },
   // ── Mastery ──────────────────────────────────────────────────────
   {
     id: "first_owning",
@@ -256,9 +272,11 @@ export function checkAchievements(state) {
   check("reps_10000",    totalReps >= 10000);
 
   // Streak
-  check("streak_3",  streak >= 3);
-  check("streak_7",  streak >= 7);
-  check("streak_30", streak >= 30);
+  check("streak_3",   streak >= 3);
+  check("streak_7",   streak >= 7);
+  check("streak_30",  streak >= 30);
+  check("streak_60",  streak >= 60);
+  check("streak_100", streak >= 100);
 
   // Mastery
   check("first_mastery",  drillingCount >= 1);
