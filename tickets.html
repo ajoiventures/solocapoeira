@@ -224,8 +224,8 @@
     <a href="#backlog">Backlog</a>
   </nav>
   <div class="hright">
-    <div class="hstat"><div class="hstat-v">127</div><div class="hstat-l">Done</div></div>
-    <div class="hstat"><div class="hstat-v">217</div><div class="hstat-l">Total</div></div>
+    <div class="hstat"><div class="hstat-v">129</div><div class="hstat-l">Done</div></div>
+    <div class="hstat"><div class="hstat-v">219</div><div class="hstat-l">Total</div></div>
     <div class="hstat"><div class="hstat-v">59%</div><div class="hstat-l">Complete</div></div>
     <div class="hpill">B+ → A target</div>
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">◐ Dark</button>
@@ -299,7 +299,7 @@
         </div>
         <div class="pipe-body">
           <div class="tk doing-tk"><div class="tk-id">A-PM-04 · P0</div><div class="tk-title">Reconcile ticket board and execution order</div><div class="tk-desc">Make tickets.html and handbook agree: stabilize gates first, then split store/DailyQuest, then verify PWA/mobile.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-qa">planning</span></div></div>
-          <div class="tk doing-tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js into slices</div><div class="tk-desc">Persistence/defaults and post-update effects are extracted. Next: movement, recovery, boss, quest, and prestige domain action slices.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
+          <div class="tk doing-tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js into slices</div><div class="tk-desc">Persistence, post-update effects, movement actions, and boss actions are extracted. Next: recovery/session, quest, sequence, and prestige action slices.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
           <div class="tk doing-tk"><div class="tk-id">A-QA-07 · P0</div><div class="tk-title">Keep clean local QA gate</div><div class="tk-desc">Every architecture slice must keep lint, unit tests, build, connective audit, and Chromium smoke green.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-qa">testing</span></div></div>
         </div>
       </div>
@@ -308,12 +308,14 @@
       <div class="pipe-col pipe-done-col">
         <div class="pipe-hd">
           <span class="pipe-title">Recently Done</span>
-          <span class="pipe-count">127</span>
+          <span class="pipe-count">129</span>
           <span style="font-size:9px;color:var(--green);margin-left:auto">59% total</span>
         </div>
         <div class="pipe-body">
           <div class="tk done-tk"><div class="tk-id">A-PM-04</div><div class="tk-title">Stabilization-first ticket plan recorded</div></div>
           <div class="tk done-tk"><div class="tk-id">A-ENG-01a</div><div class="tk-title">Store persistence and update pipeline extracted</div></div>
+          <div class="tk done-tk"><div class="tk-id">A-ENG-01c</div><div class="tk-title">Movement store actions extracted</div></div>
+          <div class="tk done-tk"><div class="tk-id">A-ENG-01d</div><div class="tk-title">Boss test store actions extracted</div></div>
           <div class="tk done-tk"><div class="tk-id">A-QA-07</div><div class="tk-title">Lint gate repaired after Claude drift</div></div>
           <div class="tk done-tk"><div class="tk-id">A-OPS-04</div><div class="tk-title">Playwright artifacts ignored</div></div>
           <div class="tk done-tk"><div class="tk-id">A-QA-06</div><div class="tk-title">DailyQuest render snapshots for 4 states</div></div>

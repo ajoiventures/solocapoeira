@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { track } from "../lib/analytics.js";
 import { identifyUser, resetAnalyticsUser } from "../lib/analytics.js";
-import { getMovementMetaById, getUnlockedMovementIdsFromProgress } from "../data/movementIndex.js";
-import { QUEST_PILLAR_MAP, TREE_PILLAR_MAP, BOSS_PILLAR_GAINS, applyGains, DEFAULT_PILLARS } from "../data/apf.js";
+import { getUnlockedMovementIdsFromProgress } from "../data/movementIndex.js";
+import { QUEST_PILLAR_MAP, applyGains, DEFAULT_PILLARS } from "../data/apf.js";
 import { isNutritionHabitId } from "../data/nutritionHabitIds.js";
 import { XP_PER_LEVEL } from "../data/constants.js";
 import { getStoreMestreLineage, getStoreLineageProgress } from "../data/storeMestreLineage.js";
@@ -20,6 +20,9 @@ import {
   saveStoreState,
 } from "./storePersistence.js";
 import { applyPostUpdateEffects } from "./storeUpdatePipeline.js";
+import { getPrestigeMultiplier } from "./storeCalculations.js";
+import { useMovementActions } from "./useMovementActions.js";
+import { useBossActions } from "./useBossActions.js";
 
 export function useStore() {
   const [state, setState] = useState(loadStoreState);
@@ -92,139 +95,7 @@ export function useStore() {
   // DOMAIN 1: PLAYER PROGRESSION (Movements, Mastery, Training Phases)
   // ═══════════════════════════════════════════════════════════════════════
 
-  // ── Prestige XP multiplier helper (used internally) ────────────
-  function getPrestigeMultiplier(s) {
-    const integratedBonus = 1 + ((s.orishasIntegrated?.length || 0) * 0.02);
-    const ehiBonus = s.ehiStatus?.prestigeMode ? 2 : 1;
-    return integratedBonus * ehiBonus;
-  }
-
-  // ── Movement Actions ────────────────────────────────────────────
-  const setMasteryLevel = useCallback((movementId, level) => {
-    update((s) => {
-      const prevLevel = s.movementProgress[movementId]?.masteryLevel || 0;
-      const isIncrease = level > prevLevel;
-      const movement = getMovementMetaById(movementId);
-      let newPillars = s.apf?.pillars || DEFAULT_PILLARS;
-      if (isIncrease) {
-        const treeGains = movement && TREE_PILLAR_MAP[movement.tree];
-        if (treeGains && movement) {
-          const scaled = Object.fromEntries(
-            Object.entries(treeGains).map(([k, v]) => [k, v * (movement.tier || 1)])
-          );
-          newPillars = applyGains(newPillars, scaled);
-        }
-      }
-      // Award XP on advancement: 50 × tier × new mastery level × prestige multiplier
-      const baseXp = isIncrease
-        ? 50 * (movement?.tier || 1) * level
-        : 0;
-      const xpGain = baseXp > 0 ? Math.round(baseXp * getPrestigeMultiplier(s)) : 0;
-      const newXP = s.player.totalXP + xpGain;
-      return {
-        ...s,
-        movementProgress: {
-          ...s.movementProgress,
-          [movementId]: {
-            ...(s.movementProgress[movementId] || {}),
-            masteryLevel: level,
-            unlockedAt: s.movementProgress[movementId]?.unlockedAt || new Date().toISOString(),
-            masteredAt: level === 5 ? new Date().toISOString() : s.movementProgress[movementId]?.masteredAt,
-          },
-        },
-        player: xpGain > 0 ? {
-          ...s.player,
-          totalXP: newXP,
-          level: Math.floor(newXP / XP_PER_LEVEL) + 1,
-        } : s.player,
-        apf: { ...s.apf, pillars: newPillars },
-      };
-    });
-  }, [update]);
-
-  const incrementReps = useCallback((movementId, reps = 1) => {
-    update((s) => {
-      const today = new Date().toISOString().split("T")[0];
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-      const lastDate = s.player.lastTrainingDate;
-      const newStreak = lastDate === today
-        ? s.player.streakDays
-        : lastDate === yesterday
-        ? s.player.streakDays + 1
-        : 1;
-      // Append to rep log, keep newest first, max 1000 entries
-      const newEntry = { movementId, count: reps, date: today };
-      const newRepLog = [newEntry, ...s.repLog].slice(0, 1000);
-
-      // Auto-advance mastery when rep threshold crossed
-      const prev = s.movementProgress[movementId] || { masteryLevel: 1, reps: 0 };
-      const newTotalReps = (prev.reps || 0) + reps;
-      // Apply Orisha strength bonus to thresholds (same reduction as MovementDetail display)
-      const strengthBonus = Math.min((s.orishasIntegrated?.length || 0) * 0.05, 0.30);
-      const rawThresholds = [0, 5, 50, 200, 600, 1200];
-      const thresholds = strengthBonus > 0
-        ? rawThresholds.map((t, i) => i === 0 ? 0 : Math.max(1, Math.ceil(t * (1 - strengthBonus))))
-        : rawThresholds;
-      const prevMastery = prev.masteryLevel || 1;
-      let newMastery = prevMastery;
-      for (let lvl = prevMastery + 1; lvl <= 5; lvl++) {
-        if (newTotalReps >= thresholds[lvl]) newMastery = lvl;
-        else break;
-      }
-      const masteryAdvanced = newMastery > prevMastery;
-      const movement = getMovementMetaById(movementId);
-      // XP for mastery advance (only if auto-advanced)
-      const masteryXp = masteryAdvanced
-        ? Math.round(50 * (movement?.tier || 1) * newMastery * getPrestigeMultiplier(s))
-        : 0;
-
-      // Push milestone to queue
-      const newMilestones = masteryAdvanced ? [
-        {
-          movementId,
-          movementName: movement?.name || movementId,
-          level: newMastery,
-          xp: masteryXp,
-          date: today,
-          id: `${movementId}_${newMastery}_${Date.now()}`,
-        },
-        ...(s.masteryMilestones || []),
-      ].slice(0, 20) : (s.masteryMilestones || []);
-
-      // Fire analytics
-      track.repsLogged(movementId, reps, newMastery);
-      if (masteryAdvanced) track.masteryAdvanced(movementId, prevMastery, newMastery);
-      if (newStreak > (s.player.streakDays || 0) && [3, 7, 14, 30, 60, 100].includes(newStreak)) {
-        track.streakReached(newStreak);
-      }
-
-      return {
-        ...s,
-        movementProgress: {
-          ...s.movementProgress,
-          [movementId]: {
-            ...prev,
-            reps: newTotalReps,
-            masteryLevel: newMastery,
-            masteredAt: newMastery === 5 && prevMastery < 5 ? today : prev.masteredAt,
-          },
-        },
-        // Grant grace token at every 7-day streak milestone (max 3)
-        graceTokens: (newStreak % 7 === 0 && newStreak > (s.player.streakDays || 0))
-          ? Math.min(3, (s.graceTokens || 0) + 1)
-          : (s.graceTokens || 0),
-        masteryMilestones: newMilestones,
-        repLog: newRepLog,
-        player: {
-          ...s.player,
-          streakDays: newStreak,
-          lastTrainingDate: today,
-          totalXP: s.player.totalXP + masteryXp,
-          level: Math.floor((s.player.totalXP + masteryXp) / XP_PER_LEVEL) + 1,
-        },
-      };
-    });
-  }, [update]);
+  const { setMasteryLevel, incrementReps } = useMovementActions(update);
 
   // ═══════════════════════════════════════════════════════════════════════
   // DOMAIN 2: RECOVERY & HEALTH (Pain, VIG, Steps, Rest Days)
@@ -276,96 +147,8 @@ export function useStore() {
   }, [update]);
 
   // ═══════════════════════════════════════════════════════════════════════
-  // DOMAIN 3: BOSS & MESTRE BATTLES (Progression, Defeats, Lineage)
-  // ═══════════════════════════════════════════════════════════════════════
+  const { passBoss, unpassBoss, unmarkBoss, recordBossAttempt } = useBossActions(update);
 
-  // ── Boss Tests ──────────────────────────────────────────────────
-  const passBoss = useCallback((bossId, xp = 0) => {
-    update((s) => {
-      const alreadyAwarded = s.bossProgress[bossId]?.xpAwarded;
-      const xpToAdd = alreadyAwarded ? 0 : Math.round(xp * getPrestigeMultiplier(s));
-      const currentPillars = s.apf?.pillars || DEFAULT_PILLARS;
-      const newPillars = (!alreadyAwarded && BOSS_PILLAR_GAINS[bossId])
-        ? applyGains(currentPillars, BOSS_PILLAR_GAINS[bossId])
-        : currentPillars;
-      return {
-        ...s,
-        bossProgress: {
-          ...s.bossProgress,
-          [bossId]: {
-            passed: true,
-            passedAt: new Date().toISOString(),
-            attempts: (s.bossProgress[bossId]?.attempts || 0) + 1,
-            xpAwarded: true,
-            xpAmount: xp,
-          },
-        },
-        player: {
-          ...s.player,
-          totalXP: s.player.totalXP + xpToAdd,
-          level: Math.floor((s.player.totalXP + xpToAdd) / XP_PER_LEVEL) + 1,
-        },
-        apf: { ...s.apf, pillars: newPillars },
-      };
-    });
-  }, [update]);
-
-  // Re-test: unmark passed, keep XP (won't re-award on next pass)
-  const unpassBoss = useCallback((bossId) => {
-    update((s) => ({
-      ...s,
-      bossProgress: {
-        ...s.bossProgress,
-        [bossId]: {
-          ...(s.bossProgress[bossId] || {}),
-          passed: false,
-          passedAt: null,
-        },
-      },
-    }));
-  }, [update]);
-
-  // Unmark: unmark AND subtract XP (for accidental clicks)
-  const unmarkBoss = useCallback((bossId) => {
-    update((s) => {
-      const xp = s.bossProgress[bossId]?.xpAmount || 0;
-      const newXP = Math.max(0, s.player.totalXP - xp);
-      return {
-        ...s,
-        bossProgress: {
-          ...s.bossProgress,
-          [bossId]: {
-            ...(s.bossProgress[bossId] || {}),
-            passed: false,
-            passedAt: null,
-            xpAwarded: false,
-            xpAmount: 0,
-          },
-        },
-        player: {
-          ...s.player,
-          totalXP: newXP,
-          level: Math.floor(newXP / XP_PER_LEVEL) + 1,
-        },
-      };
-    });
-  }, [update]);
-
-  const recordBossAttempt = useCallback((bossId) => {
-    update((s) => ({
-      ...s,
-      bossProgress: {
-        ...s.bossProgress,
-        [bossId]: {
-          ...(s.bossProgress[bossId] || {}),
-          passed: false,
-          attempts: (s.bossProgress[bossId]?.attempts || 0) + 1,
-        },
-      },
-    }));
-  }, [update]);
-
-  // ═══════════════════════════════════════════════════════════════════════
   // DOMAIN 4: SESSIONS & QUESTS (Daily Quests, Logging, Bonuses)
   // ═══════════════════════════════════════════════════════════════════════
 
