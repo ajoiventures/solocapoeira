@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
 import { FOUNDATION_ROTATION, SPRINT_1 } from "../data/sprint.js";
 import { buildBonusQuest, getRank, getLevelFromXP, getLevelProgress } from "../data/bonusQuests.js";
 import { getDailyExtras, getSandSession } from "../data/extraWork.js";
@@ -198,28 +198,30 @@ function PainWarningBanner({ store }) {
 // ── Newly Available Movements Card (#37) ────────────────────────
 export default function DailyQuest({ store, navigate }) {
   const today = new Date().toISOString().split("T")[0];
-  const { todayQuest, player } = store.state;
-  const questState = todayQuest.date === today ? todayQuest : { date: today, completed: [], skipped: [], bonusItems: [], bonusXP: 0 };
-  const quests = buildDailyQuests(store);
-  const doneCount = quests.filter((q) => questState.completed.includes(q.id)).length;
-  const allDone = doneCount === quests.length;
+  const { todayQuest, player, painLog } = store.state;
+  const questState = todayQuest.date === today
+    ? { drills: {}, ...todayQuest }
+    : { date: today, completed: [], skipped: [], bonusItems: [], bonusXP: 0, drills: {} };
   const checkedBonusItems = questState.bonusItems || [];
   const painToday = store.getTodayPain();
   const dow = new Date().getDay();
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const week = player.currentWeek || 1;
-  const level = getLevelFromXP(player.totalXP);
-  const rank = getRank(level);
+  const level = useMemo(() => getLevelFromXP(player.totalXP), [player.totalXP]);
+  const rank = useMemo(() => getRank(level), [level]);
+  const { pct: levelPct } = useMemo(() => getLevelProgress(player.totalXP), [player.totalXP]);
   const { streak = 0, inGrace = false } = store.getStreakDays?.() ?? {};
   const restToday = store.isRestDay?.(today) ?? false;
-  const { pct: levelPct } = getLevelProgress(player.totalXP);
-  const bonusQuest = buildBonusQuest(week, dow, level);
-  const dailyExtras = getDailyExtras(week, dow);
+  const currentPhase = store.getCurrentPhase?.() ?? 1;
+  const quests = useMemo(() => buildDailyQuests(store), [week, dow, painLog, currentPhase]); // eslint-disable-line react-hooks/exhaustive-deps
+  const doneCount = quests.filter((q) => questState.completed.includes(q.id)).length;
+  const allDone = doneCount === quests.length;
+  const bonusQuest = useMemo(() => buildBonusQuest(week, dow, level), [week, dow, level]);
+  const dailyExtras = useMemo(() => getDailyExtras(week, dow), [week, dow]);
   const [sessionCelebration, setSessionCelebration] = useState(null); // { xp, streak, questCount }
 
   useAutoComplete(quests, store, questState);
 
-  const currentPhase = store.getCurrentPhase?.() ?? 1;
   const phaseCompletion = store.getPhaseCompletionPercent?.() ?? 0;
 
   const [bonusOpen, setBonusOpen] = useState(false);

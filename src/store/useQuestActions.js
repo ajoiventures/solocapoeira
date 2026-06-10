@@ -5,12 +5,16 @@ import { isNutritionHabitId } from "../data/nutritionHabitIds.js";
 import { getPrestigeMultiplier } from "./storeCalculations.js";
 
 export function useQuestActions(update) {
+  const getTodayQuest = (state, today) => (
+    state.todayQuest.date === today
+      ? { drills: {}, ...state.todayQuest }
+      : { date: today, completed: [], skipped: [], bonusItems: [], bonusXP: 0, drills: {} }
+  );
+
   const completeQuestItem = useCallback((questId, xp = 0) => {
     const today = new Date().toISOString().split("T")[0];
     update((state) => {
-      const quest = state.todayQuest.date === today
-        ? state.todayQuest
-        : { date: today, completed: [], skipped: [], bonusItems: [], bonusXP: 0 };
+      const quest = getTodayQuest(state, today);
       const alreadyDone = quest.completed.includes(questId);
       const scaledXP = !alreadyDone && xp > 0 ? Math.round(xp * getPrestigeMultiplier(state)) : xp;
       const xpDelta = alreadyDone ? -xp : scaledXP;
@@ -64,6 +68,53 @@ export function useQuestActions(update) {
     });
   }, [update]);
 
+  const toggleQuestDrill = useCallback((questId, drillKey, totalUnits, xp = 0) => {
+    if (!questId || !drillKey) return;
+    const today = new Date().toISOString().split("T")[0];
+    update((state) => {
+      const quest = getTodayQuest(state, today);
+      const currentKeys = quest.drills?.[questId] || [];
+      const alreadyChecked = currentKeys.includes(drillKey);
+      const nextKeys = alreadyChecked
+        ? currentKeys.filter((key) => key !== drillKey)
+        : [...currentKeys, drillKey];
+      const parentDone = quest.completed.includes(questId);
+      const wasAllDrillsDone = totalUnits > 0 && currentKeys.length >= totalUnits;
+      const allDrillsDone = totalUnits > 0 && nextKeys.length >= totalUnits;
+      const shouldAddParent = allDrillsDone && !parentDone;
+      const shouldRemoveParent = wasAllDrillsDone && !allDrillsDone && parentDone;
+      const scaledXP = shouldAddParent && xp > 0 ? Math.round(xp * getPrestigeMultiplier(state)) : xp;
+      const xpDelta = shouldAddParent ? scaledXP : shouldRemoveParent ? -xp : 0;
+      const newXP = Math.max(0, state.player.totalXP + xpDelta);
+      const currentPillars = state.apf?.pillars || DEFAULT_PILLARS;
+      const newPillars = shouldAddParent && QUEST_PILLAR_MAP[questId]
+        ? applyGains(currentPillars, QUEST_PILLAR_MAP[questId])
+        : currentPillars;
+
+      return {
+        ...state,
+        todayQuest: {
+          ...quest,
+          drills: {
+            ...(quest.drills || {}),
+            [questId]: nextKeys,
+          },
+          completed: shouldAddParent
+            ? [...quest.completed, questId]
+            : shouldRemoveParent
+              ? quest.completed.filter((id) => id !== questId)
+              : quest.completed,
+        },
+        player: xpDelta !== 0 ? {
+          ...state.player,
+          totalXP: newXP,
+          level: Math.floor(newXP / XP_PER_LEVEL) + 1,
+        } : state.player,
+        apf: { ...state.apf, pillars: newPillars },
+      };
+    });
+  }, [update]);
+
   const logBonusExercise = useCallback((exerciseId, value) => {
     const today = new Date().toISOString().split("T")[0];
     update((state) => {
@@ -109,6 +160,7 @@ export function useQuestActions(update) {
 
   return {
     completeQuestItem,
+    toggleQuestDrill,
     toggleBonusItem,
     logBonusExercise,
     completeAllQuestsAndLog,

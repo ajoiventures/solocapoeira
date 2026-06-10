@@ -115,6 +115,7 @@ export const defaultState = () => ({
     skipped: [],
     bonusItems: [],
     bonusXP: 0,
+    drills: {},
   },
   bonusLogs: {},
   stepsLog: {},

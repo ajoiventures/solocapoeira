@@ -224,8 +224,8 @@
     <a href="#backlog">Backlog</a>
   </nav>
   <div class="hright">
-    <div class="hstat"><div class="hstat-v">142</div><div class="hstat-l">Done</div></div>
-    <div class="hstat"><div class="hstat-v">232</div><div class="hstat-l">Total</div></div>
+    <div class="hstat"><div class="hstat-v">143</div><div class="hstat-l">Done</div></div>
+    <div class="hstat"><div class="hstat-v">233</div><div class="hstat-l">Total</div></div>
     <div class="hstat"><div class="hstat-v">61%</div><div class="hstat-l">Complete</div></div>
     <div class="hpill">B+ → A target</div>
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">◐ Dark</button>
@@ -270,7 +270,7 @@
         </div>
         <div class="pipe-body">
           <div class="tk blocked-tk"><div class="tk-id">A-INF-05 · P1</div><div class="tk-title">CI/CD — GitHub Actions runner follow-up</div><div class="tk-desc">Netlify deploy is green from GitHub. GitHub Actions still fails before steps on the runner/platform path, so keep this as the only platform blocker.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-infra">infra</span></div></div>
-          <div class="tk blocked-tk"><div class="tk-id">A-QA-05 - P1</div><div class="tk-title">E2E smoke test - CI workflow hook</div><div class="tk-desc">Playwright smoke passes locally (11/11), but GitHub rejected workflow changes because the push token lacks workflow scope.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-qa">testing</span></div></div>
+          <div class="tk blocked-tk"><div class="tk-id">A-QA-05 - P1</div><div class="tk-title">E2E smoke test - CI workflow hook</div><div class="tk-desc">Playwright smoke passes locally (16/16), but GitHub rejected workflow changes because the push token lacks workflow scope.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-qa">testing</span></div></div>
         </div>
       </div>
 
@@ -307,10 +307,11 @@
       <div class="pipe-col pipe-done-col">
         <div class="pipe-hd">
           <span class="pipe-title">Recently Done</span>
-          <span class="pipe-count">142</span>
+          <span class="pipe-count">143</span>
           <span style="font-size:9px;color:var(--green);margin-left:auto">61% total</span>
         </div>
         <div class="pipe-body">
+          <div class="tk done-tk"><div class="tk-id">A-QA-20</div><div class="tk-title">Daily workout subtasks persist and roll up</div></div>
           <div class="tk done-tk"><div class="tk-id">A-PM-04</div><div class="tk-title">Stabilization-first ticket plan recorded</div></div>
           <div class="tk done-tk"><div class="tk-id">A-ENG-01</div><div class="tk-title">useStore split into focused domain hooks</div></div>
           <div class="tk done-tk"><div class="tk-id">A-ENG-01a</div><div class="tk-title">Store persistence and update pipeline extracted</div></div>
@@ -391,10 +392,10 @@
           <div class="rm-hd">
             <span class="rm-tag partial">In Progress</span>
             <span class="rm-name">Phase A — Baseline</span>
-            <span class="rm-date">13/19 done - 68%</span>
+            <span class="rm-date">14/20 done - 70%</span>
           </div>
           <div class="rm-desc">Things that should have existed from Day 1. Infra is now live on Netlify/Supabase/Sentry/PostHog. Engineering debt (useStore split, file splits) can start now.</div>
-          <div class="rm-progress"><div class="rm-progress-bar" style="width:68%;background:var(--blue)"></div></div>
+          <div class="rm-progress"><div class="rm-progress-bar" style="width:70%;background:var(--blue)"></div></div>
           <div class="rm-items">
             <span class="rm-item done">A-QA-01 Unit tests ✓</span>
             <span class="rm-item done">A-QA-02 XP chain tests ✓</span>
@@ -410,6 +411,7 @@
             <span class="rm-item">A-ENG-02 DailyQuest split</span>
             <span class="rm-item">A-QA-05 E2E Playwright</span>
             <span class="rm-item done">A-QA-06 Daily snapshots ok</span>
+            <span class="rm-item done">A-QA-20 Daily subtask roll-up ✓</span>
             <span class="rm-item done">A-ENG-03 Hydration boundary ✓</span>
             <span class="rm-item done">A-ENG-04 Remove !important ✓</span>
           </div>
@@ -632,7 +634,7 @@
   <div class="sec" id="backlog">
     <div class="sec-hd">
       <div class="sec-title">Full Backlog</div>
-      <div class="sec-sub">All 213 tickets by phase</div>
+      <div class="sec-sub">All 233 tickets by phase</div>
       <div class="sec-badge">Click to expand</div>
     </div>
 
@@ -640,9 +642,9 @@
     <div class="backlog-section open">
       <div class="backlog-hd" onclick="this.parentElement.classList.toggle('open')">
         <span class="backlog-name">Phase A — Baseline (Should Have Existed Day 1)</span>
-        <span class="backlog-count">13/19</span>
-        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:68%;background:var(--blue)"></div></div>
-        <span class="backlog-pct" style="color:var(--blue)">68%</span>
+        <span class="backlog-count">14/20</span>
+        <div class="backlog-bar"><div class="backlog-bar-fill" style="width:70%;background:var(--blue)"></div></div>
+        <span class="backlog-pct" style="color:var(--blue)">70%</span>
         <span class="backlog-chevron">›</span>
       </div>
       <div class="backlog-items">
@@ -658,6 +660,7 @@
         <div class="bl-item"><span class="bl-id">A-QA-04</span><span class="bl-title">Integration tests — state persistence</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">A-QA-05</span><span class="bl-title">E2E smoke test — Playwright</span><span class="bl-status bl-blocked">Blocked</span></div>
         <div class="bl-item"><span class="bl-id">A-QA-06</span><span class="bl-title">Snapshot tests — Daily page render</span><span class="bl-status bl-done">Done ✓</span></div>
+        <div class="bl-item"><span class="bl-id">A-QA-20</span><span class="bl-title">Daily workout subtasks persist and roll up</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">A-ENG-01</span><span class="bl-title">Split useStore.js into domain slices</span><span class="bl-status bl-done">Done ✓</span></div>
         <div class="bl-item"><span class="bl-id">A-ENG-02</span><span class="bl-title">Split DailyQuest.jsx — extract sub-components</span><span class="bl-status bl-todo">Todo</span></div>
         <div class="bl-item"><span class="bl-id">A-ENG-03</span><span class="bl-title">Fix hydrationMl naming — unit at boundary</span><span class="bl-status bl-done">Done ✓</span></div>

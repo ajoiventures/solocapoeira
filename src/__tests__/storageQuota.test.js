@@ -50,6 +50,7 @@ describe("Storage Quota Protection", () => {
 
     expect(loaded.player.totalXP).toBe(300);
     expect(loaded.todayQuest.completed).toEqual([]);
+    expect(loaded.todayQuest.drills).toEqual({});
     expect(loaded.integratedOrishas).toEqual(["obatala"]);
     expect(loaded.orishaProgress.obatala.integrated).toBe(true);
     expect(loaded.cloudSyncStatus).toBe("idle");

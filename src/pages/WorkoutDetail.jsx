@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { getMovementById } from "../data/movements.js";
 
 function parseSecs(duration) {
@@ -40,9 +40,7 @@ function getRoundBlocks(rounds) {
 }
 
 export default function WorkoutDetail({ quest, store, navigate, onBack, backLabel }) {
-  const [doneDrills, setDoneDrills] = useState(new Set());
   const [logValues, setLogValues] = useState({});
-  const autoCompletedRef = useRef(false);
 
   const q = quest || { items: [], id: null, xp: 0 };
 
@@ -52,9 +50,20 @@ export default function WorkoutDetail({ quest, store, navigate, onBack, backLabe
     ? store.state.todayQuest.date === today &&
       store.state.todayQuest.completed.includes(q.id)
     : false;
+  const persistedDrills = store?.state.todayQuest.date === today
+    ? store.state.todayQuest.drills?.[q.id] || []
+    : [];
+  const [localDrills, setLocalDrills] = useState(new Set());
+  const doneDrills = store?.toggleQuestDrill && q.id
+    ? new Set(persistedDrills)
+    : localDrills;
 
-  const toggleDrill = (key) => {
-    setDoneDrills((prev) => {
+  const toggleDrill = (key, totalUnits) => {
+    if (store?.toggleQuestDrill && q.id) {
+      store.toggleQuestDrill(q.id, key, totalUnits, q.xp);
+      return;
+    }
+    setLocalDrills((prev) => {
       const s = new Set(prev);
       s.has(key) ? s.delete(key) : s.add(key);
       return s;
@@ -67,20 +76,6 @@ export default function WorkoutDetail({ quest, store, navigate, onBack, backLabe
     return sum + 1;
   }, 0);
   const doneUnits = doneDrills.size;
-
-  // Auto-complete the quest in the store when all drills are checked
-  useEffect(() => {
-    if (
-      store &&
-      totalUnits > 0 &&
-      doneUnits >= totalUnits &&
-      !isQuestDone &&
-      !autoCompletedRef.current
-    ) {
-      autoCompletedRef.current = true;
-      store.completeQuestItem(q.id, q.xp);
-    }
-  }, [doneUnits, totalUnits]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!quest) return null;
 
@@ -266,7 +261,9 @@ export default function WorkoutDetail({ quest, store, navigate, onBack, backLabe
                           return (
                             <button
                               key={roundNum}
-                              onClick={() => toggleDrill(rKey)}
+                              aria-label={`${rDone ? "Undo" : "Complete"} round ${roundNum} for ${item.text}`}
+                              data-testid={`quest-drill-${q.id}-${rKey}`}
+                              onClick={() => toggleDrill(rKey, totalUnits)}
                               style={{
                                 flex: 1, padding: "8px 4px", borderRadius: 8, fontSize: 11, fontWeight: 700,
                                 border: `1px solid ${rDone ? "var(--green)" : isExtra ? "var(--border)" : q.color + "55"}`,
@@ -313,7 +310,9 @@ export default function WorkoutDetail({ quest, store, navigate, onBack, backLabe
                   {item.text}
                 </div>
                 <button
-                  onClick={() => toggleDrill(drillKey)}
+                  aria-label={`Undo ${item.text}`}
+                  data-testid={`quest-drill-${q.id}-${drillKey}`}
+                  onClick={() => toggleDrill(drillKey, totalUnits)}
                   style={{
                     flexShrink: 0, padding: "3px 10px", borderRadius: 6, fontSize: 11, fontWeight: 700,
                     border: "1px solid var(--green)", background: "rgba(46,140,120,0.15)",
@@ -358,7 +357,9 @@ export default function WorkoutDetail({ quest, store, navigate, onBack, backLabe
                   {mainLabel}
                 </div>
                 <button
-                  onClick={(e) => { e.stopPropagation(); toggleDrill(drillKey); }}
+                  aria-label={`Complete ${mainLabel}`}
+                  data-testid={`quest-drill-${q.id}-${drillKey}`}
+                  onClick={(e) => { e.stopPropagation(); toggleDrill(drillKey, totalUnits); }}
                   style={{
                     flexShrink: 0, width: 28, height: 28, borderRadius: 7,
                     border: `1.5px solid ${q.color + "88"}`,

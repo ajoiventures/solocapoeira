@@ -108,6 +108,7 @@ export function useStore() {
 
   const {
     completeQuestItem,
+    toggleQuestDrill,
     toggleBonusItem,
     logBonusExercise,
     completeAllQuestsAndLog,
@@ -310,6 +311,7 @@ export function useStore() {
     unmarkBoss,
     recordBossAttempt,
     completeQuestItem,
+    toggleQuestDrill,
     toggleBonusItem,
     logBonusExercise,
     completeAllQuestsAndLog,

@@ -101,6 +101,33 @@ test.describe("Core loop", () => {
       return Object.values(state.movementProgress || {}).reduce((sum, progress) => sum + (progress.reps || 0), 0);
     }).toBeGreaterThan(0);
   });
+
+  test("daily workout subtasks persist and roll up to the parent quest", async ({ page }) => {
+    await openFreshApp(page);
+
+    await page.getByText("Foot Protocol").click();
+    await page.getByTestId("quest-drill-q_foot-0").click();
+
+    await expect.poll(async () => {
+      const state = await readSavedState(page);
+      return state.todayQuest.drills?.q_foot || [];
+    }).toContain("0");
+
+    await page.getByRole("button", { name: "Daily" }).first().click();
+    await page.getByText("Foot Protocol").click();
+    await expect(page.getByTestId("quest-drill-q_foot-0")).toHaveAccessibleName(/Undo Foot rolling/i);
+
+    await page.getByTestId("quest-drill-q_foot-1").click();
+    await page.getByTestId("quest-drill-q_foot-2").click();
+
+    await expect.poll(async () => {
+      const state = await readSavedState(page);
+      return state.todayQuest.completed || [];
+    }).toContain("q_foot");
+
+    await page.getByRole("button", { name: "Daily" }).first().click();
+    await expect(page.getByRole("button", { name: "Undo Foot Protocol" })).toBeVisible();
+  });
 });
 
 test.describe("Skill tree", () => {

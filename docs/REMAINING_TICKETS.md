@@ -1,7 +1,7 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 142 tickets on the public board.
+- **Completed**: 143 tickets on the public board.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: review-found QA repairs before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -58,6 +58,11 @@ Findings from the post-refactor review of OpenAI's store extraction + DailyQuest
 - **A-QA-19** ✅ done: Strengthen storage quota fallback coverage.
   - Replace the remaining test-local emergency trim assertion with a real `saveStoreState` fallback-write test.
   - Prove the first quota write can fail, the minimal retry can succeed, and critical player/movement data survives.
+
+- **A-QA-20** ✅ done: Persist Daily workout subtasks and roll them up to the parent quest.
+  - Store checked workout drill keys in `todayQuest.drills` so leaving and reopening a daily workout keeps subtask progress.
+  - When every drill unit is checked, add the parent quest ID to `todayQuest.completed` so the Daily page/meta progress updates.
+  - Added Chromium E2E coverage for partial subtask persistence, reopening the workout, and parent quest roll-up.
 
 ### Infrastructure
 - **A-OPS-05** ✅ done: Playwright webkit binary missing — 15/30 E2E tests fail with "Executable doesn't exist". Either run `npx playwright install webkit` or add `--project=chromium` to the test script so CI doesn't require webkit.
