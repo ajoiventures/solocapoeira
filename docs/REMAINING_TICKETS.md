@@ -1,7 +1,7 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 133 tickets on the public board.
+- **Completed**: 134 tickets on the public board.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: stabilization and ticket reconciliation before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -27,7 +27,7 @@ These tickets prevent the repeated loop where new feature work starts while the 
 ## Next Execution Batches
 
 ### Batch 1 — Architecture Debt
-- **A-ENG-01**: Split `useStore.js` into domain slices.
+- **A-ENG-01 done**: Split `useStore.js` into domain slices.
   - **A-ENG-01a done**: Extracted persistence/default state/migrations/cloud push into `src/store/storePersistence.js`.
   - **A-ENG-01b done**: Extracted achievement/rank post-update effects into `src/store/storeUpdatePipeline.js`.
   - **A-ENG-01c done**: Extracted movement action callbacks into `src/store/useMovementActions.js`.
@@ -36,7 +36,8 @@ These tickets prevent the repeated loop where new feature work starts while the 
   - **A-ENG-01f done**: Extracted daily quest action callbacks into `src/store/useQuestActions.js`.
   - **A-ENG-01g done**: Extracted sequence, movement-note, and combo action callbacks into `src/store/useSequenceActions.js`.
   - **A-ENG-01h done**: Extracted settings, restore, and reset action callbacks into `src/store/useSettingsActions.js`.
-  - Next: Mestre/Orisha/prestige action slice.
+  - **A-ENG-01i done**: Extracted Mestre, Orisha, prestige, milestone, bonus challenge, and training phase callbacks into `src/store/useProgressionActions.js`.
+  - Result: `src/store/useStore.js` is now a thin composition hook over focused store modules.
 - **A-ENG-02**: Split `DailyQuest.jsx`; mount or remove retained legacy cards during extraction.
 - **B-ENG-08**: Memo/callback audit after store boundaries are stable.
 
