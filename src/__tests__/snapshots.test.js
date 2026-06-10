@@ -291,8 +291,8 @@ describe("Data counts — snapshot", () => {
     expect(MOVEMENTS.length).toMatchInlineSnapshot(`238`);
   });
 
-  it("achievements count = 27", () => {
-    expect(ACHIEVEMENTS.length).toMatchInlineSnapshot(`27`);
+  it("achievements count = 28", () => {
+    expect(ACHIEVEMENTS.length).toMatchInlineSnapshot(`28`);
   });
 
   it("Mestres count", () => {
@@ -413,6 +413,7 @@ describe("Achievement IDs — locked set", () => {
         "sessions_10",
         "sessions_50",
         "streak_100",
+        "streak_14",
         "streak_3",
         "streak_30",
         "streak_60",

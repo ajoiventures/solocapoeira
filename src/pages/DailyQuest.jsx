@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { getPhaseById } from "../data/trainingPhases.js";
 import { getMovementById, MOVEMENTS } from "../data/movements.js";

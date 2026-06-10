@@ -233,7 +233,7 @@ export default function Leaderboards({ store, onBack }) {
       </div>
 
       <div style={{ fontSize: 10, color: "var(--text3)", textAlign: "center", marginTop: 20 }}>
-        🌍 Ranked against hunters worldwide
+        📊 Ranked against benchmark hunters — live rankings coming soon
       </div>
     </div>
   );

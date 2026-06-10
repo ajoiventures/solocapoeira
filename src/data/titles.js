@@ -8,6 +8,7 @@ export const TITLES = [
   // Existing core titles (earned via achievements)
   { id: "first_session",    label: "The Beginner",          name: "🎯 The Beginner", color: "#6b7280", category: "achievement", tier: 1 },
   { id: "streak_7",         label: "Week Warrior",           name: "🔥 Week Warrior", color: "#D4854A", category: "streak", tier: 1 },
+  { id: "streak_14",        label: "Two-Week Run",           name: "🔥 Two-Week Run", color: "#C95252", category: "streak", tier: 1 },
   { id: "streak_30",        label: "Month of Axé",           name: "🔥 Month of Axé", color: "#D9A441", category: "streak", tier: 2 },
   { id: "first_owning",     label: "Owning the Game",        name: "⚔️ Owning the Game", color: "#4F7CFF", category: "achievement", tier: 1 },
   { id: "first_instinct",   label: "The Instinct",           name: "🎯 The Instinct", color: "#D9A441", category: "achievement", tier: 1 },
@@ -50,6 +51,7 @@ export function checkTitleEarned(titleId, state) {
   const streak = state.player?.streakDays || 0;
   switch (titleId) {
     case "streak_7":   return streak >= 7;
+    case "streak_14":  return streak >= 14;
     case "streak_30":  return streak >= 30;
     case "streak_60":  return streak >= 60;
     case "streak_100": return streak >= 100;

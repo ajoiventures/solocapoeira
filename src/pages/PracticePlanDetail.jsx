@@ -18,13 +18,6 @@ function extractExpress(str) {
   return m ? m[1].trim().replace(/\s+/g, " ") : null;
 }
 
-/** Extract "Sequence: X → Y → Z" from a goal string */
-// eslint-disable-next-line no-unused-vars
-function extractSequence(str) {
-  const m = str.match(/Sequence:\s*(.*?)\.?\s*$/s);
-  return m ? m[1].trim() : null;
-}
-
 /** Extract the "Minute 0-2:" time label */
 function extractTimeLabel(inst) {
   const m = inst.match(/^(Minute\s*\d+[-–]\d+)\s*:/i);
@@ -57,27 +50,6 @@ function HighlightMoves({ text, moveNames, accentColor }) {
         );
       })}
     </>
-  );
-}
-
-/** Tappable movement name — bold accent color + navigates to skill */
-// eslint-disable-next-line no-unused-vars
-function MoveLink({ id, navigate, backTo, backLabel }) {
-  const mv = getMovementById(id);
-  if (!mv) return null;
-  return (
-    <button
-      onClick={() => navigate?.("skill", id, { backTo, backLabel })}
-      style={{
-        fontSize: 13, fontWeight: 700,
-        background: "none", border: "none",
-        color: "var(--accent)", cursor: "pointer", padding: 0,
-        textDecoration: "underline", textDecorationColor: "rgba(217,164,65,0.4)",
-        textUnderlineOffset: 3,
-      }}
-    >
-      {mv.name}
-    </button>
   );
 }
 

@@ -48,6 +48,14 @@ export const ACHIEVEMENTS = [
     category: "streak",
   },
   {
+    id: "streak_14",
+    title: "Two-Week Run",
+    desc: "Train 14 days straight — you've built a real habit",
+    icon: "🔥",
+    color: "#C95252",
+    category: "streak",
+  },
+  {
     id: "streak_30",
     title: "Month of Axé",
     desc: "Train 30 days in a row",
@@ -274,6 +282,7 @@ export function checkAchievements(state) {
   // Streak
   check("streak_3",   streak >= 3);
   check("streak_7",   streak >= 7);
+  check("streak_14",  streak >= 14);
   check("streak_30",  streak >= 30);
   check("streak_60",  streak >= 60);
   check("streak_100", streak >= 100);

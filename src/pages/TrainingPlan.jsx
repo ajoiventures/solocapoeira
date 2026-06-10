@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SPRINT_1, FOUNDATION_ROTATION } from "../data/sprint.js";
+import { SPRINT_2 } from "../data/sprint2.js";
 import { ANNUAL_PROGRAM, MONTHLY_OVERVIEW } from "../data/annualProgram.js";
 import { MOVEMENTS, getMovementById } from "../data/movements.js";
 import { BOSS_TESTS } from "../data/bossTests.js";
@@ -65,7 +66,7 @@ function MovementPill({ id, navigate, store }) {
 }
 
 // ── Overview Tab ────────────────────────────────────────────────
-function OverviewTab() {
+function OverviewTab({ sprint }) {
   const totalMovements = MOVEMENTS.length;
 
   // Count movements per difficulty rank
@@ -75,17 +76,19 @@ function OverviewTab() {
     if (dr) rankCounts[dr.rank] = (rankCounts[dr.rank] || 0) + 1;
   });
 
+  const sprintNum = sprint?.id === "sprint_2" ? 2 : 1;
+
   return (
     <div>
       {/* Sprint summary card */}
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
         <div className="card" style={{ borderColor: "var(--accent)" }}>
           <div style={{ fontSize: 11, letterSpacing: 2, color: "var(--accent)", fontWeight: 700, marginBottom: 6 }}>
-            SPRINT 1 — 12 WEEKS
+            SPRINT {sprintNum} — {sprint?.durationWeeks || 12} WEEKS
           </div>
-          <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 6 }}>{SPRINT_1.theme}</div>
+          <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 6 }}>{sprint?.theme}</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 10 }}>
-            {SPRINT_1.primaryTargets.map((t, i) => (
+            {(sprint?.primaryTargets || []).map((t, i) => (
               <div key={i} style={{ display: "flex", gap: 8, fontSize: 12 }}>
                 <span style={{ color: "var(--accent)" }}>›</span>
                 <span style={{ color: "var(--text2)" }}>{t}</span>
@@ -189,13 +192,15 @@ function OverviewTab() {
 }
 
 // ── Weeks Tab ───────────────────────────────────────────────────
-function WeeksTab({ navigate, currentWeek, store }) {
+function WeeksTab({ navigate, currentWeek, store, sprint }) {
   const [expanded, setExpanded] = useState(currentWeek || 1);
   const [advanceConfirm, setAdvanceConfirm] = useState(false);
+  const weeks = sprint?.weeks || SPRINT_1.weeks;
+  const maxWeek = (sprint?.weeks?.[sprint.weeks.length - 1]?.week) || 12;
 
   return (
     <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-      {SPRINT_1.weeks.map((w) => {
+      {weeks.map((w) => {
         const isOpen = expanded === w.week;
         const isCurrent = w.week === currentWeek;
         const isPast = w.week < currentWeek;
@@ -312,7 +317,7 @@ function WeeksTab({ navigate, currentWeek, store }) {
                 )}
 
                 {/* Advance week button — only on current week */}
-                {isCurrent && currentWeek < 12 && (
+                {isCurrent && currentWeek < maxWeek && (
                   <div style={{ marginTop: 12 }}>
                     {advanceConfirm ? (
                       <div style={{
@@ -323,7 +328,7 @@ function WeeksTab({ navigate, currentWeek, store }) {
                           Advance to Week {currentWeek + 1}?
                         </div>
                         <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 10 }}>
-                          {SPRINT_1.weeks.find((wk) => wk.week === currentWeek + 1)?.theme}
+                          {weeks.find((wk) => wk.week === currentWeek + 1)?.theme}
                         </div>
                         <div style={{ display: "flex", gap: 6 }}>
                           <button
@@ -1180,6 +1185,10 @@ const TABS = [
 export default function TrainingPlan({ store, navigate }) {
   const [tab, setTab] = useState("annual");
   const currentWeek = store.state.player.currentWeek || 1;
+  const currentSprint = currentWeek > 12 ? SPRINT_2 : SPRINT_1;
+  const sprintNum = currentSprint === SPRINT_2 ? 2 : 1;
+  const sprintStartWeek = currentSprint === SPRINT_2 ? 13 : 1;
+  const weekInSprint = currentWeek - sprintStartWeek + 1;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -1192,16 +1201,16 @@ export default function TrainingPlan({ store, navigate }) {
           <div style={{ marginTop: 6 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
               <span style={{ fontSize: 10, color: "var(--accent)", fontWeight: 700 }}>
-                Sprint 1 · Week {currentWeek}/12
+                Sprint {sprintNum} · Week {weekInSprint}/{currentSprint.durationWeeks}
               </span>
               <span style={{ fontSize: 10, color: "var(--text3)" }}>
-                {Math.round((currentWeek / 12) * 100)}%
+                {Math.round((weekInSprint / currentSprint.durationWeeks) * 100)}%
               </span>
             </div>
             <div style={{ height: 4, borderRadius: 2, background: "var(--surface2)", overflow: "hidden" }}>
               <div style={{
                 height: "100%", borderRadius: 2, background: "var(--accent)",
-                width: `${Math.min(100, (currentWeek / 12) * 100)}%`,
+                width: `${Math.min(100, (weekInSprint / currentSprint.durationWeeks) * 100)}%`,
                 transition: "width 0.3s",
               }} />
             </div>
@@ -1242,8 +1251,8 @@ export default function TrainingPlan({ store, navigate }) {
       {/* Tab content */}
       <div style={{ flex: 1, overflowY: "auto" }}>
         {tab === "annual"    && <AnnualTab store={store} navigate={navigate} />}
-        {tab === "overview"  && <OverviewTab />}
-        {tab === "weeks"     && <WeeksTab navigate={navigate} currentWeek={currentWeek} store={store} />}
+        {tab === "overview"  && <OverviewTab sprint={currentSprint} />}
+        {tab === "weeks"     && <WeeksTab navigate={navigate} currentWeek={currentWeek} store={store} sprint={currentSprint} />}
         {tab === "sequences" && <SequencesTab navigate={navigate} store={store} />}
         {tab === "moves"     && <MovementsTab navigate={navigate} />}
         {tab === "bosses"    && <BossesTab store={store} />}

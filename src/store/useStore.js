@@ -14,7 +14,7 @@ import { RANKS } from "../data/rankUtils.js";
 import { mlToOz, ozToMl } from "../data/units.js";
 
 const STORAGE_KEY = "solo_leveling_state_v1";
-const STATE_VERSION = 2; // bump this when schema changes require migration
+const STATE_VERSION = 3; // bump this when schema changes require migration
 
 // ── State migrations ──────────────────────────────────────────────
 // Each migration runs once when a user with an older save loads the app.
@@ -32,6 +32,16 @@ const MIGRATIONS = [
         bonusChallengesDone: state.bonusChallengesDone ?? {},
         earnedAchievements: state.earnedAchievements  ?? [],
         lastKnownRank:      state.lastKnownRank       ?? "U",
+      };
+    },
+  },
+  {
+    version: 3,
+    description: "Add comboStats (combo practice tracking from Phase B)",
+    migrate(state) {
+      return {
+        ...state,
+        comboStats: state.comboStats ?? {},
       };
     },
   },
@@ -345,6 +355,7 @@ export function useStore() {
       // ── Achievement check ────────────────────────────────────────
       const newlyEarned = checkAchievements(next);
       if (newlyEarned.length > 0) {
+        newlyEarned.forEach((id) => track.achievementUnlocked(id));
         const newQueue = [
           ...(next.achievementQueue || []),
           ...newlyEarned.map((id) => {
@@ -364,6 +375,7 @@ export function useStore() {
       const currentRank = RANKS.slice().reverse().find((r) => level >= r.minLevel)?.rank || "U";
       const lastRank = next.lastKnownRank || "U";
       if (currentRank !== lastRank) {
+        track.rankUp(currentRank);
         const rankObj = RANKS.find((r) => r.rank === currentRank);
         const rankQueue = [{
           id: `rank_${currentRank}`,
@@ -546,6 +558,9 @@ export function useStore() {
 
   // ── Session Logging ─────────────────────────────────────────────
   const logSession = useCallback((sessionData) => {
+    if (sessionData.durationSeconds) {
+      track.flowSessionCompleted(sessionData.durationSeconds);
+    }
     update((s) => {
       const today = new Date().toISOString().split("T")[0];
       const lastDate = s.player.lastTrainingDate;
@@ -1477,6 +1492,7 @@ export function useStore() {
   }, [update]);
 
   const completeBonusChallenge = useCallback((doneKey, xp) => {
+    track.bonusChallengeCompleted(doneKey, xp);
     update((s) => {
       const mult = getPrestigeMultiplier(s);
       const xpToAdd = Math.round(xp * mult);
