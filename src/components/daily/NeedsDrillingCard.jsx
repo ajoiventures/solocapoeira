@@ -106,5 +106,3 @@ export default function NeedsDrillingCard({ store, navigate }) {
     </div>
   );
 }
-
-// ── Week Context Card (#35) ──────────────────────────────────────

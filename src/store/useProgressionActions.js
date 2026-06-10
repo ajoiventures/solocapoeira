@@ -321,7 +321,7 @@ export function useProgressionActions(state, update) {
     });
   }, [update]);
 
-  const useGraceToken = useCallback(() => {
+  const consumeGraceToken = useCallback(() => {
     update((storeState) => {
       if ((storeState.graceTokens || 0) <= 0) return storeState;
       const today = new Date().toISOString().split("T")[0];
@@ -427,7 +427,7 @@ export function useProgressionActions(state, update) {
     getPrestigeXPMultiplier,
     beginPrestigeRun,
     completePrestigeTrial,
-    useGraceToken,
+    consumeGraceToken,
     completeBonusChallenge,
     dismissAchievement,
     dismissConceptMilestone,

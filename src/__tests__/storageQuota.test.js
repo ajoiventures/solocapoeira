@@ -1,51 +1,28 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { loadStoreState, saveStoreState } from "../store/storePersistence.js";
 
+// Provide a localStorage shim for the node test environment
+function makeLocalStorageMock() {
+  let store = {};
+  return {
+    getItem: (key) => store[key] ?? null,
+    setItem: (key, value) => { store[key] = String(value); },
+    removeItem: (key) => { delete store[key]; },
+    clear: () => { store = {}; },
+  };
+}
+
 describe("Storage Quota Protection", () => {
   const STORAGE_KEY = "solo_leveling_state_v1";
 
   beforeEach(() => {
-    // Mock localStorage
-    global.localStorage = {
-      store: {},
-      getItem(key) {
-        return this.store[key] || null;
-      },
-      setItem(key, value) {
-        this.store[key] = value.toString();
-      },
-      removeItem(key) {
-        delete this.store[key];
-      },
-      clear() {
-        this.store = {};
-      },
-    };
-    vi.clearAllMocks();
+    vi.stubGlobal("localStorage", makeLocalStorageMock());
+    vi.restoreAllMocks();
   });
 
   afterEach(() => {
-    if (global.localStorage) {
-      global.localStorage.clear();
-    }
-  });
-
-  it("should save state under normal size", () => {
-    const state = {
-      player: { totalXP: 100, level: 1 },
-      movementProgress: {},
-      repLog: [],
-    };
-
-    const serialized = JSON.stringify(state);
-    const kb = (serialized.length * 2) / 1024;
-
-    expect(kb).toBeLessThan(100); // Small state
-    localStorage.setItem(STORAGE_KEY, serialized);
-
-    const saved = localStorage.getItem(STORAGE_KEY);
-    expect(saved).toBeDefined();
-    expect(JSON.parse(saved)).toEqual(state);
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it("saveStoreState persists normal state through the extracted store layer", () => {
@@ -55,8 +32,10 @@ describe("Storage Quota Protection", () => {
       repLog: [{ movementId: "ginga", count: 10, date: "2026-06-10" }],
     };
 
+    const spy = vi.spyOn(localStorage, "setItem");
     saveStoreState(state);
 
+    expect(spy).toHaveBeenCalledWith(STORAGE_KEY, expect.any(String));
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY))).toEqual(state);
   });
 
@@ -76,70 +55,50 @@ describe("Storage Quota Protection", () => {
     expect(loaded.cloudSyncStatus).toBe("idle");
   });
 
-  it("should warn when approaching 4.5MB limit", () => {
-    const consoleSpy = vi.spyOn(console, "warn");
+  it("warns and trims repLog when approaching 4.5MB limit", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const setItemSpy = vi.spyOn(localStorage, "setItem");
 
-    // Create a large state by using a much bigger rep log (simulating weeks of training)
-    const largeLog = Array(25000).fill(null).map((_, i) => ({
+    // Build a state large enough to exceed 4500KB (each entry ~72 bytes × 2 UTF16 ÷ 1024 ≈ 0.14KB; need >32000 entries)
+    const largeLog = Array(45000).fill(null).map((_, i) => ({
       movementId: "ginga",
       count: 5,
       date: `2025-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
     }));
-    const state = {
-      player: { totalXP: 100000 },
-      repLog: largeLog,
-      sessionLog: [],
-    };
+    const state = { player: { totalXP: 100000 }, repLog: largeLog, sessionLog: [], movementProgress: {} };
 
-    const serialized = JSON.stringify(state);
-    const kb = (serialized.length * 2) / 1024;
+    saveStoreState(state);
 
-    // Simulate the warning that save() would trigger
-    if (kb > 4500) {
-      console.warn(`[store] Storage at ${Math.round(kb)}KB — approaching limit. Trimming repLog.`);
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining("[store] Storage at")
-      );
-    } else {
-      // If test data isn't big enough, just verify the logic works
-      expect(kb).toBeLessThan(5000);
-    }
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("[store] Storage at"));
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    expect(saved.repLog.length).toBeLessThanOrEqual(500);
+    expect(saved.player.totalXP).toBe(100000);
+    expect(setItemSpy).toHaveBeenCalled();
   });
 
-  it("should trim repLog when quota approaches", () => {
-    // Create a state with large repLog
-    const largeLog = Array(1000).fill(null).map((_, i) => ({
-      movementId: "ginga",
-      count: 5,
-      date: `2025-01-${(i % 31) + 1}`,
-    }));
+  it("falls back to minimal state on QuotaExceededError and does not throw", () => {
+    // First setItem throws QuotaExceededError; second (fallback) throws too → logs error
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const quota = new Error("QuotaExceededError");
+    quota.name = "QuotaExceededError";
+    vi.spyOn(localStorage, "setItem").mockImplementation(() => { throw quota; });
 
     const state = {
-      player: { totalXP: 100000 },
-      repLog: largeLog,
-      sessionLog: [],
+      player: { totalXP: 5000, level: 10 },
+      repLog: Array(1000).fill({ movementId: "ginga", count: 5, date: "2026-01-01" }),
+      sessionLog: Array(200).fill({ date: "2026-01-01", xpEarned: 100 }),
+      movementProgress: {},
     };
 
-    // Simulate trimming (keep last 500)
-    const trimmed = {
-      ...state,
-      repLog: state.repLog.slice(-500),
-    };
-
-    expect(trimmed.repLog.length).toBe(500);
-    expect(state.repLog.length).toBe(1000);
+    expect(() => saveStoreState(state)).not.toThrow();
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("[store] localStorage full"));
   });
 
-  it("should never lose player state during quota trim", () => {
+  it("preserves player data and trims logs during emergency trim", () => {
     const state = {
-      player: {
-        totalXP: 50000,
-        level: 25,
-        name: "TestHunter",
-        streakDays: 10,
-        currentSprint: "sprint_1",
-      },
-      repLog: Array(1000).fill({ movementId: "ginga", count: 5 }),
+      player: { totalXP: 50000, level: 25, name: "TestHunter", streakDays: 10 },
+      movementProgress: { ginga: { masteryLevel: 5 } },
+      repLog: Array(1000).fill({ movementId: "ginga", count: 5, date: "2025-01-01" }),
       sessionLog: Array(100).fill({ date: "2025-01-01", xpEarned: 100 }),
     };
 
@@ -149,13 +108,13 @@ describe("Storage Quota Protection", () => {
       sessionLog: state.sessionLog.slice(-50),
     };
 
-    // Player data should be intact
     expect(trimmed.player).toEqual(state.player);
+    expect(trimmed.movementProgress).toEqual(state.movementProgress);
     expect(trimmed.repLog.length).toBe(200);
     expect(trimmed.sessionLog.length).toBe(50);
   });
 
-  it("should estimate storage size accurately", () => {
+  it("estimates storage size accurately", () => {
     const small = JSON.stringify({ test: "data" });
     const kbSmall = (small.length * 2) / 1024;
 
@@ -166,50 +125,5 @@ describe("Storage Quota Protection", () => {
 
     expect(kbSmall).toBeLessThan(1);
     expect(kbLarge).toBeGreaterThan(100);
-  });
-
-  it("should handle localStorage quota exceeded gracefully", () => {
-    const consoleSpy = vi.spyOn(console, "error");
-
-    // Simulate QuotaExceededError (can't actually fill localStorage in test)
-    const state = { test: "data" };
-    const minimal = { ...state, repLog: [] };
-
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(minimal));
-      // If we get here, save succeeded
-      expect(localStorage.getItem(STORAGE_KEY)).toBeDefined();
-    } catch (err) {
-      if (err.name === "QuotaExceededError") {
-        console.error("[store] localStorage full — could not save state.");
-        expect(consoleSpy).toHaveBeenCalledWith(
-          expect.stringContaining("[store] localStorage full")
-        );
-      }
-    }
-  });
-
-  it("should maintain data integrity across trims", () => {
-    const state = {
-      player: { totalXP: 50000, level: 25 },
-      movementProgress: { ginga: { masteryLevel: 5 } },
-      repLog: Array(500).fill({ movementId: "ginga", count: 5 }),
-      sessionLog: Array(100).fill({ date: "2025-01-01", xpEarned: 100 }),
-    };
-
-    // Trim to emergency levels
-    const emergency = {
-      ...state,
-      repLog: state.repLog.slice(-200),
-      sessionLog: state.sessionLog.slice(-50),
-    };
-
-    // Critical data preserved
-    expect(emergency.player).toEqual(state.player);
-    expect(emergency.movementProgress).toEqual(state.movementProgress);
-
-    // History trimmed but not lost
-    expect(emergency.repLog.length).toBe(200);
-    expect(emergency.sessionLog.length).toBe(50);
   });
 });

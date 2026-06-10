@@ -28,7 +28,11 @@ export function useRecoveryActions(state, update) {
       const today = new Date().toISOString().split("T")[0];
       const lastDate = storeState.player.lastTrainingDate;
       const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-      const streak = lastDate === yesterday ? storeState.player.streakDays + 1 : 1;
+      const streak = lastDate === today
+        ? storeState.player.streakDays
+        : lastDate === yesterday
+          ? storeState.player.streakDays + 1
+          : 1;
 
       return {
         ...storeState,

@@ -283,7 +283,7 @@ export function useStore() {
     getPrestigeXPMultiplier,
     beginPrestigeRun,
     completePrestigeTrial,
-    useGraceToken,
+    consumeGraceToken,
     completeBonusChallenge,
     dismissAchievement,
     dismissConceptMilestone,
@@ -323,7 +323,7 @@ export function useStore() {
     dismissMilestone,
     clearMilestones,
     update, // exposed for direct state mutations (title selection, etc.)
-    useGraceToken,
+    consumeGraceToken,
     completeBonusChallenge,
     dismissAchievement,
     dismissConceptMilestone,

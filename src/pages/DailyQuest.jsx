@@ -149,6 +149,11 @@ function useAutoComplete(quests, store, questState) {
   const firedRef = useRef(false);
   const today = new Date().toISOString().split("T")[0];
   const alreadyDone = questState.completed.length === quests.length && questState.date === today;
+  // Capture mutable refs so the noon timeout always calls the current store method
+  const completeRef = useRef(store.completeAllQuestsAndLog);
+  const questIdsRef = useRef(quests.map((q) => q.id));
+  completeRef.current = store.completeAllQuestsAndLog;
+  questIdsRef.current = quests.map((q) => q.id);
 
   useEffect(() => {
     if (alreadyDone || firedRef.current) return;
@@ -156,11 +161,11 @@ function useAutoComplete(quests, store, questState) {
     const id = setTimeout(() => {
       if (!firedRef.current) {
         firedRef.current = true;
-        store.completeAllQuestsAndLog(quests.map((q) => q.id));
+        completeRef.current?.(questIdsRef.current);
       }
     }, delay);
     return () => clearTimeout(id);
-  }, [alreadyDone, quests.length]);
+  }, [alreadyDone, quests.length]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 function PainWarningBanner({ store }) {
@@ -204,8 +209,7 @@ export default function DailyQuest({ store, navigate }) {
   const level = getLevelFromXP(player.totalXP);
   const rank = getRank(level);
   const { streak = 0, inGrace = false } = store.getStreakDays?.() ?? {};
-  const todayStr = new Date().toISOString().split("T")[0];
-  const restToday = store.isRestDay?.(todayStr) ?? false;
+  const restToday = store.isRestDay?.(today) ?? false;
   const { pct: levelPct } = getLevelProgress(player.totalXP);
   const bonusQuest = buildBonusQuest(week, dow, level);
   const dailyExtras = getDailyExtras(week, dow);
@@ -302,7 +306,7 @@ export default function DailyQuest({ store, navigate }) {
             {(store.state.graceTokens || 0) > 0 && (
               <button
                 title={`${store.state.graceTokens} Grace Token${store.state.graceTokens > 1 ? "s" : ""} — protect your streak`}
-                onClick={() => store.useGraceToken?.()}
+                onClick={() => store.consumeGraceToken?.()}
                 style={{
                   fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20,
                   background: "rgba(212,133,74,0.15)", border: "1px solid rgba(212,133,74,0.35)",
@@ -314,7 +318,7 @@ export default function DailyQuest({ store, navigate }) {
             )}
           </div>
           <button
-            onClick={() => store.markRestDay?.(todayStr)}
+            onClick={() => store.markRestDay?.(today)}
             style={{
               fontSize: 10, padding: "3px 9px", borderRadius: 20, fontWeight: 700, cursor: "pointer",
               border: `1px solid ${restToday ? "var(--blue)" : "var(--border)"}`,

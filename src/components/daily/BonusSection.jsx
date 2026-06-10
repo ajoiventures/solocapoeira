@@ -14,14 +14,15 @@ export default function BonusSection({
   const [open, setOpen] = useState(false);
   const [openCats, setOpenCats] = useState({});
   const [openSandSecs, setOpenSandSecs] = useState({});
-  const [sandDoneIds, setSandDoneIds] = useState(new Set());
-
   const extraDone = allExtras.filter((exercise) => checkedBonusItems.includes(exercise.id)).length;
   const extraXP = allExtras.reduce((sum, exercise) => sum + (exercise.xp || 0), 0);
   const sandTotalExs = sandSession?.sections?.reduce((sum, section) => (
     sum + (section.exercises?.filter(Boolean).length || 0)
   ), 0) || 0;
-  const sandDone = sandDoneIds.size;
+  // Use checkedBonusItems (persisted to store) instead of local state
+  const sandDone = sandSession?.sections?.reduce((sum, section) =>
+    sum + (section.exercises || []).filter((ex) => ex && checkedBonusItems.includes(ex.id)).length
+  , 0) || 0;
   const sandXP = sandSession
     ? sandDone >= sandTotalExs && sandTotalExs > 0
       ? sandSession.totalXP
@@ -41,15 +42,6 @@ export default function BonusSection({
     setOpenSandSecs((prev) => ({ ...prev, [index]: !prev[index] }));
   }
 
-  function toggleSandEx(id) {
-    setSandDoneIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
-
   return (
     <div style={{ marginBottom: 10 }}>
       <button
@@ -61,7 +53,7 @@ export default function BonusSection({
           cursor: "pointer", textAlign: "left",
         }}
       >
-        <span style={{ fontSize: 14 }}>Bonus</span>
+        <span style={{ fontSize: 14 }}>⚡</span>
         <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: "var(--text)" }}>Bonus</span>
         {totalDone > 0 && (
           <span style={{ fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 10, background: "rgba(46,140,120,0.15)", color: "var(--green)" }}>
@@ -127,12 +119,12 @@ export default function BonusSection({
               sandDone={sandDone}
               sandTotalExs={sandTotalExs}
               sandXP={sandXP}
-              sandDoneIds={sandDoneIds}
+              checkedBonusItems={checkedBonusItems}
               openCats={openCats}
               openSandSecs={openSandSecs}
               toggleCat={toggleCat}
               toggleSandSec={toggleSandSec}
-              toggleSandEx={toggleSandEx}
+              store={store}
             />
           )}
         </div>
@@ -194,12 +186,12 @@ function SandSessionPanel({
   sandDone,
   sandTotalExs,
   sandXP,
-  sandDoneIds,
+  checkedBonusItems,
   openCats,
   openSandSecs,
   toggleCat,
   toggleSandSec,
-  toggleSandEx,
+  store,
 }) {
   return (
     <div>
@@ -236,7 +228,7 @@ function SandSessionPanel({
         <div style={{ background: "var(--surface)" }}>
           {sandSession.sections.map((section, sectionIndex) => {
             const sectionExercises = (section.exercises || []).filter(Boolean);
-            const sectionDone = sectionExercises.filter((exercise) => sandDoneIds.has(exercise.id)).length;
+            const sectionDone = sectionExercises.filter((exercise) => checkedBonusItems.includes(exercise.id)).length;
             const sectionOpen = !!openSandSecs[sectionIndex];
             return (
               <div key={sectionIndex}>
@@ -258,14 +250,14 @@ function SandSessionPanel({
                 {sectionOpen && (
                   <div style={{ padding: "6px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
                     {sectionExercises.map((exercise) => {
-                      const done = sandDoneIds.has(exercise.id);
+                      const done = checkedBonusItems.includes(exercise.id);
                       return (
                         <div key={exercise.id} style={{
                           display: "flex", alignItems: "center", gap: 8, padding: "6px 8px",
                           borderRadius: 8, background: done ? "rgba(46,140,120,0.06)" : "var(--surface2)",
                           border: `1px solid ${done ? "var(--green)" : "var(--border)"}`,
                         }}>
-                          <button onClick={() => toggleSandEx(exercise.id)}
+                          <button onClick={() => store.toggleBonusItem(exercise.id, exercise.xp)}
                             style={{ fontSize: 13, background: "none", border: "none", cursor: "pointer", color: done ? "var(--green)" : "var(--text3)", padding: 0 }}>
                             {done ? "Done" : "Open"}
                           </button>

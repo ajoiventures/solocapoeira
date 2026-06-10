@@ -24,6 +24,38 @@ These tickets prevent the repeated loop where new feature work starts while the 
   - Ignore `test-results/` and `playwright-report/`.
   - Playwright runs must not create commit/deploy loops.
 
+---
+
+## Code Review Fixes — From A-ENG-01/02 Review
+
+Findings from the post-refactor review of OpenAI's store extraction + DailyQuest split. Execute before next feature batch.
+
+### Bugs (Medium)
+- **A-QA-08** ✅ done: Fix same-day double-log streak reset in `useRecoveryActions.js:31`.
+  - Guard: if `lastDate === today`, keep current `streakDays` instead of resetting to 1.
+- **A-QA-09** ✅ done: Fix stale `store` closure in `useAutoComplete` (DailyQuest.jsx ~line 159).
+  - Capture `store.completeAllQuestsAndLog` and quest IDs in a ref so noon timeout always has fresh values.
+- **A-QA-10** ✅ done: Persist sand exercise completions in `BonusSection.jsx`.
+  - `sandDoneIds` is local state — lost on collapse. Route through `store.toggleBonusItem` like regular bonus items.
+- **A-QA-11** ✅ done: Fix "Bonus" text doubled in `BonusSection.jsx:64`.
+  - Button renders the label twice; icon placeholder was never filled.
+
+### Settings / Sprint 2 Correctness
+- **A-QA-12** ✅ done: Settings week picker hardcoded to 12 weeks.
+  - `Array.from({ length: 12 })` and `SPRINT_1.weeks[w-1]` need updating to cover weeks 1–24 using both sprint data files.
+
+### Cleanup
+- **A-QA-13** ✅ done: Delete orphaned `src/components/PhaseIndicator.jsx` — file exists but is not imported anywhere.
+- **A-QA-14** ✅ done: Remove dead comment `// ── Week Context Card (#35)` from `NeedsDrillingCard.jsx:110`.
+- **A-QA-15** ✅ done: Deduplicate `today` / `todayStr` in `DailyQuest.jsx` — same value computed twice 14 lines apart.
+- **A-QA-16** ✅ done: Rename `useGraceToken` → `consumeGraceToken` in `useProgressionActions.js` — `use` prefix implies React hook.
+
+### Test Quality
+- **A-QA-17** ✅ done: Fix `storageQuota.test.js` — warn/trim/integrity tests operate on plain JS objects and never call `saveStoreState`. Mock `localStorage.setItem` to throw `QuotaExceededError`, call the real function, assert on spies.
+
+### Infrastructure
+- **A-OPS-05** ✅ done: Playwright webkit binary missing — 15/30 E2E tests fail with "Executable doesn't exist". Either run `npx playwright install webkit` or add `--project=chromium` to the test script so CI doesn't require webkit.
+
 ## Next Execution Batches
 
 ### Batch 1 — Architecture Debt

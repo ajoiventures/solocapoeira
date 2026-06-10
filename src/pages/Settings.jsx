@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { SPRINT_1 } from "../data/sprint.js";
+import { SPRINT_2 } from "../data/sprint2.js";
 import { isSupabaseEnabled } from "../lib/supabase.js";
 import CloudSyncStatus from "../components/CloudSyncStatus.jsx";
 
@@ -57,7 +58,10 @@ export default function Settings({ store, theme, setTheme, navigate }) {
 
   const totalSessions = sessionLog.length;
 
-  const weeks = Array.from({ length: 12 }, (_, i) => i + 1);
+  const weeks = Array.from({ length: 24 }, (_, i) => i + 1);
+  function getWeekTheme(w) {
+    return w <= 12 ? SPRINT_1.weeks[w - 1]?.theme : SPRINT_2.weeks[w - 13]?.theme;
+  }
 
   return (
     <div className="page">
@@ -136,7 +140,7 @@ export default function Settings({ store, theme, setTheme, navigate }) {
       <div className="card">
         <div className="card-title" style={{ marginBottom: 12 }}>Sprint Control</div>
         <div style={{ fontSize: 12, color: "var(--text2)", marginBottom: 10 }}>
-          Current week: {player.currentWeek || 1}/12 — {SPRINT_1.weeks[(player.currentWeek || 1) - 1]?.theme}
+          Current week: {player.currentWeek || 1}/24 — {getWeekTheme(player.currentWeek || 1)}
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <label style={{ fontSize: 11, color: "var(--text3)" }}>Jump to week:</label>
@@ -149,7 +153,7 @@ export default function Settings({ store, theme, setTheme, navigate }) {
             }}
           >
             {weeks.map((w) => (
-              <option key={w} value={w}>Week {w} — {SPRINT_1.weeks[w - 1]?.theme}</option>
+              <option key={w} value={w}>Week {w} — {getWeekTheme(w)}</option>
             ))}
           </select>
         </div>
