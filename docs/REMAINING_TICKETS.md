@@ -12,17 +12,15 @@
 
 These tickets prevent the repeated loop where new feature work starts while the gates and project surfaces disagree.
 
-- **A-PM-04**: Reconcile ticket board and execution order.
+- **A-PM-04** ✅ done: Reconcile ticket board and execution order.
   - `tickets.html`, this roadmap, and the handbook must agree on the next sequence.
   - Web/PWA remains first; app wrapper work comes after production reliability is proven.
 
-- **A-QA-07**: Restore clean local QA gate.
-  - `npm run lint -- --quiet` must pass.
-  - React purity, stale imports, and generated test artifact noise must be fixed before feature batches.
+- **A-QA-07** ✅ done: Restore clean local QA gate.
+  - `npm run lint -- --quiet` passes (0 errors). Fixed react-hooks/refs violation in useAutoComplete by moving ref mutations into useLayoutEffect.
 
-- **A-OPS-04**: Generated artifact hygiene.
-  - Ignore `test-results/` and `playwright-report/`.
-  - Playwright runs must not create commit/deploy loops.
+- **A-OPS-04** ✅ done: Generated artifact hygiene.
+  - `test-results/` and `playwright-report/` already present in `.gitignore`.
 
 ---
 

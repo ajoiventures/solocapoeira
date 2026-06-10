@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { FOUNDATION_ROTATION, SPRINT_1 } from "../data/sprint.js";
 import { buildBonusQuest, getRank, getLevelFromXP, getLevelProgress } from "../data/bonusQuests.js";
 import { getDailyExtras, getSandSession } from "../data/extraWork.js";
@@ -152,8 +152,10 @@ function useAutoComplete(quests, store, questState) {
   // Capture mutable refs so the noon timeout always calls the current store method
   const completeRef = useRef(store.completeAllQuestsAndLog);
   const questIdsRef = useRef(quests.map((q) => q.id));
-  completeRef.current = store.completeAllQuestsAndLog;
-  questIdsRef.current = quests.map((q) => q.id);
+  useLayoutEffect(() => {
+    completeRef.current = store.completeAllQuestsAndLog;
+    questIdsRef.current = quests.map((q) => q.id);
+  });
 
   useEffect(() => {
     if (alreadyDone || firedRef.current) return;
