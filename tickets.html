@@ -224,9 +224,9 @@
     <a href="#backlog">Backlog</a>
   </nav>
   <div class="hright">
-    <div class="hstat"><div class="hstat-v">126</div><div class="hstat-l">Done</div></div>
-    <div class="hstat"><div class="hstat-v">216</div><div class="hstat-l">Total</div></div>
-    <div class="hstat"><div class="hstat-v">58%</div><div class="hstat-l">Complete</div></div>
+    <div class="hstat"><div class="hstat-v">127</div><div class="hstat-l">Done</div></div>
+    <div class="hstat"><div class="hstat-v">217</div><div class="hstat-l">Total</div></div>
+    <div class="hstat"><div class="hstat-v">59%</div><div class="hstat-l">Complete</div></div>
     <div class="hpill">B+ → A target</div>
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">◐ Dark</button>
   </div>
@@ -281,7 +281,6 @@
           <span class="pipe-count">6</span>
         </div>
         <div class="pipe-body">
-          <div class="tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js into slices</div><div class="tk-desc">1400 lines. Split: usePlayerStore, useMovementStore, useBossStore, useRecoveryStore, useSessionStore.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
           <div class="tk"><div class="tk-id">A-ENG-02 · P0</div><div class="tk-title">Split DailyQuest.jsx</div><div class="tk-desc">1900 lines. Extract: CheckInCard, BonusSection, NeedsDrillingCard, WeeklySummary, FlowSessionCard.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
           <div class="tk"><div class="tk-id">B-ENG-08 · P0</div><div class="tk-title">Memo/callback audit after store split</div><div class="tk-desc">Profile Daily, Library, Bosses, and Movement detail after the store boundaries are stable; remove avoidable page-wide re-renders.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">performance</span></div></div>
           <div class="tk"><div class="tk-id">B-OPS-03 · P1</div><div class="tk-title">Offline-first production verification</div><div class="tk-desc">Install PWA, go offline, complete a daily flow, reload, and confirm the queued state survives and syncs when online.</div><div class="tk-tags"><span class="tag tag-p1">P1</span><span class="tag tag-infra">pwa</span></div></div>
@@ -300,8 +299,8 @@
         </div>
         <div class="pipe-body">
           <div class="tk doing-tk"><div class="tk-id">A-PM-04 · P0</div><div class="tk-title">Reconcile ticket board and execution order</div><div class="tk-desc">Make tickets.html and handbook agree: stabilize gates first, then split store/DailyQuest, then verify PWA/mobile.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-qa">planning</span></div></div>
-          <div class="tk doing-tk"><div class="tk-id">A-QA-07 · P0</div><div class="tk-title">Restore clean local QA gate</div><div class="tk-desc">Fix lint drift, React purity errors, generated artifact noise, and stale auth/import leftovers before new feature tickets continue.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-qa">testing</span></div></div>
-          <div class="tk doing-tk"><div class="tk-id">A-OPS-04 · P0</div><div class="tk-title">Generated artifact hygiene</div><div class="tk-desc">Ignore Playwright output directories so smoke tests do not create noisy deploy or commit loops.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-infra">infra</span></div></div>
+          <div class="tk doing-tk"><div class="tk-id">A-ENG-01 · P0</div><div class="tk-title">Split useStore.js into slices</div><div class="tk-desc">Persistence/defaults and post-update effects are extracted. Next: movement, recovery, boss, quest, and prestige domain action slices.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-eng">refactor</span></div></div>
+          <div class="tk doing-tk"><div class="tk-id">A-QA-07 · P0</div><div class="tk-title">Keep clean local QA gate</div><div class="tk-desc">Every architecture slice must keep lint, unit tests, build, connective audit, and Chromium smoke green.</div><div class="tk-tags"><span class="tag tag-p0">P0</span><span class="tag tag-qa">testing</span></div></div>
         </div>
       </div>
 
@@ -309,11 +308,12 @@
       <div class="pipe-col pipe-done-col">
         <div class="pipe-hd">
           <span class="pipe-title">Recently Done</span>
-          <span class="pipe-count">126</span>
-          <span style="font-size:9px;color:var(--green);margin-left:auto">58% total</span>
+          <span class="pipe-count">127</span>
+          <span style="font-size:9px;color:var(--green);margin-left:auto">59% total</span>
         </div>
         <div class="pipe-body">
           <div class="tk done-tk"><div class="tk-id">A-PM-04</div><div class="tk-title">Stabilization-first ticket plan recorded</div></div>
+          <div class="tk done-tk"><div class="tk-id">A-ENG-01a</div><div class="tk-title">Store persistence and update pipeline extracted</div></div>
           <div class="tk done-tk"><div class="tk-id">A-QA-07</div><div class="tk-title">Lint gate repaired after Claude drift</div></div>
           <div class="tk done-tk"><div class="tk-id">A-OPS-04</div><div class="tk-title">Playwright artifacts ignored</div></div>
           <div class="tk done-tk"><div class="tk-id">A-QA-06</div><div class="tk-title">DailyQuest render snapshots for 4 states</div></div>

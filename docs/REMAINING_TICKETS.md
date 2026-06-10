@@ -1,7 +1,7 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 126 tickets on the public board.
+- **Completed**: 127 tickets on the public board.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: stabilization and ticket reconciliation before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -28,6 +28,9 @@ These tickets prevent the repeated loop where new feature work starts while the 
 
 ### Batch 1 — Architecture Debt
 - **A-ENG-01**: Split `useStore.js` into domain slices.
+  - **A-ENG-01a done**: Extracted persistence/default state/migrations/cloud push into `src/store/storePersistence.js`.
+  - **A-ENG-01b done**: Extracted achievement/rank post-update effects into `src/store/storeUpdatePipeline.js`.
+  - Next: movement, recovery, boss, quest, and prestige action slices.
 - **A-ENG-02**: Split `DailyQuest.jsx`; mount or remove retained legacy cards during extraction.
 - **B-ENG-08**: Memo/callback audit after store boundaries are stable.
 

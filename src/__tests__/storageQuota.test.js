@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { loadStoreState, saveStoreState } from "../store/storePersistence.js";
 
 describe("Storage Quota Protection", () => {
   const STORAGE_KEY = "solo_leveling_state_v1";
@@ -45,6 +46,34 @@ describe("Storage Quota Protection", () => {
     const saved = localStorage.getItem(STORAGE_KEY);
     expect(saved).toBeDefined();
     expect(JSON.parse(saved)).toEqual(state);
+  });
+
+  it("saveStoreState persists normal state through the extracted store layer", () => {
+    const state = {
+      player: { totalXP: 100, level: 2 },
+      movementProgress: { ginga: { masteryLevel: 2, reps: 60 } },
+      repLog: [{ movementId: "ginga", count: 10, date: "2026-06-10" }],
+    };
+
+    saveStoreState(state);
+
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY))).toEqual(state);
+  });
+
+  it("loadStoreState merges old saves with current defaults", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      player: { totalXP: 300, level: 4 },
+      orishasIntegrated: ["obatala"],
+      movementProgress: {},
+    }));
+
+    const loaded = loadStoreState();
+
+    expect(loaded.player.totalXP).toBe(300);
+    expect(loaded.todayQuest.completed).toEqual([]);
+    expect(loaded.integratedOrishas).toEqual(["obatala"]);
+    expect(loaded.orishaProgress.obatala.integrated).toBe(true);
+    expect(loaded.cloudSyncStatus).toBe("idle");
   });
 
   it("should warn when approaching 4.5MB limit", () => {

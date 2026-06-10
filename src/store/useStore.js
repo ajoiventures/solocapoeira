@@ -9,284 +9,20 @@ import { getStoreMestreLineage, getStoreLineageProgress } from "../data/storeMes
 import { canAdvancePhase, getPhaseProgress } from "../data/trainingPhases.js";
 import { getMestreSequenceIds } from "../data/mestreSequenceUnlocks.js";
 import { getCoreOrishaCount, getOrishaMetaById } from "../data/orishaIndex.js";
-import { checkAchievements, getAchievementById } from "../data/achievements.js";
-import { RANKS } from "../data/rankUtils.js";
 import { mlToOz, ozToMl } from "../data/units.js";
-
-const STORAGE_KEY = "solo_leveling_state_v1";
-const STATE_VERSION = 3; // bump this when schema changes require migration
-
-// ── State migrations ──────────────────────────────────────────────
-// Each migration runs once when a user with an older save loads the app.
-// Add new entries at the bottom. Never remove old ones.
-const MIGRATIONS = [
-  {
-    version: 2,
-    description: "Add graceTokens, earnedTitles, activeTitle, bonusChallengesDone",
-    migrate(state) {
-      return {
-        ...state,
-        graceTokens:        state.graceTokens        ?? 0,
-        earnedTitles:       state.earnedTitles        ?? [],
-        activeTitle:        state.activeTitle         ?? null,
-        bonusChallengesDone: state.bonusChallengesDone ?? {},
-        earnedAchievements: state.earnedAchievements  ?? [],
-        lastKnownRank:      state.lastKnownRank       ?? "U",
-      };
-    },
-  },
-  {
-    version: 3,
-    description: "Add comboStats (combo practice tracking from Phase B)",
-    migrate(state) {
-      return {
-        ...state,
-        comboStats: state.comboStats ?? {},
-      };
-    },
-  },
-];
-
-function runMigrations(state) {
-  const currentVersion = state._version || 1;
-  let migrated = { ...state };
-  let didMigrate = false;
-
-  for (const m of MIGRATIONS) {
-    if (m.version > currentVersion) {
-      migrated = m.migrate(migrated);
-      didMigrate = true;
-    }
-  }
-
-  if (didMigrate) {
-    migrated._version = STATE_VERSION;
-  }
-
-  return migrated;
-}
-
-function buildOrishaProgress(integratedIds = [], existingProgress = {}) {
-  const now = new Date().toISOString();
-  return integratedIds.reduce((progress, orishaId) => ({
-    ...progress,
-    [orishaId]: {
-      integrated: true,
-      masteredAt: existingProgress[orishaId]?.masteredAt || now,
-      xp: existingProgress[orishaId]?.xp || 0,
-      ...(existingProgress[orishaId] || {}),
-    },
-  }), { ...existingProgress });
-}
-
-const defaultState = () => ({
-  // Movement progress: { [movementId]: { masteryLevel: 0-5, reps: 0, notes: "", unlockedAt: null, masteredAt: null } }
-  movementProgress: {},
-  // Pain log: { date: { foot: 0, knee: 0, wrist: 0, shoulder: 0, lowerBack: 0 } }
-  painLog: {},
-  // Session log: [{ date, duration, movements: [], notes, xpEarned }]
-  sessionLog: [],
-  // Rep activity log: [{ movementId, count, date }] — max 1000 entries, newest first
-  repLog: [],
-  // Sequence practice log: [{ seqId, date }] — newest first
-  seqLog: [],
-  // Unlocked Mestre sequences: array of sequence IDs unlocked by defeating Mestres
-  unlockedSequences: [],
-  // Mastery milestones queue: [{ movementId, movementName, level, xp, date }] — newest first, max 20
-  masteryMilestones: [],
-  // Concept tree milestones queue: [{ tree, newLevel, id }] — newest first, max 10
-  conceptMilestones: [],
-  // One-time intro shown after first concept tree advancement
-  seenConceptIntro: false,
-  // Earned achievements: array of achievement IDs
-  earnedAchievements: [],
-  // Achievement toast queue: [{ id, title, desc, icon, color }]
-  achievementQueue: [],
-  // Last known rank key — used to detect rank-up
-  lastKnownRank: "U",
-  // Rest days: Set stored as array of date strings ["2025-06-01", ...]
-  restDays: [],
-  // Boss tests: { [bossId]: { passed: false, attempts: 0, passedAt: null } }
-  bossProgress: {},
-  // Mestre progress: { [mestreId]: { defeated: false, progressionTier: 0-3, defeatedAt: null, xpAwarded: false } }
-  mestreProgress: {},
-  // Lineage rewards: { [lineageKey]: { unlocked: false, unlockedAt: null } }
-  lineageRewards: {},
-  // Training phase progress: { currentPhase: 1-4, phaseCompletedAt: null, phaseCompletionPercent: 0 }
-  trainingPhase: {
-    currentPhase: 1,
-    phaseCompletedAt: null,
-    phaseCompletionPercent: 0,
-    phasesCompleted: [],
-  },
-  // Concept tree progression: { [treeId]: level 0-5 }
-  conceptTreeProgress: { malicia: 0, malandragem: 0, mandinga: 0 },
-  // Orisha integration: array of Orisha IDs that have been integrated
-  orishasIntegrated: [],
-  // Ticket-compatible aliases and detail map.
-  integratedOrishas: [],
-  orishaProgress: {},
-  // Prestige mode / NG+ progression
-  prestige: {
-    rank: 0,
-    active: false,
-    trialsCompleted: {},
-    lastAscendedAt: null,
-  },
-  // Ehi status: { isAscended: false, ascendedAt: null, prestigeMode: false, prestigeCosmetics: [] }
-  ehiStatus: {
-    isAscended: false,
-    ascendedAt: null,
-    prestigeMode: false,
-    prestigeCosmetics: [],
-  },
-  // Player stats
-  player: {
-    totalXP: 0,
-    level: 1,
-    currentSprint: "sprint_1",
-    currentWeek: 1,
-    streakDays: 0,
-    lastTrainingDate: null,
-    spiritualPath: "Ogun (Core)",  // "Ogun (Core) + Obatala + Ifa + ..."
-  },
-  // Quest state for today
-  todayQuest: {
-    date: null,
-    completed: [],
-    skipped: [],
-    bonusItems: [],   // exercise IDs checked today
-    bonusXP: 0,
-  },
-  // Persistent bonus exercise logs: { [exerciseId]: [{ date, value }] }
-  bonusLogs: {},
-  // Daily steps log: { [date]: { count: number, xpAwarded: number } }
-  stepsLog: {},
-  // Axis Progression Framework
-  apf: {
-    pillars: { for: 0, vel: 0, res: 0, nut: 0, fnd: 0, fld: 0 },
-    recoveryLog: {}, // { [date]: { hydrationMl: number, sleepHours: number } }
-  },
-  // Settings
-  settings: {
-    name: "Hunter",
-    showTutorialLinks: true,
-    painThreshold: 3,
-    vestWeight: 0,
-  },
-  // Cloud sync status tracking: "idle" | "syncing" | "error"
-  cloudSyncStatus: "idle",
-  // Last successful cloud sync timestamp (ISO string)
-  lastCloudSyncTime: null,
-});
-
-function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...defaultState(), _version: STATE_VERSION };
-    const saved = runMigrations(JSON.parse(raw));
-    const def = defaultState();
-    const integratedOrishas = saved.integratedOrishas || saved.orishasIntegrated || [];
-    const orishaProgress = buildOrishaProgress(integratedOrishas, saved.orishaProgress || {});
-    // Deep-merge nested objects so new keys added to defaults survive old saves
-    return {
-      ...def,
-      ...saved,
-      player:     { ...def.player,     ...(saved.player     || {}) },
-      apf:        { ...def.apf,        ...(saved.apf        || {}), recoveryLog: saved.apf?.recoveryLog || {} },
-      todayQuest: { ...def.todayQuest, ...(saved.todayQuest || {}) },
-      settings:   { ...def.settings,   ...(saved.settings   || {}) },
-      ehiStatus:  { ...def.ehiStatus,  ...(saved.ehiStatus  || {}) },
-      repLog:     saved.repLog         || [],
-      seqLog:     saved.seqLog         || [],
-      unlockedSequences: saved.unlockedSequences || [],
-      masteryMilestones: saved.masteryMilestones || [],
-      conceptMilestones: saved.conceptMilestones || [],
-      earnedAchievements: saved.earnedAchievements || [],
-      achievementQueue: [], // never restore queue — cleared on reload
-      lastKnownRank: saved.lastKnownRank || "U",
-      bonusChallengesDone: saved.bonusChallengesDone || {},
-      graceTokens: saved.graceTokens ?? 0, // max 3, earned at 7-day streak milestones
-      earnedTitles: saved.earnedTitles || [], // prestige cosmetic title IDs
-      activeTitle: saved.activeTitle || null,
-      combos: saved.combos || [],
-      // Combo statistics: { [comboId]: { timesPracticed: 0, lastPracticed: null, bestTime: null } }
-      comboStats: saved.comboStats || {},
-      restDays:   saved.restDays       || [],
-      mestreProgress: saved.mestreProgress || {},
-      lineageRewards: saved.lineageRewards || {},
-      trainingPhase: saved.trainingPhase || { currentPhase: 1, phaseCompletedAt: null, phaseCompletionPercent: 0, phasesCompleted: [] },
-      conceptTreeProgress: saved.conceptTreeProgress || { malicia: 0, malandragem: 0, mandinga: 0 },
-      orishasIntegrated: integratedOrishas,
-      integratedOrishas,
-      orishaProgress,
-      prestige: { ...def.prestige, ...(saved.prestige || {}) },
-      cloudSyncStatus: saved.cloudSyncStatus || "idle",
-      lastCloudSyncTime: saved.lastCloudSyncTime || null,
-    };
-  } catch {
-    return defaultState();
-  }
-}
-
-// Estimate bytes used by the store (rough: 2 bytes/char in UTF-16)
-function estimateStorageKB(str) {
-  return (str.length * 2) / 1024;
-}
-
-function save(state) {
-  try {
-    const serialized = JSON.stringify(state);
-    const kb = estimateStorageKB(serialized);
-    // Warn at 3MB, hard cap at 4.5MB (localStorage limit ~5MB)
-    if (kb > 4500) {
-      console.warn(`[store] Storage at ${Math.round(kb)}KB — approaching limit. Trimming repLog.`);
-      // Emergency trim: keep only last 500 rep entries
-      const trimmed = { ...state, repLog: (state.repLog || []).slice(-500) };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
-      return;
-    }
-    localStorage.setItem(STORAGE_KEY, serialized);
-  } catch (err) {
-    if (err?.name === "QuotaExceededError") {
-      // Last resort: trim aggressively and retry
-      try {
-        const minimal = {
-          ...state,
-          repLog: (state.repLog || []).slice(-200),
-          sessionLog: (state.sessionLog || []).slice(-50),
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(minimal));
-      } catch {
-        // Truly full — can't save. Don't crash the app.
-        console.error("[store] localStorage full — could not save state.");
-      }
-    }
-  }
-}
-
-// Debounce helper — calls fn at most once per `delay` ms
-function debounce(fn, delay) {
-  let timer;
-  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
-}
-
-async function pushCloudState(state, onStatusChange) {
-  try {
-    onStatusChange?.("syncing");
-    const { pushState } = await import("../lib/cloudSync.js");
-    await pushState(state);
-    onStatusChange?.("idle", new Date().toISOString());
-  } catch (error) {
-    console.error("[store] Cloud sync failed:", error);
-    onStatusChange?.("error");
-    // Reset to idle after 3 seconds
-    setTimeout(() => onStatusChange?.("idle"), 3000);
-  }
-}
+import {
+  buildOrishaProgress,
+  debounce,
+  defaultState,
+  loadStoreState,
+  pushCloudState,
+  runMigrations,
+  saveStoreState,
+} from "./storePersistence.js";
+import { applyPostUpdateEffects } from "./storeUpdatePipeline.js";
 
 export function useStore() {
-  const [state, setState] = useState(load);
+  const [state, setState] = useState(loadStoreState);
   const pushDebounced = useRef(debounce((s) => {
     void pushCloudState(s, (status, syncTime) => {
       setState((prev) => ({
@@ -299,7 +35,7 @@ export function useStore() {
 
   // Persist to localStorage on every state change
   useEffect(() => {
-    save(state);
+    saveStoreState(state);
     // Debounced cloud push — only fires if user is signed in (pushState checks internally)
     pushDebounced(state);
   }, [state]);
@@ -347,54 +83,9 @@ export function useStore() {
     };
   }, []);
 
-  // ── Core updater — runs achievement + rank-up checks after every mutation ──
+  // Core updater - runs cross-cutting achievement and rank-up checks after mutations.
   const update = useCallback((fn) => {
-    setState((prev) => {
-      const next = fn(prev);
-
-      // ── Achievement check ────────────────────────────────────────
-      const newlyEarned = checkAchievements(next);
-      if (newlyEarned.length > 0) {
-        newlyEarned.forEach((id) => track.achievementUnlocked(id));
-        const newQueue = [
-          ...(next.achievementQueue || []),
-          ...newlyEarned.map((id) => {
-            const a = getAchievementById(id);
-            return { id, title: a?.title || id, desc: a?.desc || "", icon: a?.icon || "🏆", color: a?.color || "var(--accent)", qid: `${id}_${Date.now()}` };
-          }),
-        ].slice(0, 5);
-        return {
-          ...next,
-          earnedAchievements: [...(next.earnedAchievements || []), ...newlyEarned],
-          achievementQueue: newQueue,
-        };
-      }
-
-      // ── Rank-up check ───────────────────────────────────────────
-      const level = next.player?.level || 1;
-      const currentRank = RANKS.slice().reverse().find((r) => level >= r.minLevel)?.rank || "U";
-      const lastRank = next.lastKnownRank || "U";
-      if (currentRank !== lastRank) {
-        track.rankUp(currentRank);
-        const rankObj = RANKS.find((r) => r.rank === currentRank);
-        const rankQueue = [{
-          id: `rank_${currentRank}`,
-          title: rankObj?.label || currentRank,
-          desc: rankObj?.desc || "",
-          icon: "🎖️",
-          color: rankObj?.color || "var(--accent)",
-          qid: `rank_${currentRank}_${Date.now()}`,
-          isRankUp: true,
-        }];
-        return {
-          ...next,
-          lastKnownRank: currentRank,
-          achievementQueue: [...(next.achievementQueue || []), ...rankQueue].slice(0, 5),
-        };
-      }
-
-      return next;
-    });
+    setState((prev) => applyPostUpdateEffects(fn(prev)));
   }, []);
 
   // ═══════════════════════════════════════════════════════════════════════
