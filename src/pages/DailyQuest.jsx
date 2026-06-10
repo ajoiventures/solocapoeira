@@ -4,135 +4,18 @@ import { SKILL_TREES } from "../data/trees.js";
 import { FOUNDATION_ROTATION, SPRINT_1 } from "../data/sprint.js";
 import { buildBonusQuest, getRank, getLevelFromXP, getLevelProgress } from "../data/bonusQuests.js";
 import { getDailyExtras, getSandSession } from "../data/extraWork.js";
-import { computeVIG } from "../data/apf.js";
 import { isMovementAvailableInPhase } from "../data/movementPhases.js";
 import StepsTracker from "../components/StepsTracker.jsx";
 import { getAllMestres } from "../data/mestres.js";
 import { getCurrentMonthChallenge } from "../data/monthlyChallenges.js";
 import { getAllCoreOrishas } from "../data/orishas.js";
-import { ozToMl } from "../data/units.js";
 import { BOSS_TESTS } from "../data/bossTests.js";
 import { SEQUENCES, RANK_META, SEQ_TYPES, RANK_ORDER } from "../data/sequences.js";
 import FlowSessionCard from "../components/FlowSessionCard.jsx";
 import DailyBonusChallenge from "../components/DailyBonusChallenge.jsx";
 import SessionLogBlock from "../components/SessionLogBlock.jsx";
-
-function CheckInCard({ store, navigate, painToday }) {
-  const today = new Date().toISOString().split("T")[0];
-  const rec = store.getRecoveryForDate?.(today) || { hydrationMl: 0, sleepHours: 0 };
-  const [hydration, setHydration] = useState(String(store.getHydrationOz?.(today) || ""));
-  const [sleep, setSleep] = useState(String(rec.sleepHours || ""));
-
-  const hydrationMl = ozToMl(hydration);
-  const vig    = computeVIG({ hydrationMl, sleepHours: parseFloat(sleep) || 0 });
-  const vigPct = Math.min(100, (vig / 9999) * 100);
-
-  function commit(ozVal, s) {
-    store.logRecoveryOz({ hydrationOz: ozVal, sleepHours: parseFloat(s) || 0 });
-  }
-  function addHydration(oz) {
-    const next = (parseFloat(hydration) || 0) + oz;
-    setHydration(String(next));
-    commit(next, sleep);
-  }
-
-  return (
-    <div className="card" style={{ marginBottom: 10 }}>
-      {/* Header row */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-        {/* Body check — tappable */}
-        <button
-          onClick={() => navigate("body")}
-          style={{
-            flex: 1, display: "flex", alignItems: "center", gap: 8,
-            background: painToday ? "var(--surface2)" : "rgba(217,164,65,0.08)",
-            border: `1px solid ${painToday ? "var(--border)" : "rgba(217,164,65,0.3)"}`,
-            borderRadius: 8, padding: "7px 10px", cursor: "pointer", textAlign: "left",
-          }}
-        >
-          <span style={{ fontSize: 16 }}>{painToday ? "✓" : "🩹"}</span>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: painToday ? "var(--text2)" : "var(--accent)" }}>
-              {painToday ? "Body logged" : "Log body check"}
-            </div>
-            <div style={{ fontSize: 9, color: "var(--text3)" }}>
-              {painToday ? "Foot · Knee · Wrist" : "Required daily"}
-            </div>
-          </div>
-        </button>
-
-        {/* VIG indicator */}
-        <button
-          onClick={() => navigate("axe")}
-          style={{
-            display: "flex", flexDirection: "column", alignItems: "center",
-            background: "var(--surface2)", border: "1px solid var(--border)",
-            borderRadius: 8, padding: "7px 12px", cursor: "pointer", gap: 3,
-          }}
-        >
-          <div style={{ fontSize: 11, fontWeight: 700, color: vig > 5000 ? "var(--blue)" : "var(--text3)" }}>
-            {Math.round(vigPct)}%
-          </div>
-          <div style={{ fontSize: 9, color: "var(--text3)" }}>VIG</div>
-        </button>
-      </div>
-
-      {/* VIG bar */}
-      <div style={{ height: 3, borderRadius: 2, background: "var(--surface2)", overflow: "hidden", marginBottom: 10 }}>
-        <div style={{ height: "100%", width: `${vigPct}%`, background: "var(--blue)", borderRadius: 2, transition: "width 0.3s" }} />
-      </div>
-
-      {/* Inputs */}
-      <div style={{ display: "flex", gap: 8 }}>
-        {/* Hydration */}
-        <div style={{ flex: 1 }}>
-          <label style={{ fontSize: 9, color: "var(--text3)", display: "block", marginBottom: 3, textTransform: "uppercase", letterSpacing: 0.8 }}>
-            Water (oz)
-          </label>
-          <input
-            type="number" value={hydration} min={0}
-            onChange={(e) => setHydration(e.target.value)}
-            onBlur={(e) => commit(e.target.value, sleep)}
-            onKeyDown={(e) => e.key === "Enter" && commit(hydration, sleep)}
-            style={{ width: "100%", padding: "6px 8px", background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text)", fontSize: 12 }}
-            placeholder="0"
-          />
-          <div style={{ display: "flex", gap: 3, marginTop: 4 }}>
-            {[8, 16, 32].map((oz) => (
-              <button key={oz} onClick={() => addHydration(oz)}
-                style={{ flex: 1, fontSize: 9, fontWeight: 700, padding: "3px 0", background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--blue)", cursor: "pointer" }}
-              >+{oz}</button>
-            ))}
-          </div>
-        </div>
-
-        {/* Sleep */}
-        <div style={{ flex: 1 }}>
-          <label style={{ fontSize: 9, color: "var(--text3)", display: "block", marginBottom: 3, textTransform: "uppercase", letterSpacing: 0.8 }}>
-            Sleep (hrs)
-          </label>
-          <input
-            type="number" value={sleep} min={0} max={12} step={0.5}
-            onChange={(e) => setSleep(e.target.value)}
-            onBlur={(e) => commit(hydration, e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && commit(hydration, sleep)}
-
-            style={{ width: "100%", padding: "6px 8px", background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text)", fontSize: 12 }}
-            placeholder="0"
-          />
-          <div style={{ display: "flex", gap: 3, marginTop: 4 }}>
-            {[6, 7.5, 9].map((h) => (
-              <button key={h} onClick={() => { setSleep(String(h)); commit(hydration, h); }}
-                style={{ flex: 1, fontSize: 9, fontWeight: 700, padding: "3px 0", background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: 4, color: "var(--accent)", cursor: "pointer" }}
-              >{h}h</button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
+import CheckInCard from "../components/daily/CheckInCard.jsx";
+import CollapsibleSection from "../components/daily/CollapsibleSection.jsx";
 
 function buildDailyQuests(store) {
   const today = new Date();
@@ -1184,48 +1067,6 @@ const LEGACY_DAILY_QUEST_CARDS = [
 ];
 void LEGACY_DAILY_QUEST_CARDS;
 
-function CollapsibleSection({ label, icon, badge, badgeColor, open, onToggle, children }) {
-  return (
-    <div style={{ marginBottom: 10 }}>
-      <button
-        onClick={onToggle}
-        style={{
-          width: "100%", display: "flex", alignItems: "center", gap: 8,
-          background: "var(--surface2)", border: "1px solid var(--border)",
-          borderRadius: open ? "8px 8px 0 0" : 8, padding: "9px 12px",
-          cursor: "pointer", textAlign: "left",
-        }}
-      >
-        {icon && <span style={{ fontSize: 14, flexShrink: 0 }}>{icon}</span>}
-        <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: "var(--text)" }}>{label}</span>
-        {badge && (
-          <span style={{
-            fontSize: 10, fontWeight: 700, padding: "1px 7px", borderRadius: 10,
-            background: (badgeColor || "var(--accent)") + "18",
-            color: badgeColor || "var(--accent)",
-          }}>
-            {badge}
-          </span>
-        )}
-        <svg
-          viewBox="0 0 24 24" width="14" height="14" fill="none"
-          stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-          style={{ color: "var(--text3)", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}
-        >
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
-      </button>
-      {open && (
-        <div style={{
-          border: "1px solid var(--border)", borderTop: "none",
-          borderRadius: "0 0 8px 8px", overflow: "hidden",
-        }}>
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function DailyQuest({ store, navigate }) {
   const today = new Date().toISOString().split("T")[0];
