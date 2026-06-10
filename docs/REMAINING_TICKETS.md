@@ -54,6 +54,25 @@ Findings from the post-refactor review of OpenAI's store extraction + DailyQuest
 ### Infrastructure
 - **A-OPS-05** ✅ done: Playwright webkit binary missing — 15/30 E2E tests fail with "Executable doesn't exist". Either run `npx playwright install webkit` or add `--project=chromium` to the test script so CI doesn't require webkit.
 
+## Recently Completed (Phase 4–6 Audit)
+
+Everything below was audited and confirmed complete — built by the OpenAI + Claude collaborative sessions:
+
+- **#65–#67** ✅: `src/data/orishas.js` (16 Orishas + Ehi), store integration (`integrateOrisha`, `canIntegrateOrisha`, `isOrishaIntegrated`), BossTests Orishas tab
+- **#68** ✅: Ehi Ascension Ritual — full-screen 5-slide ceremony (`EhiAscensionRitual.jsx`) replaces 8-second toast
+- **#69–#70** ✅: Prestige mode store (`beginPrestigeRun`, `completePrestigeTrial`, `getPrestigeXPMultiplier`), prestige trials tab in BossTests
+- **#71** ✅: `PlayerProfile.jsx` — Orisha readiness bar, integrated list, stat bonuses, prestige cosmetics
+- **#72** ✅: `canIntegrateOrisha` with Angola gating and concept tree requirements
+- **#73** ✅: Per-Orisha integration flash (card glow/outline on integrate) + `ORISHA_DISPLAY_COLORS` map
+- **#74** ✅: Full narrative, spiritual lesson, and flavor text in `orishas.js`
+- **#75** ✅: `src/data/orishaStatSystem.js` with compound integration bonuses
+- **#51–#53** ✅: 43 Mestres, lineage data, `MestreLineageVisualization.jsx` wired in BossTests Lineage tab
+- **#54** ✅: 238 movements (well above 120+60 target)
+- **#55** ✅: Mestre sequence unlock on defeat via `getMestreSequenceIds`
+- **#57** ✅: `MasteryToast` fires on level-up (mastery + concept tree milestones)
+- **#58** ✅: ConceptTrees page shows level/5 progress bar
+- **#59–#60** ✅: Victory banner on Mestre defeat, lineage tree in Mestres data
+
 ## Next Execution Batches
 
 ### Batch 1 — Architecture Debt

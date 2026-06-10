@@ -9,6 +9,7 @@ import { getAllCoreOrishas } from "../data/orishas.js";
 import { getPrestigeTrialsByTier } from "../data/prestigeTrials.js";
 import { buildRequirementPracticePlan } from "../data/requirementPracticePlans.js";
 import MestreLineageVisualization from "../components/MestreLineageVisualization.jsx";
+import EhiAscensionRitual from "../components/EhiAscensionRitual.jsx";
 
 // ═══════════════════════════════════════════════════════════════════════════════════
 // ORIGINAL BOSS CARD (for legacy BossTests)
@@ -527,10 +528,21 @@ function MestreCard({ mestre, store, navigate, onDefeat }) {
 // ═══════════════════════════════════════════════════════════════════════════════════
 // ORISHA CARD
 // ═══════════════════════════════════════════════════════════════════════════════════
+const ORISHA_DISPLAY_COLORS = {
+  orisha_ogun: "#8B0000", orisha_obatala: "#C0C0C0", orisha_ifa: "#FFD700",
+  orisha_yemaya: "#1E90FF", orisha_shango: "#DC143C", orisha_oshun: "#FFB347",
+  orisha_oya: "#9400D3", orisha_elegba: "#FF4500", orisha_babaluaye: "#8B7355",
+  orisha_ibeji: "#00CED1", orisha_aje: "#2E8B57", orisha_oshosi: "#556B2F",
+  orisha_nana_buruku: "#800080", orisha_erinle: "#20B2AA", orisha_oba: "#B8860B",
+  orisha_shun: "#DAA520",
+};
+
 function OrishaCard({ orisha, store, navigate }) {
   const [checkedReqs, setCheckedReqs] = useState(new Set());
+  const [justIntegrated, setJustIntegrated] = useState(false);
   const integrated = store.isOrishaIntegrated(orisha.id);
   const gatingStatus = store.canIntegrateOrisha(orisha.id);
+  const orishaColor = orisha.color || orisha.colors?.[0] || ORISHA_DISPLAY_COLORS[orisha.id] || "var(--accent)";
   const requirements = orisha.requirements || [];
   const allReqsDone = checkedReqs.size >= requirements.length;
   const practiceOwner = {
@@ -555,16 +567,10 @@ function OrishaCard({ orisha, store, navigate }) {
 
   const handleIntegrate = () => {
     if (!gatingStatus.canIntegrate) return;
-    const totalBefore = store.state.orishasIntegrated.length;
-    const totalCore = 16; // all 16 core Orishas
     store.integrateOrisha(orisha.id, 250);
-    // Check if this was the last one → show Ehi ascension message
-    if (totalBefore === totalCore - 1) {
-      // Will be shown via the ehiStatus change — trigger a tab switch to prestige
-      setTimeout(() => {
-        // Handled by the Ehi ascension banner in parent (victoryBanner system)
-      }, 100);
-    }
+    haptics.advance();
+    setJustIntegrated(true);
+    setTimeout(() => setJustIntegrated(false), 2000);
   };
 
   const readiness = (() => {
@@ -580,7 +586,12 @@ function OrishaCard({ orisha, store, navigate }) {
 
   return (
     <>
-      <div className="card" style={{ marginBottom: 12 }}>
+      <div className="card" style={{
+        marginBottom: 12,
+        outline: justIntegrated ? `2px solid ${orishaColor}` : "none",
+        boxShadow: justIntegrated ? `0 0 24px ${orishaColor}44` : "none",
+        transition: "outline 0.3s, box-shadow 0.3s",
+      }}>
         {/* Header — tappable → OrishaDetail */}
         <button
           onClick={() => navigate("orisha", orisha.id, { backTo: "orishas", backLabel: "Orishas" })}
@@ -594,8 +605,8 @@ function OrishaCard({ orisha, store, navigate }) {
             width: 36, height: 36, borderRadius: 8, flexShrink: 0,
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 20,
-            background: (orisha.color || "var(--accent)") + "18",
-            border: `1px solid ${orisha.color || "var(--accent)"}33`,
+            background: orishaColor + "18",
+            border: `1px solid ${orishaColor}33`,
           }}>
             {orisha.icon || (integrated ? "✨" : "⚡")}
           </span>
@@ -943,17 +954,14 @@ function PrestigeTrialCard({ trial, store, completed }) {
 export default function BossTests({ store, navigate, initialTab = "orishas" }) {
   const [tab, setTab] = useState(initialTab);  // "masters", "lineage", "orishas", "prestige", or "legacy"
   const [victoryBanner, setVictoryBanner] = useState(null); // { name, victoryText, xp, sequences }
-  const [ehiBanner, setEhiBanner] = useState(false);
+  const [showEhiRitual, setShowEhiRitual] = useState(false);
   const isEhiAscended = store.isEhiAscended();
   const prevEhiRef = useRef(isEhiAscended);
 
-  // Detect Ehi ascension moment
+  // Detect Ehi ascension moment — show full ritual
   useEffect(() => {
     if (!prevEhiRef.current && isEhiAscended) {
-      setEhiBanner(true);
-      setTab("prestige");
-      const t = setTimeout(() => setEhiBanner(false), 8000);
-      return () => clearTimeout(t);
+      setShowEhiRitual(true);
     }
     prevEhiRef.current = isEhiAscended;
   }, [isEhiAscended]);
@@ -1115,33 +1123,12 @@ export default function BossTests({ store, navigate, initialTab = "orishas" }) {
         </div>
       )}
 
-      {/* Ehi Ascension Banner */}
-      {ehiBanner && (
-        <div style={{
-          position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)",
-          width: "calc(100% - 32px)", maxWidth: 448, zIndex: 9001,
-          background: "linear-gradient(135deg, rgba(20,10,40,0.98), rgba(80,20,120,0.98))",
-          border: "2px solid rgba(255,215,0,0.9)",
-          borderRadius: 12, padding: 20, textAlign: "center",
-          boxShadow: "0 0 40px rgba(255,215,0,0.4), 0 8px 32px rgba(0,0,0,0.8)",
-        }}>
-          <div style={{ fontSize: 40, marginBottom: 10 }}>✨</div>
-          <div style={{ fontSize: 18, fontWeight: 900, color: "#D9A441", marginBottom: 8, letterSpacing: 1 }}>
-            EHI ASCENSION
-          </div>
-          <div style={{ fontSize: 12, color: "rgba(255,215,0,0.8)", marginBottom: 10, lineHeight: 1.6 }}>
-            All 16 Orishas flow through your Ogun core. You are no longer a practitioner — you are the practice itself.
-          </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginBottom: 12 }}>
-            Prestige Mode unlocked · ×2 XP · All spiritual bonuses active
-          </div>
-          <button
-            onClick={() => setEhiBanner(false)}
-            style={{ fontSize: 11, fontWeight: 700, color: "#D9A441", background: "none", border: "1px solid rgba(217,164,65,0.4)", borderRadius: 6, padding: "6px 16px", cursor: "pointer" }}
-          >
-            Enter Prestige
-          </button>
-        </div>
+      {/* Ehi Ascension Ritual — full-screen ceremony */}
+      {showEhiRitual && (
+        <EhiAscensionRitual
+          integratedOrishas={store.state.orishasIntegrated || []}
+          onDismiss={() => { setShowEhiRitual(false); setTab("prestige"); }}
+        />
       )}
 
       {/* Page title + status */}
