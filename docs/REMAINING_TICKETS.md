@@ -1,7 +1,7 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 135 tickets on the public board.
+- **Completed**: 136 tickets on the public board.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: stabilization and ticket reconciliation before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -40,7 +40,8 @@ These tickets prevent the repeated loop where new feature work starts while the 
   - Result: `src/store/useStore.js` is now a thin composition hook over focused store modules.
 - **A-ENG-02**: Split `DailyQuest.jsx`; mount or remove retained legacy cards during extraction.
   - **A-ENG-02a done**: Extracted `CheckInCard` and `CollapsibleSection` into `src/components/daily/`.
-  - Next: extract BonusSection, NeedsDrillingCard, timer/session panels, and remove retained legacy cards.
+  - **A-ENG-02b done**: Extracted `BonusSection` into `src/components/daily/BonusSection.jsx`.
+  - Next: extract NeedsDrillingCard, timer/session panels, and remove retained legacy cards.
 - **B-ENG-08**: Memo/callback audit after store boundaries are stable.
 
 ### Batch 2 — PWA Reliability
