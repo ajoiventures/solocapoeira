@@ -1,8 +1,8 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 148 tickets on the public board.
-- **Countdown**: 148/234 - 86 left - 63% complete.
+- **Completed**: 149 tickets on the public board.
+- **Countdown**: 149/234 - 85 left - 64% complete.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: review-found QA repairs before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -90,6 +90,11 @@ Findings from the post-refactor review of OpenAI's store extraction + DailyQuest
   - Memoized Profile-derived title, Orisha, timeline, and bonus data.
   - Stabilized Profile title selection callback.
 
+- **B-OPS-03** ✅ done: Offline-first production verification.
+  - Added `npm run audit:pwa-offline` as a repeatable production PWA audit.
+  - Verified the Netlify app has a standalone manifest, active service worker, controlled page, and Workbox precache.
+  - Verified daily hydration state survives offline reload, offline mutation, second offline reload, and returning online.
+
 ### Infrastructure
 - **A-OPS-05** ✅ done: Playwright webkit binary missing — 15/30 E2E tests fail with "Executable doesn't exist". Either run `npx playwright install webkit` or add `--project=chromium` to the test script so CI doesn't require webkit.
 
@@ -136,7 +141,6 @@ Everything below was audited and confirmed complete — built by the OpenAI + Cl
   - Next: continue extracting inline DailyQuest panels until the page is a thin composition surface.
 
 ### Batch 2 — PWA Reliability
-- **B-OPS-03**: Offline-first verification on the production Netlify app.
 - **B-OPS-02**: Lighthouse/performance budget pass.
 - **A-INF-05 / A-QA-05**: Resolve GitHub Actions runner/workflow-scope blockers when the platform token path is available.
 

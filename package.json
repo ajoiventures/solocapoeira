@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "audit:connective": "node scripts/connective-audit.mjs",
     "audit:live-env": "node scripts/live-env-audit.mjs",
+    "audit:pwa-offline": "node scripts/offline-pwa-audit.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
