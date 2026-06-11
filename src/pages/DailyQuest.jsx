@@ -4,7 +4,7 @@ import { buildBonusQuest, getRank, getLevelFromXP, getLevelProgress } from "../d
 import { getDailyExtras, getSandSession } from "../data/extraWork.js";
 import { isMovementAvailableInPhase } from "../data/movementPhases.js";
 import StepsTracker from "../components/StepsTracker.jsx";
-import { getAllMestres } from "../data/mestres.js";
+import { getMestresByProgression } from "../data/mestres.js";
 import { getCurrentMonthChallenge } from "../data/monthlyChallenges.js";
 import { getAllCoreOrishas } from "../data/orishas.js";
 import FlowSessionCard from "../components/FlowSessionCard.jsx";
@@ -526,7 +526,7 @@ export default function DailyQuest({ store, navigate }) {
 
       {/* Mestre / Orisha path teaser */}
       {(() => {
-        const mestres = getAllMestres();
+        const mestres = getMestresByProgression();
         const orishas = getAllCoreOrishas();
         const defeatedCount = mestres.filter((m) => store.isMestreDefeated?.(m.id)).length;
         const integratedCount = (store.state.orishasIntegrated || []).length;
@@ -552,7 +552,7 @@ export default function DailyQuest({ store, navigate }) {
               const total = checkable.length || 1;
               return { m, met, total, pct: Math.round((met / total) * 100) };
             })
-            .sort((a, b) => b.pct - a.pct);
+            .sort((a, b) => b.pct - a.pct || a.m.progressionRank - b.m.progressionRank);
 
           const best = scored[0];
           if (!best) return null;

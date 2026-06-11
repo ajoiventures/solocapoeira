@@ -3,7 +3,7 @@ import { haptics } from "../utils/haptics.js";
 import { BOSS_TESTS } from "../data/bossTests.js";
 import { SKILL_TREES } from "../data/trees.js";
 import { getMovementById } from "../data/movements.js";
-import { getAllMestres, getMestreById } from "../data/mestres.js";
+import { getMestreById, getMestresByProgression } from "../data/mestres.js";
 import { getMestreSequences } from "../data/mestreSequences.js";
 import { getAllCoreOrishas } from "../data/orishas.js";
 import { getPrestigeTrialsByTier } from "../data/prestigeTrials.js";
@@ -995,7 +995,7 @@ export default function BossTests({ store, navigate, initialTab = "orishas" }) {
   const pendingBosses = useMemo(() => regularBosses.filter((b) => !store.isBossPassed(b.id)), [regularBosses, bossProgress]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Mestres
-  const mestres = useMemo(() => getAllMestres(), []);
+  const mestres = useMemo(() => getMestresByProgression(), []);
   const defeatedMestres = useMemo(() => mestres.filter((m) => store.isMestreDefeated(m.id)), [mestres, mestreProgress]); // eslint-disable-line react-hooks/exhaustive-deps
   const pendingMestres = useMemo(() => mestres.filter((m) => !store.isMestreDefeated(m.id)), [mestres, mestreProgress]); // eslint-disable-line react-hooks/exhaustive-deps
 

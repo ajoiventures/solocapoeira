@@ -7,7 +7,7 @@
  * 13 LEGENDARY MESTRES — Each a complete training program
  *
  * Progression Path:
- * 1. Start with any Mestre (or recommended: Bimba or Pastinha for style choice)
+ * 1. Start with the training ladder, then climb toward the founder-level icons.
  * 2. Complete their unique requirements
  * 3. Master their signature sequences
  * 4. Unlock their teaching reward
@@ -1607,6 +1607,56 @@ export const MESTRES = [
 // EXPORT HELPERS
 // ═══════════════════════════════════════════════════════════════════════════════════
 
+const MESTRE_PROGRESSION_ORDER = [
+  "mestre_cobra_additional",
+  "mestre_paulo_santos",
+  "mestre_sergio",
+  "mestre_valmir",
+  "mestre_toni_vargas",
+  "mestre_pe_de_bananeira",
+  "mestre_david_moura",
+  "mestre_amen",
+  "mestre_zulu",
+  "mestre_polêmica",
+  "mestre_papai",
+  "mestre_talo",
+  "mestre_brasilia_ferrez",
+  "mestre_grao",
+  "mestre_gildo",
+  "mestre_acordeon",
+  "mestre_nestor",
+  "mestre_moraes",
+  "mestre_decanio",
+  "mestre_santo",
+  "mestre_amancio",
+  "mestre_sinha",
+  "mestre_suassuna",
+  "mestre_bom_jesus",
+  "mestre_santo_amaro",
+  "mestre_gato_preto",
+  "mestre_caiçara",
+  "mestre_nô",
+  "mestre_moa_cartorio",
+  "mestre_abigail",
+  "mestre_remo",
+  "mestre_traira",
+  "mestre_sombra",
+  "mestre_gato",
+  "mestre_canjiquinha",
+  "mestre_joao_pequeno",
+  "mestre_joao_grande",
+  "mestre_cobra_mansa",
+  "mestre_nenel",
+  "mestre_waldemar",
+  "mestre_besouro",
+  "mestre_pastinha",
+  "mestre_bimba",
+];
+
+const MESTRE_PROGRESSION_RANKS = new Map(
+  MESTRE_PROGRESSION_ORDER.map((id, index) => [id, index + 1])
+);
+
 function buildHistoricalContext(mestre) {
   const role = mestre.historical_context || mestre.historicalContext || mestre.historical_role;
   if (role && String(role).trim()) return role;
@@ -1677,6 +1727,19 @@ export function getStyleFounders() {
 
 export function getAllMestres() {
   return uniqueMestres(MESTRES).map(normalizeMestre);
+}
+
+export function getMestreProgressionRank(mestreId) {
+  return MESTRE_PROGRESSION_RANKS.get(mestreId) || Number.MAX_SAFE_INTEGER;
+}
+
+export function getMestresByProgression() {
+  return getAllMestres()
+    .map((mestre) => ({
+      ...mestre,
+      progressionRank: getMestreProgressionRank(mestre.id),
+    }))
+    .sort((a, b) => a.progressionRank - b.progressionRank || a.name.localeCompare(b.name));
 }
 
 export function getMestreCount() {

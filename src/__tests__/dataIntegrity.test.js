@@ -9,7 +9,7 @@ import { describe, it, expect } from "vitest";
 import { MOVEMENTS } from "../data/movements.js";
 import { BOSS_TESTS } from "../data/bossTests.js";
 import { SPRINT_1 } from "../data/sprint.js";
-import { getAllMestres } from "../data/mestres.js";
+import { getAllMestres, getMestreProgressionRank, getMestresByProgression } from "../data/mestres.js";
 import { getAllCoreOrishas } from "../data/orishas.js";
 import { ACHIEVEMENTS, checkAchievements } from "../data/achievements.js";
 import { BONUS_CHALLENGES, getDailyBonusChallenge } from "../data/bonusChallenges.js";
@@ -151,6 +151,25 @@ describe("mestres.js — data integrity", () => {
         }
       });
     });
+  });
+
+  it("Mestre progression ladder covers every unique Mestre and keeps founders late", () => {
+    const progression = getMestresByProgression();
+    const progressionIds = progression.map((m) => m.id);
+    const uniqueProgressionIds = new Set(progressionIds);
+
+    expect(progression).toHaveLength(mestres.length);
+    expect(uniqueProgressionIds.size).toBe(mestres.length);
+    progression.forEach((mestre) => {
+      expect(
+        getMestreProgressionRank(mestre.id),
+        `${mestre.id} missing explicit progression rank`
+      ).toBeLessThan(Number.MAX_SAFE_INTEGER);
+    });
+    expect(progression[0].id).not.toBe("mestre_bimba");
+    expect(progression.at(-1).id).toBe("mestre_bimba");
+    expect(getMestreProgressionRank("mestre_bimba")).toBeGreaterThan(getMestreProgressionRank("mestre_besouro"));
+    expect(getMestreProgressionRank("mestre_pastinha")).toBeGreaterThan(getMestreProgressionRank("mestre_waldemar"));
   });
 });
 

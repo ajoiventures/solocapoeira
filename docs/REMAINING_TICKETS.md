@@ -1,8 +1,8 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 149 tickets on the public board.
-- **Countdown**: 149/234 - 85 left - 64% complete.
+- **Completed**: 150 tickets on the public board.
+- **Countdown**: 150/235 - 85 left - 64% complete.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: review-found QA repairs before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -69,6 +69,11 @@ Findings from the post-refactor review of OpenAI's store extraction + DailyQuest
   - Archived boss, Mestre, Orisha, and prestige trial requirement checkboxes now use persisted `requirementChecks`.
   - Requirement checks survive leaving/returning to the Roda page.
   - Added Chromium E2E coverage for boss-style requirement persistence.
+
+- **A-QA-22** ✅ done: Fix Mestre progression ladder.
+  - Fresh DailyQuest "Next Mestre" recommendation now uses an explicit beginner-to-founder ladder instead of raw data order.
+  - Boss Roda Mestre list follows the same progression order.
+  - Bimba and Pastinha are intentionally late-stage founder milestones instead of first recommendations.
 
 - **B-UX-03** ✅ done: Concept tree strip first-interaction tooltip.
   - First tap on the Movement page concept strip opens a one-shot explanation before navigation.
