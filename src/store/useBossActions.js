@@ -4,6 +4,25 @@ import { XP_PER_LEVEL } from "../data/constants.js";
 import { getPrestigeMultiplier } from "./storeCalculations.js";
 
 export function useBossActions(update) {
+  const toggleRequirementCheck = useCallback((ownerKey, index) => {
+    if (!ownerKey || index === undefined || index === null) return;
+    update((state) => {
+      const key = String(index);
+      const current = state.requirementChecks?.[ownerKey] || [];
+      const next = current.includes(key)
+        ? current.filter((item) => item !== key)
+        : [...current, key];
+
+      return {
+        ...state,
+        requirementChecks: {
+          ...(state.requirementChecks || {}),
+          [ownerKey]: next,
+        },
+      };
+    });
+  }, [update]);
+
   const passBoss = useCallback((bossId, xp = 0) => {
     update((state) => {
       const alreadyAwarded = state.bossProgress[bossId]?.xpAwarded;
@@ -89,5 +108,5 @@ export function useBossActions(update) {
     }));
   }, [update]);
 
-  return { passBoss, unpassBoss, unmarkBoss, recordBossAttempt };
+  return { passBoss, unpassBoss, unmarkBoss, recordBossAttempt, toggleRequirementCheck };
 }

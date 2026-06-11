@@ -104,7 +104,7 @@ export function useStore() {
     isRestDay,
   } = useRecoveryActions(state, update);
 
-  const { passBoss, unpassBoss, unmarkBoss, recordBossAttempt } = useBossActions(update);
+  const { passBoss, unpassBoss, unmarkBoss, recordBossAttempt, toggleRequirementCheck } = useBossActions(update);
 
   const {
     completeQuestItem,
@@ -310,6 +310,7 @@ export function useStore() {
     unpassBoss,
     unmarkBoss,
     recordBossAttempt,
+    toggleRequirementCheck,
     completeQuestItem,
     toggleQuestDrill,
     toggleBonusItem,

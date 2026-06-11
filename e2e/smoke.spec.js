@@ -128,6 +128,25 @@ test.describe("Core loop", () => {
     await page.getByRole("button", { name: "Daily" }).first().click();
     await expect(page.getByRole("button", { name: "Undo Foot Protocol" })).toBeVisible();
   });
+
+  test("boss-style requirement checks persist when leaving and returning", async ({ page }) => {
+    await openFreshApp(page);
+
+    await bottomNavButton(page, "Roda").click();
+    const firstRequirement = page.locator('[data-testid^="requirement-orisha:"]').first();
+    await expect(firstRequirement).toBeVisible({ timeout: 5000 });
+    const testId = await firstRequirement.getAttribute("data-testid");
+    await firstRequirement.click();
+
+    await expect.poll(async () => {
+      const state = await readSavedState(page);
+      return Object.values(state.requirementChecks || {}).some((items) => items.length > 0);
+    }).toBe(true);
+
+    await bottomNavButton(page, "Daily").click();
+    await bottomNavButton(page, "Roda").click();
+    await expect(page.getByTestId(testId)).toHaveAccessibleName(/Undo requirement/i);
+  });
 });
 
 test.describe("Skill tree", () => {

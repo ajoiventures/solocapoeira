@@ -76,6 +76,7 @@ export const defaultState = () => ({
   lastKnownRank: "U",
   restDays: [],
   bossProgress: {},
+  requirementChecks: {},
   mestreProgress: {},
   lineageRewards: {},
   trainingPhase: {
@@ -165,6 +166,7 @@ export function loadStoreState() {
       combos: saved.combos || [],
       comboStats: saved.comboStats || {},
       restDays: saved.restDays || [],
+      requirementChecks: saved.requirementChecks || {},
       mestreProgress: saved.mestreProgress || {},
       lineageRewards: saved.lineageRewards || {},
       trainingPhase: saved.trainingPhase || { currentPhase: 1, phaseCompletedAt: null, phaseCompletionPercent: 0, phasesCompleted: [] },

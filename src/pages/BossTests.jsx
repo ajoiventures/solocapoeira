@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, memo } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo, memo } from "react";
 import { haptics } from "../utils/haptics.js";
 import { BOSS_TESTS } from "../data/bossTests.js";
 import { SKILL_TREES } from "../data/trees.js";
@@ -14,8 +14,13 @@ import EhiAscensionRitual from "../components/EhiAscensionRitual.jsx";
 // ═══════════════════════════════════════════════════════════════════════════════════
 // ORIGINAL BOSS CARD (for legacy BossTests)
 // ═══════════════════════════════════════════════════════════════════════════════════
+function getRequirementChecks(store, ownerKey) {
+  return new Set(store.state.requirementChecks?.[ownerKey] || []);
+}
+
 const BossCard = memo(function BossCard({ boss, passed, store, navigate }) {
-  const [checkedReqs, setCheckedReqs] = useState(new Set());
+  const ownerKey = `archived_boss:${boss.id}`;
+  const checkedReqs = getRequirementChecks(store, ownerKey);
   const tree = SKILL_TREES.find((t) => t.id === boss.tree);
   const attempts = store.state.bossProgress[boss.id]?.attempts || 0;
   const allReqsDone = checkedReqs.size >= boss.requirements.length;
@@ -57,11 +62,7 @@ const BossCard = memo(function BossCard({ boss, passed, store, navigate }) {
   })();
 
   const toggleReq = (i) => {
-    setCheckedReqs((prev) => {
-      const s = new Set(prev);
-      s.has(i) ? s.delete(i) : s.add(i);
-      return s;
-    });
+    store.toggleRequirementCheck?.(ownerKey, i);
   };
 
   return (
@@ -110,7 +111,7 @@ const BossCard = memo(function BossCard({ boss, passed, store, navigate }) {
       {/* Requirements — with per-row checkboxes + movement chips */}
       <div className="boss-requirements" style={{ marginTop: 10 }}>
         {boss.requirements.map((req, i) => {
-          const reqDone = checkedReqs.has(i);
+          const reqDone = checkedReqs.has(String(i));
           const mv = req.movementId ? getMovementById(req.movementId) : null;
           const plan = !mv ? buildRequirementPracticePlan(practiceOwner, req, i) : null;
 
@@ -140,6 +141,8 @@ const BossCard = memo(function BossCard({ boss, passed, store, navigate }) {
             >
               {/* Checkbox toggle */}
               <button
+                aria-label={`${reqDone ? "Undo" : "Complete"} requirement ${i + 1} for ${boss.name}`}
+                data-testid={`requirement-${ownerKey}-${i}`}
                 onClick={() => toggleReq(i)}
                 style={{
                   fontSize: 15, background: "none", border: "none", cursor: "pointer",
@@ -283,7 +286,8 @@ const BossCard = memo(function BossCard({ boss, passed, store, navigate }) {
 // MESTRE CARD
 // ═══════════════════════════════════════════════════════════════════════════════════
 function MestreCard({ mestre, store, navigate, onDefeat }) {
-  const [checkedReqs, setCheckedReqs] = useState(new Set());
+  const ownerKey = `mestre:${mestre.id}`;
+  const checkedReqs = getRequirementChecks(store, ownerKey);
   const defeated = store.isMestreDefeated(mestre.id);
   const tierLabels = ["Apprentice", "Student", "Practitioner"];
   const tier = store.state.mestreProgress[mestre.id]?.progressionTier || 0;
@@ -301,11 +305,7 @@ function MestreCard({ mestre, store, navigate, onDefeat }) {
   };
 
   const toggleReq = (i) => {
-    setCheckedReqs((prev) => {
-      const s = new Set(prev);
-      s.has(i) ? s.delete(i) : s.add(i);
-      return s;
-    });
+    store.toggleRequirementCheck?.(ownerKey, i);
   };
 
   // Check concept tree gates
@@ -427,7 +427,7 @@ function MestreCard({ mestre, store, navigate, onDefeat }) {
       {/* Requirements */}
       <div style={{ marginBottom: 12 }}>
         {mestre.requirements.map((req, i) => {
-          const reqDone = checkedReqs.has(i);
+          const reqDone = checkedReqs.has(String(i));
           const mv = req.movementId ? getMovementById(req.movementId) : null;
           const plan = !mv ? buildRequirementPracticePlan(practiceOwner, req, i) : null;
           return (
@@ -441,6 +441,8 @@ function MestreCard({ mestre, store, navigate, onDefeat }) {
               }}
             >
               <button
+                aria-label={`${reqDone ? "Undo" : "Complete"} requirement ${i + 1} for ${mestre.name}`}
+                data-testid={`requirement-${ownerKey}-${i}`}
                 onClick={() => toggleReq(i)}
                 style={{
                   fontSize: 12, background: "none", border: "none", cursor: "pointer",
@@ -538,7 +540,8 @@ const ORISHA_DISPLAY_COLORS = {
 };
 
 function OrishaCard({ orisha, store, navigate }) {
-  const [checkedReqs, setCheckedReqs] = useState(new Set());
+  const ownerKey = `orisha:${orisha.id}`;
+  const checkedReqs = getRequirementChecks(store, ownerKey);
   const [justIntegrated, setJustIntegrated] = useState(false);
   const integrated = store.isOrishaIntegrated(orisha.id);
   const gatingStatus = store.canIntegrateOrisha(orisha.id);
@@ -558,11 +561,7 @@ function OrishaCard({ orisha, store, navigate }) {
   };
 
   const toggleReq = (i) => {
-    setCheckedReqs((prev) => {
-      const s = new Set(prev);
-      s.has(i) ? s.delete(i) : s.add(i);
-      return s;
-    });
+    store.toggleRequirementCheck?.(ownerKey, i);
   };
 
   const handleIntegrate = () => {
@@ -648,7 +647,7 @@ function OrishaCard({ orisha, store, navigate }) {
       {/* Requirements */}
       <div style={{ marginBottom: 12 }}>
         {requirements.map((req, i) => {
-          const reqDone = checkedReqs.has(i);
+          const reqDone = checkedReqs.has(String(i));
           const mv = req.movementId ? getMovementById(req.movementId) : null;
           const plan = !mv ? buildRequirementPracticePlan(practiceOwner, req, i) : null;
           const conceptCurrent = req.type === "concept_tree"
@@ -668,6 +667,8 @@ function OrishaCard({ orisha, store, navigate }) {
               }}
             >
               <button
+                aria-label={`${reqDone ? "Undo" : "Complete"} requirement ${i + 1} for ${orisha.name}`}
+                data-testid={`requirement-${ownerKey}-${i}`}
                 onClick={() => toggleReq(i)}
                 style={{
                   fontSize: 12, background: "none", border: "none", cursor: "pointer",
@@ -786,16 +787,13 @@ function OrishaCard({ orisha, store, navigate }) {
 // ═══════════════════════════════════════════════════════════════════════════════════
 function PrestigeTrialCard({ trial, store, completed }) {
   const [expanded, setExpanded] = useState(false);
-  const [checkedReqs, setCheckedReqs] = useState(new Set());
+  const ownerKey = `prestige:${trial.id}`;
+  const checkedReqs = getRequirementChecks(store, ownerKey);
   const requirements = trial.requirements || [];
   const ready = requirements.length === 0 || checkedReqs.size >= requirements.length;
 
   const toggleReq = (index) => {
-    setCheckedReqs((prev) => {
-      const next = new Set(prev);
-      next.has(index) ? next.delete(index) : next.add(index);
-      return next;
-    });
+    store.toggleRequirementCheck?.(ownerKey, index);
   };
 
   return (
@@ -872,10 +870,12 @@ function PrestigeTrialCard({ trial, store, completed }) {
                 Readiness Gate
               </div>
               {requirements.map((req, i) => {
-                const checked = checkedReqs.has(i);
+                const checked = checkedReqs.has(String(i));
                 return (
                   <button
                     key={i}
+                    aria-label={`${checked ? "Undo" : "Complete"} requirement ${i + 1} for ${trial.name}`}
+                    data-testid={`requirement-${ownerKey}-${i}`}
                     onClick={() => toggleReq(i)}
                     style={{
                       width: "100%",
@@ -987,26 +987,28 @@ export default function BossTests({ store, navigate, initialTab = "orishas" }) {
     }
   }, [store]);
 
+  const { bossProgress, mestreProgress, orishasIntegrated } = store.state;
+
   // Legacy boss tests
-  const regularBosses = BOSS_TESTS.filter((b) => !b.isTemplate);
-  const passedBosses = regularBosses.filter((b) => store.isBossPassed(b.id));
-  const pendingBosses = regularBosses.filter((b) => !store.isBossPassed(b.id));
+  const regularBosses = useMemo(() => BOSS_TESTS.filter((b) => !b.isTemplate), []);
+  const passedBosses = useMemo(() => regularBosses.filter((b) => store.isBossPassed(b.id)), [regularBosses, bossProgress]); // eslint-disable-line react-hooks/exhaustive-deps
+  const pendingBosses = useMemo(() => regularBosses.filter((b) => !store.isBossPassed(b.id)), [regularBosses, bossProgress]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Mestres
-  const mestres = getAllMestres();
-  const defeatedMestres = mestres.filter((m) => store.isMestreDefeated(m.id));
-  const pendingMestres = mestres.filter((m) => !store.isMestreDefeated(m.id));
+  const mestres = useMemo(() => getAllMestres(), []);
+  const defeatedMestres = useMemo(() => mestres.filter((m) => store.isMestreDefeated(m.id)), [mestres, mestreProgress]); // eslint-disable-line react-hooks/exhaustive-deps
+  const pendingMestres = useMemo(() => mestres.filter((m) => !store.isMestreDefeated(m.id)), [mestres, mestreProgress]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Orishas
-  const orishas = getAllCoreOrishas();
-  const integratedOrishas = orishas.filter((o) => store.isOrishaIntegrated(o.id));
-  const pendingOrishas = orishas.filter((o) => !store.isOrishaIntegrated(o.id));
-  const ehiReadiness = store.getEhiReadiness();
+  const orishas = useMemo(() => getAllCoreOrishas(), []);
+  const integratedOrishas = useMemo(() => orishas.filter((o) => store.isOrishaIntegrated(o.id)), [orishas, orishasIntegrated]); // eslint-disable-line react-hooks/exhaustive-deps
+  const pendingOrishas = useMemo(() => orishas.filter((o) => !store.isOrishaIntegrated(o.id)), [orishas, orishasIntegrated]); // eslint-disable-line react-hooks/exhaustive-deps
+  const ehiReadiness = useMemo(() => store.getEhiReadiness(), [orishasIntegrated]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Prestige trials
-  const tier1Trials = getPrestigeTrialsByTier(1);
-  const tier2Trials = getPrestigeTrialsByTier(2);
-  const tier3Trials = getPrestigeTrialsByTier(3);
+  // Prestige trials — static data, memoize once
+  const tier1Trials = useMemo(() => getPrestigeTrialsByTier(1), []);
+  const tier2Trials = useMemo(() => getPrestigeTrialsByTier(2), []);
+  const tier3Trials = useMemo(() => getPrestigeTrialsByTier(3), []);
 
   return (
     <div className="page">

@@ -1,7 +1,7 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 143 tickets on the public board.
+- **Completed**: 144 tickets on the public board.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: review-found QA repairs before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -63,6 +63,11 @@ Findings from the post-refactor review of OpenAI's store extraction + DailyQuest
   - Store checked workout drill keys in `todayQuest.drills` so leaving and reopening a daily workout keeps subtask progress.
   - When every drill unit is checked, add the parent quest ID to `todayQuest.completed` so the Daily page/meta progress updates.
   - Added Chromium E2E coverage for partial subtask persistence, reopening the workout, and parent quest roll-up.
+
+- **A-QA-21** ✅ done: Persist boss-style requirement checklist progress.
+  - Archived boss, Mestre, Orisha, and prestige trial requirement checkboxes now use persisted `requirementChecks`.
+  - Requirement checks survive leaving/returning to the Roda page.
+  - Added Chromium E2E coverage for boss-style requirement persistence.
 
 ### Infrastructure
 - **A-OPS-05** ✅ done: Playwright webkit binary missing — 15/30 E2E tests fail with "Executable doesn't exist". Either run `npx playwright install webkit` or add `--project=chromium` to the test script so CI doesn't require webkit.
