@@ -204,6 +204,41 @@ test.describe("Settings", () => {
 
     await expect(page.locator(".page")).toBeVisible();
   });
+
+  test("color blind mode changes the semantic palette and persists", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate((storageKey) => {
+      localStorage.clear();
+      localStorage.setItem("seen_onboarding", "1");
+      localStorage.removeItem(storageKey);
+    }, STORAGE_KEY);
+    await page.reload();
+    await expect(page.locator(".app")).toBeVisible();
+    await expect(page.locator(".page")).toBeVisible();
+
+    await page.getByRole("button", { name: "Settings" }).click();
+
+    const toggle = page.getByTestId("color-blind-toggle");
+    await expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+    await toggle.click();
+
+    await expect(toggle).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("html")).toHaveAttribute("data-color-blind", "true");
+    await expect.poll(() => page.evaluate(() => localStorage.getItem("sl_color_blind"))).toBe("true");
+    await expect.poll(async () => {
+      const state = await readSavedState(page);
+      return state.settings?.colorBlindMode;
+    }).toBe(true);
+    await expect.poll(() => page.evaluate(() => (
+      getComputedStyle(document.documentElement).getPropertyValue("--green").trim()
+    ))).toBe("#1170AA");
+
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-color-blind", "true");
+    await page.getByRole("button", { name: "Settings" }).click();
+    await expect(page.getByTestId("color-blind-toggle")).toHaveAttribute("aria-pressed", "true");
+  });
 });
 
 test.describe("Resilience", () => {

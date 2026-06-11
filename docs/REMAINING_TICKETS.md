@@ -1,8 +1,8 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 145 tickets on the public board.
-- **Countdown**: 145/234 - 89 left - 62% complete.
+- **Completed**: 146 tickets on the public board.
+- **Countdown**: 146/234 - 88 left - 62% complete.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: review-found QA repairs before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -75,6 +75,11 @@ Findings from the post-refactor review of OpenAI's store extraction + DailyQuest
   - Dismissal persists in `settings.seenTooltips`.
   - Added Chromium E2E coverage for tooltip persistence and second-tap navigation.
 
+- **C-UX-10** ✅ done: Color blind mode.
+  - Accessibility preference now persists in `settings.colorBlindMode` and legacy `sl_color_blind`.
+  - Color-blind palette remaps semantic red/green surfaces to blue/orange across app tokens and component tokens.
+  - Added Chromium E2E coverage for toggle state, CSS variable change, localStorage, saved state, and reload persistence.
+
 ### Infrastructure
 - **A-OPS-05** ✅ done: Playwright webkit binary missing — 15/30 E2E tests fail with "Executable doesn't exist". Either run `npx playwright install webkit` or add `--project=chromium` to the test script so CI doesn't require webkit.
 
@@ -130,7 +135,6 @@ Everything below was audited and confirmed complete — built by the OpenAI + Cl
 - **B-UX-04**: Mobile touch targets and one-hand ergonomics.
 - **C-UX-08**: Reduced motion mode.
 - **C-UX-09**: Landscape orientation layout.
-- **C-UX-10**: Color blind mode.
 
 ---
 

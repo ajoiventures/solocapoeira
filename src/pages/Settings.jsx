@@ -32,16 +32,8 @@ export default function Settings({ store, theme, setTheme, navigate }) {
     document.documentElement.style.setProperty("--base-font-size", px);
   }
 
-  const [colorBlind, setColorBlindState] = useState(
-    () => localStorage.getItem("sl_color_blind") === "true"
-  );
-
-  function applyColorBlind(enabled) {
-    setColorBlindState(enabled);
-    localStorage.setItem("sl_color_blind", enabled ? "true" : "false");
-    document.documentElement.setAttribute("data-color-blind", enabled ? "true" : "false");
-  }
   const { settings, player, sessionLog } = store.state;
+  const colorBlind = !!settings.colorBlindMode;
   const [name, setName] = useState(settings.name);
   const importRef = useRef(null);
   const [importStatus, setImportStatus] = useState(null); // null | "ok" | "error"
@@ -298,8 +290,11 @@ export default function Settings({ store, theme, setTheme, navigate }) {
           </div>
           <button
             className={`btn btn-sm${colorBlind ? " btn-primary" : " btn-secondary"}`}
+            aria-label="Toggle color blind mode"
+            aria-pressed={colorBlind}
+            data-testid="color-blind-toggle"
             style={{ minWidth: 60 }}
-            onClick={() => applyColorBlind(!colorBlind)}
+            onClick={() => store.updateSettings({ colorBlindMode: !colorBlind })}
           >
             {colorBlind ? "On" : "Off"}
           </button>

@@ -52,6 +52,7 @@ describe("Storage Quota Protection", () => {
     expect(loaded.todayQuest.completed).toEqual([]);
     expect(loaded.todayQuest.drills).toEqual({});
     expect(loaded.requirementChecks).toEqual({});
+    expect(loaded.settings.colorBlindMode).toBe(false);
     expect(loaded.settings.seenTooltips).toEqual([]);
     expect(loaded.integratedOrishas).toEqual(["obatala"]);
     expect(loaded.orishaProgress.obatala.integrated).toBe(true);

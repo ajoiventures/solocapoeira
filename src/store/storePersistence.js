@@ -129,6 +129,7 @@ export const defaultState = () => ({
     showTutorialLinks: true,
     painThreshold: 3,
     vestWeight: 0,
+    colorBlindMode: false,
     seenTooltips: [],
   },
   cloudSyncStatus: "idle",

@@ -567,6 +567,19 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
+    const stored = localStorage.getItem("sl_color_blind") === "true";
+    if (stored && !store.state.settings?.colorBlindMode) {
+      store.updateSettings({ colorBlindMode: true });
+    }
+  }, []);
+
+  useEffect(() => {
+    const enabled = !!store.state.settings?.colorBlindMode;
+    document.documentElement.setAttribute("data-color-blind", enabled ? "true" : "false");
+    localStorage.setItem("sl_color_blind", enabled ? "true" : "false");
+  }, [store.state.settings?.colorBlindMode]);
+
+  useEffect(() => {
     track.pageView(page);
   }, [page]);
 
@@ -574,8 +587,6 @@ export default function App() {
     const stored = localStorage.getItem("sl_font_size") || "default";
     const px = { small: "11px", default: "13px", large: "15px" }[stored] || "13px";
     document.documentElement.style.setProperty("--base-font-size", px);
-    const cb = localStorage.getItem("sl_color_blind") === "true";
-    document.documentElement.setAttribute("data-color-blind", cb ? "true" : "false");
   }, []);
 
   function dismissOnboarding() {

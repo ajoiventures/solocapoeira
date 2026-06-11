@@ -810,9 +810,19 @@ input[type="number"]::-webkit-inner-spin-button {
    Replaces green/red with blue/orange — the IBM accessible palette.
    All other vars (purple, yellow, teal-blue) are already safe. */
 [data-color-blind="true"] {
-  --green:  #1170AA;   /* IBM blue 70   — replaces teal (looks brown to deuteranopes) */
-  --red:    #D95F02;   /* warm orange   — replaces terracotta red */
-  --accent: #1170AA;   /* primary CTA matches new green */
+  --eh-accent: #1170AA;
+  --eh-teal:   #1170AA;
+  --eh-warn:   #D95F02;
+  --eh-gold:   #E69F00;
+  --eh-amber:  #D95F02;
+  --eh-blue:   #0072B2;
+
+  --green:  #1170AA;   /* blue replaces success green */
+  --red:    #D95F02;   /* orange replaces danger red */
+  --yellow: #E69F00;
+  --orange: #D95F02;
+  --blue:   #0072B2;
+  --accent: #1170AA;   /* primary CTA follows accessible blue */
   --accent2:#0D5C8A;
 
   --chip-mastered-bg:     rgba(17,112,170,0.18);
@@ -821,8 +831,18 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 [data-color-blind="true"][data-theme="dark"] {
+  --eh-accent: #4F9CC5;
+  --eh-teal:   #4F9CC5;
+  --eh-warn:   #E0823A;
+  --eh-gold:   #F0B94A;
+  --eh-amber:  #E0823A;
+  --eh-blue:   #79B7D8;
+
   --green:  #4F9CC5;   /* lighter blue for dark bg */
   --red:    #E0823A;   /* lighter orange for dark bg */
+  --yellow: #F0B94A;
+  --orange: #E0823A;
+  --blue:   #79B7D8;
   --accent: #4F9CC5;
   --accent2:#3D87A8;
 
