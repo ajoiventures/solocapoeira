@@ -1,8 +1,8 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 146 tickets on the public board.
-- **Countdown**: 146/234 - 88 left - 62% complete.
+- **Completed**: 147 tickets on the public board.
+- **Countdown**: 147/234 - 87 left - 63% complete.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: review-found QA repairs before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -80,6 +80,11 @@ Findings from the post-refactor review of OpenAI's store extraction + DailyQuest
   - Color-blind palette remaps semantic red/green surfaces to blue/orange across app tokens and component tokens.
   - Added Chromium E2E coverage for toggle state, CSS variable change, localStorage, saved state, and reload persistence.
 
+- **C-UX-09** ✅ done: Landscape orientation layout.
+  - Phone landscape view now switches to a compact two-column shell with the bottom nav as a left rail.
+  - Main content keeps a dedicated scrollable column on short viewports.
+  - Added Chromium E2E coverage at 667x375 for grid shell, nav rail, hidden labels, and visible page content.
+
 ### Infrastructure
 - **A-OPS-05** ✅ done: Playwright webkit binary missing — 15/30 E2E tests fail with "Executable doesn't exist". Either run `npx playwright install webkit` or add `--project=chromium` to the test script so CI doesn't require webkit.
 
@@ -134,7 +139,6 @@ Everything below was audited and confirmed complete — built by the OpenAI + Cl
 ### Batch 3 — Mobile and Accessibility Polish
 - **B-UX-04**: Mobile touch targets and one-hand ergonomics.
 - **C-UX-08**: Reduced motion mode.
-- **C-UX-09**: Landscape orientation layout.
 
 ---
 

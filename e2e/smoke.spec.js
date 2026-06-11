@@ -241,6 +241,52 @@ test.describe("Settings", () => {
   });
 });
 
+test.describe("Responsive layout", () => {
+  test("phone landscape uses compact two-column shell", async ({ page }) => {
+    await page.setViewportSize({ width: 667, height: 375 });
+    await openFreshApp(page);
+
+    await expect(page.locator(".app")).toBeVisible();
+    await expect(page.locator(".bottom-nav")).toBeVisible();
+    await expect(page.locator(".page")).toBeVisible();
+
+    const layout = await page.evaluate(() => {
+      const app = document.querySelector(".app");
+      const nav = document.querySelector(".bottom-nav");
+      const main = document.querySelector(".app-main");
+      const label = document.querySelector(".bottom-nav .nav-label");
+      const appStyle = getComputedStyle(app);
+      const navStyle = getComputedStyle(nav);
+      const mainBox = main.getBoundingClientRect();
+      const navBox = nav.getBoundingClientRect();
+      const pageBox = document.querySelector(".page").getBoundingClientRect();
+
+      return {
+        appDisplay: appStyle.display,
+        gridAreas: appStyle.gridTemplateAreas,
+        navDirection: navStyle.flexDirection,
+        navWidth: Math.round(navBox.width),
+        mainLeft: Math.round(mainBox.left),
+        mainWidth: Math.round(mainBox.width),
+        pageTop: Math.round(pageBox.top),
+        pageHeight: Math.round(pageBox.height),
+        labelDisplay: label ? getComputedStyle(label).display : null,
+      };
+    });
+
+    expect(layout.appDisplay).toBe("grid");
+    expect(layout.gridAreas).toContain("nav");
+    expect(layout.gridAreas).toContain("main");
+    expect(layout.navDirection).toBe("column");
+    expect(layout.labelDisplay).toBe("none");
+    expect(layout.navWidth).toBeGreaterThanOrEqual(60);
+    expect(layout.mainLeft).toBeGreaterThanOrEqual(layout.navWidth);
+    expect(layout.mainWidth).toBeGreaterThan(500);
+    expect(layout.pageTop).toBeGreaterThanOrEqual(40);
+    expect(layout.pageHeight).toBeGreaterThan(100);
+  });
+});
+
 test.describe("Resilience", () => {
   test("app recovers when localStorage is cleared mid-session", async ({ page }) => {
     await openFreshApp(page);
