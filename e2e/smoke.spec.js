@@ -170,6 +170,24 @@ test.describe("Skill tree", () => {
 
     await expect(page.getByText(/ginga/i).first()).toBeVisible({ timeout: 3000 });
   });
+
+  test("concept tree strip shows one-shot tooltip before navigating", async ({ page }) => {
+    await openFreshApp(page);
+    await bottomNavButton(page, "Movement").click();
+
+    await page.getByTestId("concept-tree-strip").click();
+    const conceptTooltip = page.getByRole("tooltip").filter({ hasText: "Concept Trees" });
+    await expect(conceptTooltip).toBeVisible({ timeout: 3000 });
+    await conceptTooltip.getByRole("button", { name: "Got it" }).click();
+
+    await expect.poll(async () => {
+      const state = await readSavedState(page);
+      return state.settings?.seenTooltips || [];
+    }).toContain("concept-tree-strip");
+
+    await page.getByTestId("concept-tree-strip").click();
+    await expect(page.locator(".page-title").filter({ hasText: "Concept Trees" })).toBeVisible({ timeout: 5000 });
+  });
 });
 
 test.describe("Settings", () => {

@@ -21,22 +21,33 @@ function markSeen(id) {
  * Usage:
  *   <FirstUseTooltip id="concept-trees" title="Concept Trees" body="Defeat Mestres to advance..." />
  */
-export default function FirstUseTooltip({ id, title, body, position = "bottom", accent = "var(--accent)" }) {
+export default function FirstUseTooltip({
+  id,
+  title,
+  body,
+  position = "bottom",
+  accent = "var(--accent)",
+  forceVisible = false,
+  isSeen,
+  onSeen,
+}) {
   const [visible, setVisible] = useState(false);
+  const hasBeenSeen = isSeen ?? getSeenTooltips().has(id);
 
   useEffect(() => {
-    if (!getSeenTooltips().has(id)) {
+    if (!forceVisible && !hasBeenSeen) {
       const t = setTimeout(() => setVisible(true), 400);
       return () => clearTimeout(t);
     }
-  }, [id]);
+  }, [forceVisible, hasBeenSeen, id]);
 
   function dismiss() {
-    markSeen(id);
+    if (onSeen) onSeen(id);
+    else markSeen(id);
     setVisible(false);
   }
 
-  if (!visible) return null;
+  if (!forceVisible && !visible) return null;
 
   const posStyles = {
     bottom: { top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)" },

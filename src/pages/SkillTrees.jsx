@@ -235,6 +235,7 @@ export default function SkillTrees({ store, navigate }) {
   const [activeRank, setActiveRank] = useState("U");
   const [masteryFilter, setMasteryFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showConceptTooltip, setShowConceptTooltip] = useState(false);
   const [dateContext] = useState(() => {
     const now = new Date();
     const nowMs = now.getTime();
@@ -247,6 +248,8 @@ export default function SkillTrees({ store, navigate }) {
 
   const currentPhase = store.getCurrentPhase?.() ?? 1;
   const unlockedIds = store.getUnlockedMovementIds();
+  const seenTooltips = store.state.settings?.seenTooltips || [];
+  const hasSeenConceptTooltip = seenTooltips.includes("concept-tree-strip");
   const tree = SKILL_TREES.find((t) => t.id === activeTree);
   const movements = getMovementsByTree(activeTree);
 
@@ -295,6 +298,15 @@ export default function SkillTrees({ store, navigate }) {
   // Sequences for active rank
   const rankSeqs = SEQUENCES.filter((s) => s.rank === activeRank);
   const totalSeqs = SEQUENCES.length;
+
+  const markConceptTooltipSeen = () => {
+    if (!hasSeenConceptTooltip) {
+      store.updateSettings?.({
+        seenTooltips: [...seenTooltips, "concept-tree-strip"],
+      });
+    }
+    setShowConceptTooltip(false);
+  };
 
   // Last-trained lookup map: movementId → most recent date
   const lastTrainedMap = useMemo(() => {
@@ -491,14 +503,32 @@ export default function SkillTrees({ store, navigate }) {
             const anyProgress = trees.some((t) => (ct[t.id] || 0) > 0);
             return (
               <div
-                onClick={() => navigate("concepts")}
+                onClick={() => {
+                  if (!hasSeenConceptTooltip) {
+                    setShowConceptTooltip(true);
+                    return;
+                  }
+                  navigate("concepts");
+                }}
+                data-testid="concept-tree-strip"
                 style={{
+                  position: "relative",
                   display: "flex", gap: 6, marginBottom: 10,
                   background: "var(--surface2)", borderRadius: 8,
                   padding: "8px 10px", cursor: "pointer",
                   border: "1px solid var(--border)",
                 }}
               >
+                <FirstUseTooltip
+                  id="concept-tree-strip"
+                  title="Concept Trees"
+                  body="Mandinga, Malandragem, and Malicia are the boss-gated growth trees. Defeat Mestres in the Roda to raise them; higher levels unlock Orisha integration and advanced sequence work."
+                  position="bottom"
+                  accent="var(--accent)"
+                  forceVisible={showConceptTooltip}
+                  isSeen={hasSeenConceptTooltip}
+                  onSeen={markConceptTooltipSeen}
+                />
                 {trees.map((t) => {
                   const lvl = ct[t.id] || 0;
                   return (
@@ -526,7 +556,14 @@ export default function SkillTrees({ store, navigate }) {
                 })}
                 {!anyProgress && (
                   <button
-                    onClick={() => navigate("roda")}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      if (!hasSeenConceptTooltip) {
+                        setShowConceptTooltip(true);
+                        return;
+                      }
+                      navigate("roda");
+                    }}
                     style={{
                       flex: 1, background: "none", border: "none", cursor: "pointer",
                       textAlign: "left", padding: 0,

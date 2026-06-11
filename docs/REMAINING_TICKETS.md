@@ -1,7 +1,8 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 144 tickets on the public board.
+- **Completed**: 145 tickets on the public board.
+- **Countdown**: 145/234 - 89 left - 62% complete.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: review-found QA repairs before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -68,6 +69,11 @@ Findings from the post-refactor review of OpenAI's store extraction + DailyQuest
   - Archived boss, Mestre, Orisha, and prestige trial requirement checkboxes now use persisted `requirementChecks`.
   - Requirement checks survive leaving/returning to the Roda page.
   - Added Chromium E2E coverage for boss-style requirement persistence.
+
+- **B-UX-03** ✅ done: Concept tree strip first-interaction tooltip.
+  - First tap on the Movement page concept strip opens a one-shot explanation before navigation.
+  - Dismissal persists in `settings.seenTooltips`.
+  - Added Chromium E2E coverage for tooltip persistence and second-tap navigation.
 
 ### Infrastructure
 - **A-OPS-05** ✅ done: Playwright webkit binary missing — 15/30 E2E tests fail with "Executable doesn't exist". Either run `npx playwright install webkit` or add `--project=chromium` to the test script so CI doesn't require webkit.
