@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import PlayerProfile from "../components/PlayerProfile.jsx";
 import TitlesPanel from "../components/TitlesPanel.jsx";
 
@@ -7,9 +8,9 @@ import TitlesPanel from "../components/TitlesPanel.jsx";
 export default function Profile({ store, navigate }) {
   const activeTitle = store.state?.activeTitle || null;
 
-  const handleSelectTitle = (titleId) => {
+  const handleSelectTitle = useCallback((titleId) => {
     store.update((s) => ({ ...s, activeTitle: titleId === s.activeTitle ? null : titleId }));
-  };
+  }, [store]);
 
   return (
     <div className="page">

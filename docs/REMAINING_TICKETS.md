@@ -1,8 +1,8 @@
 # Solo Leveling — Remaining Tickets & Roadmap
 
 ## Summary
-- **Completed**: 147 tickets on the public board.
-- **Countdown**: 147/234 - 87 left - 63% complete.
+- **Completed**: 148 tickets on the public board.
+- **Countdown**: 148/234 - 86 left - 63% complete.
 - **Blocked**: 2 platform/workflow items (`A-INF-05`, `A-QA-05`).
 - **Current batch**: review-found QA repairs before more content expansion.
 - **Next build order**: architecture split, PWA verification, then mobile/accessibility polish.
@@ -85,6 +85,11 @@ Findings from the post-refactor review of OpenAI's store extraction + DailyQuest
   - Main content keeps a dedicated scrollable column on short viewports.
   - Added Chromium E2E coverage at 667x375 for grid shell, nav rail, hidden labels, and visible page content.
 
+- **B-ENG-08** ✅ done: Memo/callback audit after store split.
+  - Memoized Movements and Sequences library filtering/grouping against `movementProgress` and filter primitives.
+  - Memoized Profile-derived title, Orisha, timeline, and bonus data.
+  - Stabilized Profile title selection callback.
+
 ### Infrastructure
 - **A-OPS-05** ✅ done: Playwright webkit binary missing — 15/30 E2E tests fail with "Executable doesn't exist". Either run `npx playwright install webkit` or add `--project=chromium` to the test script so CI doesn't require webkit.
 
@@ -129,7 +134,6 @@ Everything below was audited and confirmed complete — built by the OpenAI + Cl
   - **A-ENG-02e done**: Removed retained legacy DailyQuest card definitions that were not mounted.
   - **A-ENG-02f done**: Extracted `SessionCompleteOverlay` into `src/components/daily/SessionCompleteOverlay.jsx`.
   - Next: continue extracting inline DailyQuest panels until the page is a thin composition surface.
-- **B-ENG-08**: Memo/callback audit after store boundaries are stable.
 
 ### Batch 2 — PWA Reliability
 - **B-OPS-03**: Offline-first verification on the production Netlify app.

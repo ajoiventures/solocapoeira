@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { getRank } from "../data/rankUtils.js";
 import { getAllCoreOrishas, getOrishaById } from "../data/orishas.js";
 import { calculateIntegrationBonuses, getBonusDescriptions } from "../data/orishaStatSystem.js";
@@ -26,38 +26,46 @@ const TITLES = [
  */
 export default function PlayerProfile({ store }) {
   const { player } = store.state;
-  const level = Math.floor(player.totalXP / 100) + 1;
-  const rank = getRank(level);
+  const level = useMemo(() => Math.floor(player.totalXP / 100) + 1, [player.totalXP]);
+  const rank = useMemo(() => getRank(level), [level]);
   const ehiReadiness = store.getEhiReadiness();
   const isEhiAscended = store.isEhiAscended();
   const orishaPath = store.getOrishaPath();
-  const allOrishas = getAllCoreOrishas();
+  const allOrishas = useMemo(() => getAllCoreOrishas(), []);
   const integratedIds = store.state.orishasIntegrated || [];
   const prestige = store.state.prestige || {};
   const cosmetics = store.state.ehiStatus?.prestigeCosmetics || [];
-  const timeline = integratedIds
-    .map((orishaId) => ({ orisha: getOrishaById(orishaId), progress: store.state.orishaProgress?.[orishaId] }))
+  const orishaProgress = store.state.orishaProgress || {};
+  const earnedAchievements = store.state.earnedAchievements || [];
+  const timeline = useMemo(() => integratedIds
+    .map((orishaId) => ({ orisha: getOrishaById(orishaId), progress: orishaProgress[orishaId] }))
     .filter((entry) => entry.orisha)
-    .sort((a, b) => String(b.progress?.masteredAt || "").localeCompare(String(a.progress?.masteredAt || "")));
+    .sort((a, b) => String(b.progress?.masteredAt || "").localeCompare(String(a.progress?.masteredAt || ""))),
+  [integratedIds, orishaProgress]);
 
   const integratedCount = integratedIds.length;
-  const statBonuses = calculateIntegrationBonuses(integratedIds, isEhiAscended);
-  const bonusDescriptions = getBonusDescriptions(statBonuses);
+  const statBonuses = useMemo(
+    () => calculateIntegrationBonuses(integratedIds, isEhiAscended),
+    [integratedIds, isEhiAscended]
+  );
+  const bonusDescriptions = useMemo(() => getBonusDescriptions(statBonuses), [statBonuses]);
 
   // Titles — earned from achievements
-  const earnedTitleIds = new Set(store.state.earnedAchievements || []);
-  const availableTitles = TITLES.filter((t) => earnedTitleIds.has(t.id));
-  const activeTitle = store.state.activeTitle
-    ? TITLES.find((t) => t.id === store.state.activeTitle)
-    : availableTitles[availableTitles.length - 1] || null;
+  const earnedTitleIds = useMemo(() => new Set(earnedAchievements), [earnedAchievements]);
+  const availableTitles = useMemo(() => TITLES.filter((t) => earnedTitleIds.has(t.id)), [earnedTitleIds]);
+  const activeTitle = useMemo(() => (
+    store.state.activeTitle
+      ? TITLES.find((t) => t.id === store.state.activeTitle)
+      : availableTitles[availableTitles.length - 1] || null
+  ), [store.state.activeTitle, availableTitles]);
   const [showTitlePicker, setShowTitlePicker] = useState(false);
 
   // Ehi bonuses (when all 16 integrated)
-  const ehiBonuses = isEhiAscended ? {
+  const ehiBonuses = useMemo(() => isEhiAscended ? {
     allStats: 1.5,
     xpGeneration: 2.0,
     spiritualMastery: 100,
-  } : null;
+  } : null, [isEhiAscended]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

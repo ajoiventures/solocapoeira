@@ -11,23 +11,24 @@ export default function MovementsLibrary({ store, navigate }) {
 
   const trees = useMemo(() => [...new Set(MOVEMENTS.map((m) => m.tree).filter(Boolean))], []);
   const phases = useMemo(() => [...new Set(MOVEMENTS.map((m) => m.phase || m.tier).filter(Boolean))].sort((a, b) => Number(a) - Number(b)), []);
+  const movementProgress = store.state.movementProgress || {};
 
-  const filtered = MOVEMENTS.map((m) => getMovementById(m.id)).filter(Boolean).filter((movement) => {
+  const filtered = useMemo(() => MOVEMENTS.map((m) => getMovementById(m.id)).filter(Boolean).filter((movement) => {
     const q = query.trim().toLowerCase();
-    const level = store.getMasteryLevel?.(movement.id) || 0;
+    const level = movementProgress[movement.id]?.masteryLevel || 0;
     const haystack = [movement.name, movement.meaning, movement.tree, ...(movement.category || [])].join(" ").toLowerCase();
     return (!q || haystack.includes(q)) &&
       (tree === "all" || movement.tree === tree) &&
       (phase === "all" || String(movement.phase || movement.tier) === phase) &&
       (mastery === "all" || (mastery === "mastered" ? level >= 5 : mastery === "started" ? level > 0 && level < 5 : level === 0));
-  });
+  }), [query, tree, phase, mastery, movementProgress]);
 
-  const grouped = filtered.reduce((acc, movement) => {
+  const grouped = useMemo(() => filtered.reduce((acc, movement) => {
     const key = movement.tree || "Other";
     acc[key] = acc[key] || [];
     acc[key].push(movement);
     return acc;
-  }, {});
+  }, {}), [filtered]);
 
   return (
     <div className="page">
@@ -62,7 +63,7 @@ export default function MovementsLibrary({ store, navigate }) {
         <div key={group} style={{ marginBottom: 16 }}>
           <div className="section-title">{group} · {movements.length}</div>
           {movements.map((movement) => {
-            const level = store.getMasteryLevel?.(movement.id) || 0;
+            const level = movementProgress[movement.id]?.masteryLevel || 0;
             return (
               <LazyMovementCard
                 key={movement.id}

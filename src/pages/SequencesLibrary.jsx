@@ -6,16 +6,17 @@ function sequenceMovements(seq) {
   return seq.movements || seq.prerequisiteMovements || [];
 }
 
-function isSequenceUnlocked(seq, store) {
+function isSequenceUnlocked(seq, movementProgress) {
   const moves = sequenceMovements(seq);
   if (!moves.length) return true;
-  return moves.every((id) => (store.getMasteryLevel?.(id) || 0) >= 1);
+  return moves.every((id) => (movementProgress[id]?.masteryLevel || 0) >= 1);
 }
 
 export default function SequencesLibrary({ store, navigate }) {
   const [query, setQuery] = useState("");
   const [rank, setRank] = useState("all");
   const [lock, setLock] = useState("all");
+  const movementProgress = store.state.movementProgress || {};
 
   const allSequences = useMemo(() => {
     const rankSequences = SEQUENCES.map((seq) => ({
@@ -34,17 +35,17 @@ export default function SequencesLibrary({ store, navigate }) {
     return [...rankSequences, ...bimbaSequences];
   }, []);
 
-  const filtered = allSequences.filter((seq) => {
+  const filtered = useMemo(() => allSequences.filter((seq) => {
     const q = query.trim().toLowerCase();
     const moves = sequenceMovements(seq).map((id) => getMovementById(id)?.name || id);
     const haystack = [seq.name, seq.description, seq.theme, seq.source, seq.rankLabel, ...moves].join(" ").toLowerCase();
-    const unlocked = isSequenceUnlocked(seq, store);
+    const unlocked = isSequenceUnlocked(seq, movementProgress);
     return (!q || haystack.includes(q)) &&
       (rank === "all" || seq.rank === rank) &&
       (lock === "all" || (lock === "unlocked" ? unlocked : !unlocked));
-  });
+  }), [allSequences, query, rank, lock, movementProgress]);
 
-  const ranks = [...new Set(allSequences.map((seq) => seq.rank).filter(Boolean))];
+  const ranks = useMemo(() => [...new Set(allSequences.map((seq) => seq.rank).filter(Boolean))], [allSequences]);
 
   return (
     <div className="page">
@@ -72,7 +73,7 @@ export default function SequencesLibrary({ store, navigate }) {
       <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 10 }}>{filtered.length} sequence profiles</div>
       {filtered.map((seq) => {
         const moves = sequenceMovements(seq);
-        const unlocked = isSequenceUnlocked(seq, store);
+        const unlocked = isSequenceUnlocked(seq, movementProgress);
         return (
           <div key={`${seq.source}-${seq.id}`} className="card" style={{ marginBottom: 10 }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
@@ -86,7 +87,7 @@ export default function SequencesLibrary({ store, navigate }) {
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
               {moves.map((id) => {
                 const mv = getMovementById(id);
-                const mastered = (store.getMasteryLevel?.(id) || 0) >= 1;
+                const mastered = (movementProgress[id]?.masteryLevel || 0) >= 1;
                 return (
                   <button key={id} onClick={() => navigate("skill", id, { backTo: "sequencesLib", backLabel: "Sequences" })} style={{ fontSize: 10, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--border)", background: mastered ? "rgba(46,140,120,0.12)" : "var(--surface2)", color: mastered ? "var(--green)" : "var(--text2)", cursor: "pointer" }}>
                     {mv?.name || id}
